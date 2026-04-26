@@ -20,11 +20,6 @@ import {
 
 // ── Data ──────────────────────────────────────────────────────────────────
 
-const STATS = [
-  { label: "Minutes to complete", value: "5" },
-  { label: "Free calculators", value: "6" },
-  { label: "No products. No upsells.", value: "0" },
-];
 
 const WHY_ITEMS = [
   {
@@ -42,7 +37,7 @@ const WHY_ITEMS = [
   {
     icon: Users,
     title: "Built for Bangladesh",
-    desc: "Sanchaypatra, FDR, bKash, Evaly scams — local context, not copy-pasted Western content.",
+    desc: "Sanchaypatra, FDR, bKash, Evaly scams. Local context, not copy-pasted Western content.",
     color: "violet",
   },
 ];
@@ -71,7 +66,7 @@ const TOOLS: Tool[] = [
     href: "/scam-spotter",
     icon: Radar,
     title: "Scam Spotter",
-    desc: "6 real BD scenarios. Spot scams — halal forex, bKash Ponzis, Telegram crypto — before they spot you.",
+    desc: "6 real Bangladesh scenarios. Spot scams: halal forex, bKash Ponzis, Telegram crypto, before they spot you.",
     tag: "Game",
     iconColor: "text-red-400",
     iconGlowFilter: "drop-shadow(0 0 6px rgba(239,68,68,0.9))",
@@ -88,7 +83,7 @@ const TOOLS: Tool[] = [
     href: "/comparator",
     icon: ArrowLeftRight,
     title: "Savings Comparator",
-    desc: "FDR vs Sanchaypatra vs DPS vs savings — after-tax returns with inflation benchmark.",
+    desc: "FDR vs Sanchaypatra vs DPS vs savings. After-tax returns with inflation benchmark.",
     tag: "Calculator",
     iconColor: "text-blue-400",
     iconGlowFilter: "drop-shadow(0 0 6px rgba(96,165,250,0.9))",
@@ -105,7 +100,7 @@ const TOOLS: Tool[] = [
     href: "/emi-calculator",
     icon: Landmark,
     title: "EMI Calculator",
-    desc: "Bank loans or credit card EMI — iPhone, bike, PC. Monthly payment + total interest before you borrow.",
+    desc: "Bank loans or credit card EMI for iPhone, bike, PC. Monthly payment and total interest before you borrow.",
     tag: "Calculator",
     iconColor: "text-violet-400",
     iconGlowFilter: "drop-shadow(0 0 6px rgba(167,139,250,0.9))",
@@ -122,7 +117,7 @@ const TOOLS: Tool[] = [
     href: "/sip-calculator",
     icon: Crosshair,
     title: "Goal-based SIP",
-    desc: "Studies abroad, wedding, car down payment — exact monthly savings needed to hit your goal.",
+    desc: "Studies abroad, wedding, car down payment. Exact monthly savings needed to hit your goal.",
     tag: "Planner",
     iconColor: "text-emerald-400",
     iconGlowFilter: "drop-shadow(0 0 6px rgba(52,211,153,0.9))",
@@ -139,7 +134,7 @@ const TOOLS: Tool[] = [
     href: "/car-calculator",
     icon: Gauge,
     title: "Car Affordability",
-    desc: "EMI + fuel + insurance + maintenance. See the real monthly cost and 5-year ownership bill before buying.",
+    desc: "EMI, fuel, insurance and maintenance. See the real monthly cost and 5-year ownership bill before buying.",
     tag: "Calculator",
     iconColor: "text-amber-400",
     iconGlowFilter: "drop-shadow(0 0 6px rgba(251,191,36,0.9))",
@@ -156,7 +151,7 @@ const TOOLS: Tool[] = [
     href: "/budget-planner",
     icon: PieChart,
     title: "Budget Planner",
-    desc: "50% Needs · 30% Wants · 20% Savings. BD-specific categories — see your real savings rate.",
+    desc: "50% Needs, 30% Wants, 20% Savings. Bangladesh-specific categories to see your real savings rate.",
     tag: "Planner",
     iconColor: "text-cyan-400",
     iconGlowFilter: "drop-shadow(0 0 6px rgba(34,211,238,0.9))",
@@ -180,12 +175,12 @@ const FOR_ORGS = [
   {
     icon: Globe,
     title: "Plug into your existing app",
-    desc: "Paste a single code snippet and Kosh's learning modules appear inside your existing banking app, website, or employee portal — no rebuild needed.",
+    desc: "Paste a single code snippet and Kosh's learning modules appear inside your existing banking app, website, or employee portal. No rebuild needed.",
   },
   {
     icon: Gamepad2,
     title: "Gamified learning engine",
-    desc: "Points, streaks, levels, challenges, and leaderboards — the same engagement layer that keeps Kosh learners coming back.",
+    desc: "Points, streaks, levels, challenges, and leaderboards. The same engagement layer that keeps Kosh learners coming back.",
   },
   {
     icon: BarChart3,
@@ -196,9 +191,10 @@ const FOR_ORGS = [
 
 const TARGET_PARTNERS = [
   { label: "Banks & NBFIs", desc: "Boost customer engagement and digital product adoption through embedded financial education." },
-  { label: "MFS Platforms", desc: "bKash, Nagad, Rocket — help users understand what they're doing with their money." },
+  { label: "Fintech Platforms", desc: "Add a financial literacy layer to your app. Educated users transact more confidently and churn less." },
+  { label: "MFS Platforms", desc: "bKash, Nagad, Rocket. Help users understand what they're doing with their money." },
   { label: "NGOs & MFIs", desc: "Embed financial literacy into microcredit programs and community outreach at scale." },
-  { label: "Employers & HR", desc: "Employee financial wellness programs — measurable, gamified, and locally relevant." },
+  { label: "Employers & HR", desc: "Employee financial wellness programs. Measurable, gamified, and locally relevant." },
 ];
 
 // ── WHY color tokens ──────────────────────────────────────────────────────
@@ -233,6 +229,12 @@ export default function Landing() {
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
           <img src="/logo.png" alt="Kosh" className="h-8 w-auto" />
           <div className="flex items-center gap-4">
+            <Link
+              to="/about"
+              className="text-sm font-medium text-foreground/50 hover:text-foreground/90 transition-colors"
+            >
+              About
+            </Link>
             <Link
               to="#for-organizations"
               className="text-sm font-medium text-foreground/50 hover:text-foreground/90 transition-colors hidden sm:block"
@@ -274,40 +276,22 @@ export default function Landing() {
 
           <p className="relative text-lg text-muted-foreground leading-relaxed max-w-xl mx-auto">
             15 questions. 5 minutes. Know exactly where you stand on Knowledge,
-            Behavior, and Mindset — with a personalized track to fix the gaps.
+            Behavior, and Mindset, with a personalized track to fix the gaps.
           </p>
 
           {/* CTAs */}
-          <div className="relative flex flex-col sm:flex-row gap-3 justify-center pt-1">
-            <Button asChild size="lg" className="gap-2">
+          <div className="relative flex flex-row flex-wrap gap-3 justify-center pt-1">
+            <Button asChild size="lg" className="gap-2 w-fit">
               <Link to="/check">
                 Check your money level
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
-            <Button asChild variant="outline" size="lg">
+            <Button asChild variant="outline" size="lg" className="w-fit">
               <Link to="#tools">Explore free tools ↓</Link>
             </Button>
           </div>
 
-          {/* Stats — glass pills */}
-          <div className="relative flex justify-center gap-3 sm:gap-6 pt-4 flex-wrap">
-            {STATS.map((s) => (
-              <div
-                key={s.label}
-                className="flex items-center gap-2.5 rounded-full px-4 py-2 border border-white/[0.08] backdrop-blur-md"
-                style={{ background: "rgba(255,255,255,0.04)" }}
-              >
-                <span
-                  className="text-xl font-bold text-primary"
-                  style={{ textShadow: "0 0 20px rgba(16,185,129,0.6)" }}
-                >
-                  {s.value}
-                </span>
-                <span className="text-xs text-muted-foreground">{s.label}</span>
-              </div>
-            ))}
-          </div>
         </section>
 
         {/* ── Tools ── */}
@@ -316,7 +300,7 @@ export default function Landing() {
             <div className="text-center space-y-2">
               <h2 className="text-2xl font-bold text-foreground tracking-tight">Free financial tools</h2>
               <p className="text-muted-foreground text-sm">
-                6 calculators built for Bangladesh. No sign-up needed.
+                Try these tools, no sign-up required.
               </p>
             </div>
 
@@ -485,9 +469,9 @@ export default function Landing() {
               ))}
             </div>
             <div className="text-center pt-2">
-              <Button asChild size="lg" className="gap-2">
+              <Button asChild size="lg" className="gap-2 w-fit">
                 <Link to="/check">
-                  Start with the check →
+                  Start with the check
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
@@ -509,7 +493,7 @@ export default function Landing() {
                 For Organizations
               </div>
               <h2 className="text-2xl font-bold text-foreground tracking-tight">
-                Sell financial literacy as a product
+                Add financial literacy as a product/service
               </h2>
               <p className="text-muted-foreground text-sm leading-relaxed">
                 Banks, fintechs, NGOs, and employers — bring Kosh's gamified financial education
@@ -548,21 +532,15 @@ export default function Landing() {
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest text-center">
                 Who it's built for
               </p>
-              <div className="grid sm:grid-cols-2 gap-2.5">
+              <div className="divide-y divide-white/[0.05] rounded-xl border border-white/[0.06] overflow-hidden" style={{ background: "rgba(255,255,255,0.02)" }}>
                 {TARGET_PARTNERS.map(({ label, desc }) => (
-                  <div
-                    key={label}
-                    className="flex items-start gap-3 rounded-xl border border-white/[0.06] px-4 py-3"
-                    style={{ background: "rgba(255,255,255,0.025)" }}
-                  >
+                  <div key={label} className="flex items-center gap-4 px-4 py-3">
                     <CheckCircle2
-                      className="h-4 w-4 text-primary shrink-0 mt-0.5"
+                      className="h-4 w-4 text-primary shrink-0"
                       style={{ filter: "drop-shadow(0 0 4px rgba(16,185,129,0.8))" }}
                     />
-                    <div>
-                      <span className="text-sm font-semibold text-foreground">{label}</span>
-                      <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{desc}</p>
-                    </div>
+                    <span className="text-sm font-semibold text-foreground w-36 shrink-0">{label}</span>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{desc}</p>
                   </div>
                 ))}
               </div>

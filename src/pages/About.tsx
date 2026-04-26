@@ -246,7 +246,7 @@ export default function About() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
 
       {/* Nav */}
       <nav className="border-b border-white/[0.06] sticky top-0 z-10 backdrop-blur-2xl bg-background/70">
@@ -263,14 +263,15 @@ export default function About() {
         </div>
       </nav>
 
-      <main className="max-w-2xl mx-auto px-4 pt-8 pb-16 space-y-16">
+      {/* Gradient flush to top — positioned relative to the page wrapper, not the section */}
+      <div className="absolute inset-x-0 top-14 h-72 pointer-events-none z-0"
+        style={{ background: "radial-gradient(ellipse at 50% 0%, rgba(16,185,129,0.18) 0%, transparent 70%)" }}
+      />
+
+      <main className="max-w-2xl mx-auto px-4 pt-8 pb-16 space-y-16 relative z-[1]">
 
         {/* ── Hero ── */}
         <section className="relative text-center space-y-5">
-          {/* Gradient flush to top of section — no negative translate */}
-          <div className="absolute inset-x-0 top-0 h-64 pointer-events-none"
-            style={{ background: "radial-gradient(ellipse at 50% 0%, rgba(16,185,129,0.15) 0%, transparent 70%)" }}
-          />
 
           <p className="relative text-xs font-semibold tracking-widest text-muted-foreground uppercase">
             About Kosh
