@@ -578,8 +578,8 @@ export default function Landing() {
                 ))}
               </div>
 
-              {/* Checklist */}
-              <div className="grid sm:grid-cols-2 gap-2 border-t border-white/[0.06] pt-5">
+              {/* Feature pills */}
+              <div className="flex flex-wrap gap-2 border-t border-white/[0.06] pt-5">
                 {[
                   "Full Bangla/Banglish content library",
                   "Gamification (points, streaks, levels)",
@@ -588,13 +588,17 @@ export default function Landing() {
                   "Analytics dashboard for your team",
                   "Scam awareness & grey zone content",
                 ].map((item) => (
-                  <div key={item} className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <span
+                    key={item}
+                    className="inline-flex items-center gap-1.5 text-xs font-medium text-foreground/70 px-3 py-1.5 rounded-full border border-white/[0.08]"
+                    style={{ background: "rgba(255,255,255,0.04)" }}
+                  >
                     <CheckCircle2
-                      className="h-3.5 w-3.5 text-primary shrink-0"
+                      className="h-3 w-3 text-primary shrink-0"
                       style={{ filter: "drop-shadow(0 0 3px rgba(16,185,129,0.7))" }}
                     />
                     {item}
-                  </div>
+                  </span>
                 ))}
               </div>
 
