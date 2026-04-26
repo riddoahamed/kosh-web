@@ -254,14 +254,19 @@ export default function Landing() {
       <main className="max-w-5xl mx-auto px-4">
 
         {/* ── Hero ── */}
-        <section className="relative py-14 md:py-24 text-center space-y-8 max-w-2xl mx-auto overflow-hidden">
-          {/* Ambient background glow */}
-          <div className="absolute inset-0 pointer-events-none">
-            <div
-              className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/3 w-[700px] h-[400px] rounded-full opacity-60"
-              style={{ background: "radial-gradient(ellipse, rgba(16,185,129,0.12) 0%, transparent 70%)" }}
-            />
-          </div>
+        <section className="relative py-14 md:py-24 text-center space-y-8 max-w-2xl mx-auto">
+          {/* Ambient background glow — full-width, positioned outside section overflow */}
+          <div
+            className="absolute pointer-events-none"
+            style={{
+              top: 0,
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: "100vw",
+              height: "420px",
+              background: "radial-gradient(ellipse at 50% 20%, rgba(16,185,129,0.13) 0%, transparent 65%)",
+            }}
+          />
 
           <h1 className="relative text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.1] tracking-tight">
             How well do you{" "}
