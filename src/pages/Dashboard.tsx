@@ -106,7 +106,7 @@ export default function Dashboard() {
             className="w-full flex items-center justify-center gap-1.5 text-xs font-semibold text-primary/70 hover:text-primary py-1.5 transition-colors"
           >
             <Zap className="h-3 w-3" />
-            Already know this? Prove it →
+            Already know this? Test yourself →
           </button>
         )}
       </div>
