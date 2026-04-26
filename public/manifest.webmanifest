@@ -1,0 +1,25 @@
+{
+  "name": "Kosh — Financial Literacy",
+  "short_name": "Kosh",
+  "description": "Check your financial level. Learn at your own pace. Built for young Bangladeshis.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#0D9488",
+  "background_color": "#0a0f1e",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
