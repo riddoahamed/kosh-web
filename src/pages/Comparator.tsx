@@ -15,6 +15,7 @@ interface Instrument {
   riskLevel: "none" | "low" | "medium" | "high";
   notes: string;
   color: string;
+  compounding: "quarterly" | "monthly" | "simple";
 }
 
 const INSTRUMENTS: Instrument[] = [
@@ -30,6 +31,7 @@ const INSTRUMENTS: Instrument[] = [
     riskLevel: "none",
     notes: "Government-backed. Max ৳45L for family savings. TDS 5% on interest.",
     color: "emerald",
+    compounding: "quarterly",
   },
   {
     id: "fdr",
@@ -43,6 +45,7 @@ const INSTRUMENTS: Instrument[] = [
     riskLevel: "low",
     notes: "Scheduled bank. BDIC insured up to ৳1L. 15% TDS on interest. 1% early exit penalty typical.",
     color: "blue",
+    compounding: "monthly",
   },
   {
     id: "dps",
@@ -56,6 +59,7 @@ const INSTRUMENTS: Instrument[] = [
     riskLevel: "low",
     notes: "Monthly installment plan. Rate quoted is effective annual return on total deposited. Bank-specific rates vary.",
     color: "violet",
+    compounding: "simple",
   },
   {
     id: "savings",
@@ -69,6 +73,7 @@ const INSTRUMENTS: Instrument[] = [
     riskLevel: "none",
     notes: "High liquidity. Rate varies by bank (typically 3.5–5%). 15% TDS on interest.",
     color: "slate",
+    compounding: "quarterly",
   },
 ];
 
@@ -92,12 +97,28 @@ const COLOR_MAP: Record<string, { bg: string; text: string; bar: string; border:
   slate: { bg: "bg-slate-100 dark:bg-slate-800/50", text: "text-slate-600 dark:text-slate-300", bar: "bg-slate-400", border: "border-slate-200 dark:border-slate-700" },
 };
 
-function calcReturn(principal: number, rate: number, taxRate: number, years: number) {
-  const grossInterest = principal * (rate / 100) * years;
+// Sanchaypatra: quarterly compounding | FDR: monthly | Savings: quarterly | DPS: annuity approximation
+function calcReturn(
+  principal: number,
+  rate: number,
+  taxRate: number,
+  years: number,
+  compounding: "quarterly" | "monthly" | "simple" = "quarterly"
+) {
+  let maturityGross: number;
+  if (compounding === "monthly") {
+    maturityGross = principal * Math.pow(1 + rate / 1200, 12 * years);
+  } else if (compounding === "quarterly") {
+    maturityGross = principal * Math.pow(1 + rate / 400, 4 * years);
+  } else {
+    maturityGross = principal * (1 + (rate / 100) * years);
+  }
+  const grossInterest = maturityGross - principal;
   const tax = grossInterest * (taxRate / 100);
   const netInterest = grossInterest - tax;
   const maturity = principal + netInterest;
-  const effectiveRate = (netInterest / principal / years) * 100;
+  // CAGR — true annual growth rate after tax
+  const effectiveRate = years > 0 ? (Math.pow(maturity / principal, 1 / years) - 1) * 100 : 0;
   return { grossInterest, tax, netInterest, maturity, effectiveRate };
 }
 
@@ -108,6 +129,7 @@ function fmt(n: number) {
 export default function Comparator() {
   const [principal, setPrincipal] = useState(100000);
   const [years, setYears] = useState(1);
+  const [customYears, setCustomYears] = useState("");
   const [selected, setSelected] = useState<Set<string>>(
     new Set(["sanchaypatra", "fdr", "dps", "savings"])
   );
@@ -127,7 +149,7 @@ export default function Comparator() {
   const active = INSTRUMENTS.filter((i) => selected.has(i.id));
   const results = active.map((inst) => ({
     inst,
-    ...calcReturn(principal, inst.rate, inst.taxRate, years),
+    ...calcReturn(principal, inst.rate, inst.taxRate, years, inst.compounding),
   }));
 
   const maxMaturity = Math.max(...results.map((r) => r.maturity));
@@ -154,7 +176,7 @@ export default function Comparator() {
         <div>
           <h1 className="text-xl font-bold text-foreground">Compare Savings Instruments</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            After-tax returns for Bangladeshi savings options. Rates as of 2024.
+            After-tax returns for Bangladeshi savings options. Rates as of 2025.
           </p>
         </div>
 
@@ -200,9 +222,9 @@ export default function Comparator() {
               {[1, 2, 3, 5].map((y) => (
                 <button
                   key={y}
-                  onClick={() => setYears(y)}
+                  onClick={() => { setYears(y); setCustomYears(""); }}
                   className={`flex-1 py-2.5 rounded-xl border text-sm font-semibold transition-all ${
-                    years === y
+                    years === y && customYears === ""
                       ? "border-primary bg-primary/10 text-primary"
                       : "border-border text-muted-foreground hover:border-primary/40"
                   }`}
@@ -210,6 +232,22 @@ export default function Comparator() {
                   {y}yr
                 </button>
               ))}
+            </div>
+            <div className="relative">
+              <input
+                type="number"
+                min={1}
+                max={30}
+                placeholder="Custom years…"
+                value={customYears}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setCustomYears(v);
+                  const n = Math.min(30, Math.max(1, Number(v)));
+                  if (v && n) setYears(n);
+                }}
+                className="w-full px-3 py-2 rounded-xl border border-border bg-card text-foreground text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/30 placeholder:text-muted-foreground/50"
+              />
             </div>
           </div>
         </div>

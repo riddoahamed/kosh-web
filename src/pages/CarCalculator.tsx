@@ -41,7 +41,7 @@ export default function CarCalculator() {
   // Running cost inputs
   const [monthlyKm, setMonthlyKm] = useState(1500);
   const [fuelEfficiency, setFuelEfficiency] = useState(CAR_PRESETS[1].fuelEfficiency); // km per litre
-  const [fuelPrice] = useState(125); // BDT per litre (Bangladesh 2024 octane)
+  const [fuelPrice, setFuelPrice] = useState(125); // BDT per litre (Bangladesh 2024 octane)
   const [yearsOwned, setYearsOwned] = useState(5);
 
   const [showBreakdown, setShowBreakdown] = useState(true);
@@ -238,7 +238,16 @@ export default function CarCalculator() {
                 onChange={(e) => setLoanRate(Number(e.target.value))}
                 className="flex-1 accent-primary"
               />
-              <span className="text-sm font-bold text-primary w-12 text-right">{loanRate}%</span>
+              <input
+                type="number"
+                min={8}
+                max={20}
+                step={0.5}
+                value={loanRate}
+                onChange={(e) => setLoanRate(Math.min(20, Math.max(8, Number(e.target.value))))}
+                className="w-16 px-2 py-1.5 rounded-lg border border-border bg-card text-foreground text-sm font-bold text-center focus:outline-none focus:ring-2 focus:ring-primary/30"
+              />
+              <span className="text-sm font-bold text-primary">%</span>
             </div>
           </div>
         </div>
@@ -290,9 +299,18 @@ export default function CarCalculator() {
                 onChange={(e) => setFuelEfficiency(Math.min(30, Math.max(5, Number(e.target.value))))}
                 className="w-full px-3 py-2.5 rounded-xl border border-border bg-card text-foreground text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
-              <p className="text-xs text-muted-foreground/60">
-                Fuel: ৳{fuelPrice}/L (octane, Bangladesh 2024)
-              </p>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-xs text-muted-foreground/60 shrink-0">Fuel ৳/L:</span>
+                <input
+                  type="number"
+                  min={50}
+                  max={300}
+                  step={1}
+                  value={fuelPrice}
+                  onChange={(e) => setFuelPrice(Math.min(300, Math.max(50, Number(e.target.value))))}
+                  className="w-20 px-2 py-1 rounded-lg border border-border bg-card text-foreground text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary/30"
+                />
+              </div>
             </div>
           </div>
 

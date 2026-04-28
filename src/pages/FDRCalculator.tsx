@@ -111,7 +111,12 @@ export default function FDRCalculator() {
     ? (result as ReturnType<typeof calcDPS>).totalDeposited
     : principal;
 
-  const returnPct = ((result.netInterest / totalInvested) * 100 * (12 / term)).toFixed(2);
+  // CAGR: (maturity / invested) ^ (12 / term) - 1, where term is in months
+  const maturity = totalInvested + result.netInterest;
+  const years = term / 12;
+  const returnPct = years > 0
+    ? ((Math.pow(maturity / totalInvested, 1 / years) - 1) * 100).toFixed(2)
+    : "0.00";
 
   return (
     <div className="min-h-screen bg-background">

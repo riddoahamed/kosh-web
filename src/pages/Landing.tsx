@@ -262,10 +262,10 @@ export default function Landing() {
               For Organizations
             </Link>
             <Link
-              to="/auth"
+              to={profile ? "/dashboard" : "/auth"}
               className="text-sm font-medium text-foreground/50 hover:text-foreground/90 transition-colors"
             >
-              Sign in
+              {profile ? "Dashboard" : "Sign in"}
             </Link>
           </div>
         </div>

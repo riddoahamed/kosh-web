@@ -101,12 +101,12 @@ export default function SIPCalculator() {
     [monthly, currentSavings, annualRate, years]
   );
 
-  const interestPct = totalFV > 0 ? Math.round((totalInterest / totalFV) * 100) : 0;
-  const depositPct = totalFV > 0 ? Math.round((totalDeposited / totalFV) * 100) : 0;
+  const interestPct = totalFV > 0 ? Math.floor((totalInterest / totalFV) * 100) : 0;
+  const depositPct = totalFV > 0 ? Math.floor((totalDeposited / totalFV) * 100) : 0;
   const savingsPct = 100 - interestPct - depositPct;
 
   // Inflation-adjusted goal
-  const inflationRate = 7.5;
+  const inflationRate = 9.5;
   const inflationAdjustedGoal = goalAmount * Math.pow(1 + inflationRate / 100, years);
 
   return (
@@ -339,7 +339,7 @@ export default function SIPCalculator() {
               <Info className="h-3.5 w-3.5 text-amber-600 shrink-0 mt-0.5" />
               <p className="text-xs text-amber-800 dark:text-amber-300">
                 Inflation note: in {years} year{years !== 1 ? "s" : ""}, {fmt(goalAmount)} today will
-                cost roughly <span className="font-semibold">{fmt(inflationAdjustedGoal)}</span> at 7.5%
+                cost roughly <span className="font-semibold">{fmt(inflationAdjustedGoal)}</span> at 9.5%
                 inflation. Consider setting your goal 15–20% higher to stay safe.
               </p>
             </div>

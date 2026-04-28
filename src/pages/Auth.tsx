@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { auth, db } from "@/lib/supabase";
@@ -13,8 +13,18 @@ export default function Auth() {
   const navigate = useNavigate();
   const { setProfile } = useAuthStore();
 
+  // Detect if this looks like a returning user (has a local profile already)
+  const localProfile = db.getProfile();
+  const isReturning = !!localProfile;
+
+  // If already fully authenticated, skip to dashboard
+  useEffect(() => {
+    const storeProfile = useAuthStore.getState().profile;
+    if (storeProfile) navigate("/dashboard", { replace: true });
+  }, [navigate]);
+
   const [step, setStep] = useState<Step>("email");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(localProfile?.email ?? "");
   const [otp, setOtp] = useState("");
   const [name, setName] = useState("");
   const [age, setAge] = useState("");
@@ -22,6 +32,8 @@ export default function Auth() {
   const [consent, setConsent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  // Track whether this is definitely a returning user (confirmed after OTP)
+  const [confirmedReturning, setConfirmedReturning] = useState(false);
 
   // ── Step 1: send OTP ───────────────────────────────────────────────────
   const handleSendOtp = async (e: React.FormEvent) => {
@@ -56,6 +68,7 @@ export default function Auth() {
         const existing = await db.fetchProfile(userId);
         if (existing) {
           // Returning user — go straight to dashboard
+          setConfirmedReturning(true);
           setProfile(existing);
           navigate("/dashboard");
           return;
@@ -125,18 +138,37 @@ export default function Auth() {
         {step === "email" && (
           <form onSubmit={handleSendOtp} className="space-y-6">
             <div className="space-y-2">
-              <span
-                className="inline-block text-xs font-bold tracking-widest text-primary/80 uppercase px-3 py-1 rounded-full border border-primary/20"
-                style={{ background: "rgba(16,185,129,0.08)" }}
-              >
-                Early Access
-              </span>
-              <h1 className="text-2xl font-bold text-foreground leading-tight">
-                You're one of the first.
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                Enter your email and we'll send you a sign-in code.
-              </p>
+              {isReturning ? (
+                <>
+                  <span
+                    className="inline-block text-xs font-bold tracking-widest text-primary/80 uppercase px-3 py-1 rounded-full border border-primary/20"
+                    style={{ background: "rgba(16,185,129,0.08)" }}
+                  >
+                    Welcome back
+                  </span>
+                  <h1 className="text-2xl font-bold text-foreground leading-tight">
+                    Good to see you again{localProfile?.name ? `, ${localProfile.name.split(" ")[0]}` : ""}.
+                  </h1>
+                  <p className="text-sm text-muted-foreground">
+                    We'll send a quick sign-in code to your email.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <span
+                    className="inline-block text-xs font-bold tracking-widest text-primary/80 uppercase px-3 py-1 rounded-full border border-primary/20"
+                    style={{ background: "rgba(16,185,129,0.08)" }}
+                  >
+                    Early Access
+                  </span>
+                  <h1 className="text-2xl font-bold text-foreground leading-tight">
+                    You're one of the first.
+                  </h1>
+                  <p className="text-sm text-muted-foreground">
+                    Enter your email and we'll send you a sign-in code.
+                  </p>
+                </>
+              )}
             </div>
 
             <div className="space-y-3">
@@ -159,7 +191,12 @@ export default function Auth() {
                   boxShadow: email.trim() ? "0 0 28px rgba(16,185,129,0.25)" : "none",
                 }}
               >
-                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Get access <ArrowRight className="h-4 w-4" /></>}
+                {loading
+                  ? <Loader2 className="h-4 w-4 animate-spin" />
+                  : isReturning
+                  ? <>Sign in <ArrowRight className="h-4 w-4" /></>
+                  : <>Get access <ArrowRight className="h-4 w-4" /></>
+                }
               </button>
             </div>
 
@@ -173,7 +210,9 @@ export default function Auth() {
         {step === "otp" && (
           <form onSubmit={handleVerifyOtp} className="space-y-6">
             <div className="space-y-2">
-              <h1 className="text-2xl font-bold text-foreground">Check your email</h1>
+              <h1 className="text-2xl font-bold text-foreground">
+                {confirmedReturning ? "Signing you in…" : "Check your email"}
+              </h1>
               <p className="text-sm text-muted-foreground">
                 We sent a 6-digit code to <span className="text-foreground/70 font-medium">{email}</span>
               </p>

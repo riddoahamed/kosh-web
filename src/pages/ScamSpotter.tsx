@@ -196,7 +196,7 @@ export default function ScamSpotter() {
         <div className="h-1.5 bg-muted rounded-full overflow-hidden">
           <div
             className="h-full bg-primary rounded-full transition-all duration-500"
-            style={{ width: `${((current) / total) * 100}%` }}
+            style={{ width: `${((current + (revealed ? 1 : 0)) / total) * 100}%` }}
           />
         </div>
 
@@ -213,9 +213,9 @@ export default function ScamSpotter() {
           </div>
           <p className="text-sm text-foreground/80 leading-relaxed">{scenario.description}</p>
 
-          {scenario.redFlags.length > 0 && !revealed && (
+          {scenario.redFlags.length > 0 && revealed && (
             <div className="space-y-1">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Red flags to consider</p>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Red flags in this scenario</p>
               <div className="flex flex-wrap gap-2">
                 {scenario.redFlags.map((f) => (
                   <span key={f} className="text-xs bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-full px-2.5 py-0.5 font-medium">

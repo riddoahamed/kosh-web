@@ -370,9 +370,14 @@ export default function BudgetPlanner() {
             <div className="bg-background/60 rounded-xl px-3 py-2 text-xs text-muted-foreground">
               At {fmt(impliedSavings)}/month in a DPS (~7.5%), you'll have{" "}
               <span className="font-semibold text-foreground">
-                {fmt(impliedSavings * 12 * 1.075)}
+                {(() => {
+                  const r = 0.075 / 12;
+                  const fv = impliedSavings * ((Math.pow(1 + r, 12) - 1) / r);
+                  const interest = fv - impliedSavings * 12;
+                  return fmt(fv - interest * 0.15); // 15% TDS on interest
+                })()}
               </span>{" "}
-              after 1 year including interest.
+              after 1 year (after 15% tax on interest).
             </div>
           )}
         </div>

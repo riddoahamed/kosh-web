@@ -367,7 +367,7 @@ export default function EMICalculator() {
                 <input
                   type="range"
                   min={1}
-                  max={30}
+                  max={36}
                   step={0.5}
                   value={loanRate}
                   onChange={(e) => setLoanRate(Number(e.target.value))}
