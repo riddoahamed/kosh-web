@@ -406,7 +406,7 @@ export default function About() {
         <section className="text-center space-y-4 pb-4">
           <p className="text-sm text-muted-foreground">Questions or partnerships?</p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a href="https://instagram.com/kosh.initiative" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm font-semibold text-foreground/70 hover:text-foreground transition-colors">
+            <a href="https://www.instagram.com/kosh.initiative/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm font-semibold text-foreground/70 hover:text-foreground transition-colors">
               <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
                 <circle cx="12" cy="12" r="3"/>
@@ -415,9 +415,9 @@ export default function About() {
               @kosh.initiative
             </a>
             <span className="hidden sm:block text-white/20">·</span>
-            <a href="mailto:kosh.initiative@gmail.com" className="flex items-center gap-2 text-sm font-semibold text-primary hover:underline" style={GREEN}>
+            <a href="mailto:koshinitiative@gmail.com" className="flex items-center gap-2 text-sm font-semibold text-primary hover:underline" style={GREEN}>
               <Mail className="h-4 w-4" />
-              kosh.initiative@gmail.com
+              koshinitiative@gmail.com
             </a>
           </div>
         </section>

@@ -644,7 +644,7 @@ export default function Landing() {
 
               <div className="text-center">
                 <a
-                  href="mailto:hello@kosh.com.bd"
+                  href="mailto:koshinitiative@gmail.com"
                   className="btn-glow inline-flex items-center gap-2 text-white text-sm font-semibold px-7 py-3.5 rounded-xl"
                 >
                   Talk to us about a pilot
