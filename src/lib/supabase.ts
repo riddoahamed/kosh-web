@@ -66,6 +66,7 @@ export interface KoshProfile {
   id: string;          // = Supabase auth user id
   email?: string;
   name: string;
+  age?: number;
   phone?: string;
   gender?: string;
   location?: string;
@@ -139,6 +140,7 @@ export const db = {
         id: profile.id,
         email: profile.email ?? null,
         name: profile.name,
+        age: profile.age ?? null,
         phone: profile.phone ?? null,
         gender: profile.gender ?? null,
         location: profile.location ?? null,

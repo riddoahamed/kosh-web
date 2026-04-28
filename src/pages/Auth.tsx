@@ -17,6 +17,8 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [name, setName] = useState("");
+  const [age, setAge] = useState("");
+  const [phone, setPhone] = useState("");
   const [consent, setConsent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -83,6 +85,8 @@ export default function Auth() {
         id: user.id,
         email: user.email,
         name: name.trim(),
+        age: age ? parseInt(age) : undefined,
+        phone: phone.trim() || undefined,
         consent_given: true,
         level_assigned: savedResult?.level,
         grey_zone_flagged: savedResult?.greyZone?.flagged,
@@ -213,25 +217,61 @@ export default function Auth() {
         {step === "profile" && (
           <form onSubmit={handleProfile} className="space-y-6">
             <div className="space-y-2">
-              <h1 className="text-2xl font-bold text-foreground">One last thing</h1>
+              <h1 className="text-2xl font-bold text-foreground">Almost there</h1>
               <p className="text-sm text-muted-foreground">
-                What should we call you?
+                A few quick details to set up your account.
               </p>
             </div>
 
-            <div className="space-y-4">
-              <input
-                type="text"
-                autoComplete="name"
-                placeholder="Your name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                className={inputClass}
-              />
+            <div className="space-y-3">
+              {/* Name */}
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-muted-foreground">Name</label>
+                <input
+                  type="text"
+                  autoComplete="name"
+                  placeholder="Your name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  className={inputClass}
+                />
+              </div>
 
-              <label className="flex items-start gap-3 cursor-pointer group">
-                <div className="relative mt-0.5">
+              {/* Age */}
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-muted-foreground">Age</label>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  placeholder="e.g. 24"
+                  min={13}
+                  max={100}
+                  value={age}
+                  onChange={(e) => setAge(e.target.value)}
+                  required
+                  className={inputClass}
+                />
+              </div>
+
+              {/* Phone — optional */}
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-muted-foreground">
+                  Phone <span className="text-muted-foreground/40">(optional)</span>
+                </label>
+                <input
+                  type="tel"
+                  autoComplete="tel"
+                  placeholder="01XXXXXXXXX"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className={inputClass}
+                />
+              </div>
+
+              {/* Consent */}
+              <label className="flex items-start gap-3 cursor-pointer pt-1">
+                <div className="relative mt-0.5 shrink-0">
                   <input
                     type="checkbox"
                     checked={consent}
@@ -240,9 +280,7 @@ export default function Auth() {
                   />
                   <div
                     className={`h-4 w-4 rounded border transition-all ${
-                      consent
-                        ? "border-primary bg-primary"
-                        : "border-white/20 bg-white/[0.04]"
+                      consent ? "border-primary bg-primary" : "border-white/20 bg-white/[0.04]"
                     }`}
                   >
                     {consent && (
@@ -253,7 +291,7 @@ export default function Auth() {
                   </div>
                 </div>
                 <span className="text-xs text-muted-foreground leading-relaxed">
-                  I agree that Kosh may use my learning data to measure outcomes and improve the platform. No financial products are sold. No data is sold to third parties.
+                  I agree that Kosh may use my learning data to improve the platform. No financial products are sold. No data is sold to third parties.
                 </span>
               </label>
 
@@ -261,11 +299,11 @@ export default function Auth() {
 
               <button
                 type="submit"
-                disabled={loading || !name.trim() || !consent}
+                disabled={loading || !name.trim() || !age || !consent}
                 className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-40"
                 style={{
                   background: "linear-gradient(135deg, hsl(160,84%,39%) 0%, hsl(160,84%,30%) 100%)",
-                  boxShadow: name.trim() && consent ? "0 0 28px rgba(16,185,129,0.25)" : "none",
+                  boxShadow: name.trim() && age && consent ? "0 0 28px rgba(16,185,129,0.25)" : "none",
                 }}
               >
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Go to my dashboard →"}
