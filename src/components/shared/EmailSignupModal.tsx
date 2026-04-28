@@ -1,118 +1,139 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { X } from "lucide-react";
+import { X, ArrowRight } from "lucide-react";
 
-const SESSION_KEY = "kosh_email_modal_shown";
+const SESSION_KEY = "kosh_nudge_v2";
 
 interface Props {
-  delayMs?: number;
+  /** Ref to the element that triggers the nudge when scrolled past */
+  triggerRef?: React.RefObject<HTMLElement | null>;
+  /** Fallback delay in ms if no triggerRef (default 18s) */
+  fallbackDelayMs?: number;
 }
 
-export default function EmailSignupModal({ delayMs = 28000 }: Props) {
+export default function EmailSignupModal({
+  triggerRef,
+  fallbackDelayMs = 18000,
+}: Props) {
   const [visible, setVisible] = useState(false);
-  const [value, setValue] = useState("");
+  const [dismissed, setDismissed] = useState(false);
+  const [email, setEmail] = useState("");
   const navigate = useNavigate();
+  const shown = useRef(false);
+
+  const show = () => {
+    if (shown.current || sessionStorage.getItem(SESSION_KEY)) return;
+    shown.current = true;
+    setVisible(true);
+  };
 
   useEffect(() => {
     if (sessionStorage.getItem(SESSION_KEY)) return;
-    const t = setTimeout(() => setVisible(true), delayMs);
-    return () => clearTimeout(t);
-  }, [delayMs]);
 
-  if (!visible) return null;
+    // Scroll-based trigger
+    if (triggerRef) {
+      const observer = new IntersectionObserver(
+        ([entry]) => { if (!entry.isIntersecting) show(); },
+        { threshold: 0 }
+      );
+      if (triggerRef.current) observer.observe(triggerRef.current);
+      return () => observer.disconnect();
+    }
+
+    // Fallback: time-based
+    const t = setTimeout(show, fallbackDelayMs);
+    return () => clearTimeout(t);
+  }, [triggerRef, fallbackDelayMs]);
 
   const dismiss = () => {
     sessionStorage.setItem(SESSION_KEY, "1");
-    setVisible(false);
+    setDismissed(true);
+    setTimeout(() => setVisible(false), 400);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     sessionStorage.setItem(SESSION_KEY, "1");
-    navigate("/auth", { state: { prefill: value.trim() } });
+    navigate("/auth", { state: { prefill: email.trim() } });
   };
+
+  if (!visible) return null;
 
   return (
     <>
       <style>{`
-        @keyframes kosh-backdrop-in { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes kosh-card-in {
-          from { opacity: 0; transform: scale(0.95) translateY(20px); }
-          to   { opacity: 1; transform: scale(1)    translateY(0);    }
+        @keyframes nudge-up {
+          from { opacity: 0; transform: translateY(24px); }
+          to   { opacity: 1; transform: translateY(0);    }
+        }
+        @keyframes nudge-out {
+          from { opacity: 1; transform: translateY(0);    }
+          to   { opacity: 0; transform: translateY(24px); }
         }
       `}</style>
 
-      {/* Backdrop */}
+      {/* Floating container — bottom sheet on mobile, bottom-right card on desktop */}
       <div
-        className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
+        className="fixed bottom-0 left-0 right-0 sm:bottom-6 sm:right-6 sm:left-auto z-50 sm:w-80"
         style={{
-          background: "rgba(0,0,0,0.45)",
-          backdropFilter: "blur(6px)",
-          animation: "kosh-backdrop-in 0.5s ease forwards",
+          animation: `${dismissed ? "nudge-out" : "nudge-up"} 0.5s cubic-bezier(0.16,1,0.3,1) forwards`,
         }}
-        onClick={dismiss}
       >
-        {/* Card — stop propagation so clicks inside don't close */}
         <form
           onSubmit={handleSubmit}
-          onClick={(e) => e.stopPropagation()}
-          className="w-full max-w-sm rounded-2xl border border-white/[0.08] p-6 space-y-5"
+          className="relative rounded-t-2xl sm:rounded-2xl border border-white/[0.08] px-5 pt-5 pb-6 sm:pb-5 space-y-4"
           style={{
-            background: "rgba(12,18,14,0.94)",
+            background: "rgba(10,16,12,0.96)",
             backdropFilter: "blur(40px)",
-            boxShadow:
-              "0 0 80px rgba(16,185,129,0.07), 0 24px 60px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.05)",
-            animation: "kosh-card-in 0.6s cubic-bezier(0.16,1,0.3,1) forwards",
+            boxShadow: "0 -4px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(16,185,129,0.08), inset 0 1px 0 rgba(255,255,255,0.05)",
           }}
         >
-          {/* Shimmer top line */}
+          {/* Shimmer line */}
           <div
             className="absolute top-0 inset-x-0 h-px rounded-t-2xl"
-            style={{ background: "linear-gradient(90deg, transparent, rgba(16,185,129,0.4), transparent)" }}
+            style={{ background: "linear-gradient(90deg, transparent 10%, rgba(16,185,129,0.5) 50%, transparent 90%)" }}
           />
 
-          {/* Header */}
-          <div className="flex items-start justify-between gap-3">
-            <div className="space-y-1">
-              <p className="font-semibold text-foreground text-[15px] leading-snug">
-                Get early access
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Email or phone. That's it.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={dismiss}
-              className="text-muted-foreground hover:text-foreground transition-colors shrink-0 mt-0.5"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-
-          {/* Input */}
-          <input
-            type="text"
-            autoComplete="email"
-            placeholder="Email or phone number"
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl border border-white/[0.08] bg-white/[0.04] text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all"
-          />
-
-          {/* CTA */}
+          {/* Dismiss */}
           <button
-            type="submit"
-            disabled={!value.trim()}
-            className="w-full py-3 rounded-xl text-sm font-semibold text-white transition-all duration-300 disabled:opacity-35 disabled:cursor-not-allowed"
-            style={{
-              background: "linear-gradient(135deg, hsl(160,84%,39%) 0%, hsl(160,84%,30%) 100%)",
-              boxShadow: value.trim() ? "0 0 28px rgba(16,185,129,0.28)" : "none",
-            }}
+            type="button"
+            onClick={dismiss}
+            className="absolute top-4 right-4 text-white/25 hover:text-white/60 transition-colors"
           >
-            Continue →
+            <X className="h-3.5 w-3.5" />
           </button>
 
+          {/* Copy */}
+          <div className="space-y-0.5 pr-4">
+            <p className="text-sm font-semibold text-foreground leading-snug">
+              Join Kosh.
+            </p>
+            <p className="text-xs text-muted-foreground">Free early access.</p>
+          </div>
+
+          {/* Input + button */}
+          <div className="flex gap-2">
+            <input
+              type="email"
+              autoComplete="email"
+              placeholder="your@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="flex-1 min-w-0 px-3 py-2.5 rounded-xl border border-white/[0.08] bg-white/[0.04] text-sm text-foreground placeholder:text-muted-foreground/35 focus:outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all"
+            />
+            <button
+              type="submit"
+              disabled={!email.trim()}
+              className="px-3.5 py-2.5 rounded-xl text-sm font-semibold text-white shrink-0 transition-all disabled:opacity-30"
+              style={{
+                background: "linear-gradient(135deg, hsl(160,84%,39%) 0%, hsl(160,84%,30%) 100%)",
+                boxShadow: email.trim() ? "0 0 20px rgba(16,185,129,0.3)" : "none",
+              }}
+            >
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
         </form>
       </div>
     </>

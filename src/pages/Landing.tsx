@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/store/authStore";
@@ -229,6 +230,7 @@ const WHY_COLORS: Record<string, { icon: string; glow: string; border: string; b
 // ── Component ─────────────────────────────────────────────────────────────
 export default function Landing() {
   const profile = useAuthStore((s) => s.profile);
+  const heroRef = useRef<HTMLElement>(null);
 
   return (
     <div className="min-h-screen bg-background">
@@ -266,7 +268,7 @@ export default function Landing() {
       <main className="max-w-5xl mx-auto px-4">
 
         {/* ── Hero ── */}
-        <section className="relative py-14 md:py-24 text-center space-y-8 max-w-2xl mx-auto">
+        <section ref={heroRef} className="relative py-14 md:py-24 text-center space-y-8 max-w-2xl mx-auto">
           {/* Ambient background glow — full-width, positioned outside section overflow */}
           <div
             className="absolute pointer-events-none"
@@ -673,8 +675,8 @@ export default function Landing() {
         </div>
       </footer>
 
-      {/* Email capture modal — shows after 28s, once per session */}
-      <EmailSignupModal delayMs={28000} />
+      {/* Sign-up nudge — appears after scrolling past hero, once per session */}
+      {!profile && <EmailSignupModal triggerRef={heroRef} />}
     </div>
   );
 }
