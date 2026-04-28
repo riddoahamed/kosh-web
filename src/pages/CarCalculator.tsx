@@ -100,7 +100,7 @@ export default function CarCalculator() {
             </Link>
             <span className="font-semibold text-sm">Car Affordability</span>
           </div>
-          <span className="text-xs text-muted-foreground hidden sm:block">Total cost of ownership, BD</span>
+          <span className="text-xs text-muted-foreground hidden sm:block">Total cost of ownership, Bangladesh</span>
         </div>
       </nav>
 
@@ -116,7 +116,7 @@ export default function CarCalculator() {
         {/* Car presets */}
         <div>
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-            Pick a car (BD reconditioned market 2024)
+            Pick a car (Bangladesh reconditioned market 2024)
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {CAR_PRESETS.map((car, i) => (
@@ -219,7 +219,7 @@ export default function CarCalculator() {
                 ))}
               </div>
               <p className="text-xs text-muted-foreground/60">
-                Loan rate: {loanRate}% p.a. (car loans in BD: 12–15%)
+                Loan rate: {loanRate}% p.a. (car loans in Bangladesh: 12–15%)
               </p>
             </div>
           </div>
@@ -291,7 +291,7 @@ export default function CarCalculator() {
                 className="w-full px-3 py-2.5 rounded-xl border border-border bg-card text-foreground text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
               <p className="text-xs text-muted-foreground/60">
-                Fuel: ৳{fuelPrice}/L (octane, BD 2024)
+                Fuel: ৳{fuelPrice}/L (octane, Bangladesh 2024)
               </p>
             </div>
           </div>

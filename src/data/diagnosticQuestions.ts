@@ -59,7 +59,7 @@ export const knowledgeQuestions: KnowledgeQuestion[] = [
     text: "একজন আপনাকে বলছে: 'আমাদের কোম্পানিতে 1 লাখ টাকা রাখলে প্রতি মাসে 15% return পাবেন, guaranteed.' এটা সাধারণত:",
     options: [
       "A great investment opportunity",
-      "Normal for emerging markets like BD",
+      "Normal for emerging markets like Bangladesh",
       "A classic Ponzi/scam pattern",
       "Only risky if the company is new",
     ],

@@ -117,7 +117,7 @@ export default function ComprehensiveExam() {
           <div className="space-y-2">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Topics covered</p>
             <div className="flex flex-wrap gap-1.5">
-              {["The Money Map","Inflation","Three Buckets","Scam Detection","Emergency Fund","BD Options","Crypto & Law","Money System"].map((t) => (
+              {["The Money Map","Inflation","Three Buckets","Scam Detection","Emergency Fund","Bangladesh Options","Crypto & Law","Money System"].map((t) => (
                 <span key={t} className="text-xs bg-muted text-foreground/70 rounded-full px-2.5 py-1 font-medium">
                   {t}
                 </span>

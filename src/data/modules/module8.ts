@@ -3,10 +3,10 @@ import type { Module } from "@/types/curriculum";
 export const module8: Module = {
   id: "8",
   title: "Your first money system",
-  tagline: "The 4-bucket system, BD-adapted",
+  tagline: "The 4-bucket system, Bangladesh-adapted",
   estimatedMinutes: 12,
-  hook: `"After 7 modules, you understand money. This is where you build the system. One system, simple, BD-adapted. You'll adjust it for years, but this is where it starts."`,
-  context: `Western "50/30/20 rule" Bangladesh-এ কাজ করে না। Family financial support real। Inflation bites hard। Essentials অনেক বেশি percentage নেয়। আমাদের দরকার একটা BD-specific system। এটাই সেটা।`,
+  hook: `"After 7 modules, you understand money. This is where you build the system. One system, simple, Bangladesh-adapted. You'll adjust it for years, but this is where it starts."`,
+  context: `Western "50/30/20 rule" Bangladesh-এ কাজ করে না। Family financial support real। Inflation bites hard। Essentials অনেক বেশি percentage নেয়। আমাদের দরকার একটা Bangladesh-specific system। এটাই সেটা।`,
   teaching: `**The Kosh 4-Bucket System:**
 
 **Bucket 1 — Essentials (45-55% of income)**

@@ -33,7 +33,7 @@ Global studies: 70-90% retail crypto/forex traders ১ বছরের মধ্
 Kosh anti-crypto না। Kosh pro-informed-decision। যদি engage করতে চান:
 1. Legal situation জানুন
 2. Mathematical odds জানুন
-3. Specific BD scam patterns জানুন
+3. Specific Bangladesh scam patterns জানুন
 4. কেউ price reliably predict করতে পারে না — এটা accept করুন`,
   bdExample: `ফারহান একটা Telegram group-এ join করলো যেখানে 'signals' দিত কোন coin কখন কিনতে হবে। First month সে 30% profit করলো। সে Tk 2 lakh invest করলো।
 
@@ -84,6 +84,6 @@ Group-এ 2,000 members। 10-15 জন loudly profit share করে। 1,985 �
   ],
   whatsNext: {
     moduleId: "8",
-    preview: "Module 8: Your first money system — put everything together into one simple BD-adapted framework.",
+    preview: "Module 8: Your first money system — put everything together into one simple Bangladesh-adapted framework.",
   },
 };

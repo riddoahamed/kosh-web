@@ -146,7 +146,7 @@ export default function Comparator() {
             </Link>
             <span className="font-semibold text-sm">Savings Comparator</span>
           </div>
-          <span className="text-xs text-muted-foreground hidden sm:block">BD savings instruments</span>
+          <span className="text-xs text-muted-foreground hidden sm:block">Bangladesh savings instruments</span>
         </div>
       </nav>
 

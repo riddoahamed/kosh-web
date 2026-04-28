@@ -69,7 +69,7 @@ const CARD_PRESETS: LoanPreset[] = [
     rate: 18,
     tenureMonths: 12,
     notes:
-      "Most BD banks offer '0% EMI' at partner merchants but charge 1.25–1.5% monthly processing fee — effective annual rate ~15–20%. Rate here is the effective annual equivalent.",
+      "Most Bangladesh banks offer '0% EMI' at partner merchants but charge 1.25–1.5% monthly processing fee — effective annual rate ~15–20%. Rate here is the effective annual equivalent.",
     color: "violet",
   },
   {
@@ -91,13 +91,13 @@ const CARD_PRESETS: LoanPreset[] = [
     rate: 22,
     tenureMonths: 12,
     notes:
-      "If you don't pay in full and carry a revolving balance, most BD banks charge 20–24% p.a. This is the most expensive way to buy on credit.",
+      "If you don't pay in full and carry a revolving balance, most Bangladesh banks charge 20–24% p.a. This is the most expensive way to buy on credit.",
     color: "red",
   },
 ];
 
 const GADGET_PRESETS: GadgetPreset[] = [
-  { label: "iPhone 15 Pro", emoji: "📱", amount: 170000, note: "Approx ৳1.6–2L in BD (2024)" },
+  { label: "iPhone 15 Pro", emoji: "📱", amount: 170000, note: "Approx ৳1.6–2L in Bangladesh (2024)" },
   { label: "Laptop / MacBook", emoji: "💻", amount: 130000, note: "Mid-range ৳80K–1.5L" },
   { label: "Motorcycle (125cc)", emoji: "🏍️", amount: 200000, note: "Hero, Yamaha, TVS: ৳1.5–3.5L" },
   { label: "Camera Gear", emoji: "📷", amount: 180000, note: "Mirrorless + lens: ৳1–3L" },

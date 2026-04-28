@@ -33,7 +33,7 @@ export const module6: Module = {
 
 **Gold (সোনা)**
 - কী: Physical বা digital gold ownership
-- Return: Historically inflation-resistant in BD
+- Return: Historically inflation-resistant in Bangladesh
 - ভালো কারণ: Inflation hedge, recognizable asset, cultural acceptance
 - সীমাবদ্ধতা: No regular income, storage cost/risk (physical), spread between buy/sell
 - কার জন্য: Long-term store of value, portfolio diversification
