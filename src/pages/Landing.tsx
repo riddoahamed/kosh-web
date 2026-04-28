@@ -302,16 +302,21 @@ export default function Landing() {
           </p>
 
           {/* CTAs */}
-          <div className="relative flex flex-row flex-wrap gap-3 justify-center pt-1">
-            <Button asChild size="lg" className="gap-2 w-fit">
-              <Link to="/check">
-                Check your money level
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
-            <Button asChild variant="outline" size="lg" className="w-fit">
-              <Link to="#tools">Explore free tools ↓</Link>
-            </Button>
+          <div className="relative flex flex-col items-center gap-3 pt-1">
+            <div className="flex flex-row flex-wrap gap-3 justify-center">
+              <Button asChild size="lg" className="gap-2 w-fit">
+                <Link to="/check">
+                  Check your money level
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="lg" className="w-fit">
+                <Link to="#tools">Explore free tools ↓</Link>
+              </Button>
+            </div>
+            <Link to="/about" className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors">
+              What is Kosh?
+            </Link>
           </div>
 
         </section>
