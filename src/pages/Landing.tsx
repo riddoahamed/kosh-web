@@ -70,7 +70,7 @@ const TOOLS: Tool[] = [
     href: "/scam-spotter",
     icon: Radar,
     title: "Scam Spotter",
-    desc: "Real BD scam scenarios. Can you spot them?",
+    desc: "Potential scams in Bangladesh. Can you spot them?",
     tag: "Game",
     iconColor: "text-red-400",
     iconGlowFilter: "drop-shadow(0 0 6px rgba(239,68,68,0.9))",
