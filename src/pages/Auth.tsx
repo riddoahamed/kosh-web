@@ -1,170 +1,278 @@
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { useAuthStore } from "@/store/authStore";
-import { db } from "@/lib/supabase";
-import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { CheckCircle2 } from "lucide-react";
-
-const signupSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  phone: z
-    .string()
-    .min(11, "Enter a valid BD phone number")
-    .regex(/^01[3-9]\d{8}$/, "Enter a valid Bangladeshi mobile number (01XXXXXXXXX)"),
-  gender: z.enum(["male", "female", "other", "prefer_not_to_say"]),
-  location: z.string().min(1, "Please select your location"),
-  referralCode: z.string().optional(),
-  consent: z.boolean().refine((v) => v === true, {
-    message: "You must agree to continue",
-  }),
-});
-
-type SignupForm = z.infer<typeof signupSchema>;
+import { Link, useNavigate } from "react-router-dom";
+import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
+import { auth, db } from "@/lib/supabase";
+import { useAuthStore } from "@/store/authStore";
 
 const inputClass =
-  "w-full px-4 py-3 rounded-xl border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent";
+  "w-full px-4 py-3.5 rounded-xl border border-white/[0.08] bg-white/[0.04] text-foreground text-sm placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all";
+
+type Step = "email" | "otp" | "profile";
 
 export default function Auth() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const { setProfile } = useAuthStore();
-  const [success, setSuccess] = useState(false);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<SignupForm>({
-    resolver: zodResolver(signupSchema),
-    defaultValues: {
-      referralCode: searchParams.get("ref") ?? "",
-      gender: "prefer_not_to_say",
-    },
-  });
+  const [step, setStep] = useState<Step>("email");
+  const [email, setEmail] = useState("");
+  const [otp, setOtp] = useState("");
+  const [name, setName] = useState("");
+  const [consent, setConsent] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const savedResult = db.getDiagnosticResult();
-
-  const onSubmit = (data: SignupForm) => {
-    const profile = {
-      id: crypto.randomUUID(),
-      name: data.name,
-      phone: data.phone,
-      gender: data.gender,
-      location: data.location,
-      consent_given: data.consent,
-      referral_code: data.referralCode,
-      level_assigned: savedResult?.level,
-      grey_zone_flagged: savedResult?.greyZone.flagged,
-      grey_zone_exposure: savedResult?.greyZone.exposures,
-      created_at: new Date().toISOString(),
-    };
-    setProfile(profile);
-    setSuccess(true);
-    setTimeout(() => navigate("/dashboard"), 1500);
+  // ── Step 1: send OTP ───────────────────────────────────────────────────
+  const handleSendOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) return;
+    setLoading(true);
+    setError("");
+    try {
+      const { error: err } = await auth.sendOtp(email.trim().toLowerCase());
+      if (err) throw err;
+      setStep("otp");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Something went wrong. Try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  if (success) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-4">
-        <div className="text-center space-y-4">
-          <CheckCircle2 className="h-16 w-16 text-primary mx-auto" />
-          <h2 className="text-2xl font-bold text-foreground">Welcome to Kosh!</h2>
-          <p className="text-muted-foreground">Setting up your track...</p>
-        </div>
-      </div>
-    );
-  }
+  // ── Step 2: verify OTP ─────────────────────────────────────────────────
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (otp.length < 6) return;
+    setLoading(true);
+    setError("");
+    try {
+      const { data, error: err } = await auth.verifyOtp(email, otp);
+      if (err) throw err;
+
+      // Check if this user already has a profile
+      const userId = data.user?.id;
+      if (userId) {
+        const existing = await db.fetchProfile(userId);
+        if (existing) {
+          // Returning user — go straight to dashboard
+          setProfile(existing);
+          navigate("/dashboard");
+          return;
+        }
+      }
+      // New user — collect name
+      setStep("profile");
+    } catch (err: unknown) {
+      setError("Incorrect code. Check your email and try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ── Step 3: save profile ───────────────────────────────────────────────
+  const handleProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim() || !consent) return;
+    setLoading(true);
+    setError("");
+    try {
+      const user = await auth.getUser();
+      if (!user) throw new Error("Session expired. Please sign in again.");
+
+      const savedResult = db.getDiagnosticResult();
+      const profile = {
+        id: user.id,
+        email: user.email,
+        name: name.trim(),
+        consent_given: true,
+        level_assigned: savedResult?.level,
+        grey_zone_flagged: savedResult?.greyZone?.flagged,
+        grey_zone_exposure: savedResult?.greyZone?.exposures,
+        created_at: new Date().toISOString(),
+      };
+      setProfile(profile);
+      navigate("/dashboard");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4 py-8">
-      <div className="w-full max-w-md space-y-6">
-        <div className="text-center space-y-2">
-          <Link to="/" className="inline-block">
-            <img src="/logo.png" alt="Kosh" className="h-10 w-auto mx-auto" />
-          </Link>
-          <h1 className="text-xl font-semibold text-foreground">
-            Create your free account
-          </h1>
-          <p className="text-muted-foreground text-sm">
-            Save your result and start your learning track
-          </p>
-        </div>
+    <div
+      className="min-h-screen bg-background flex items-center justify-center px-4 py-12"
+      style={{ paddingTop: "calc(env(safe-area-inset-top) + 3rem)" }}
+    >
+      {/* Ambient glow */}
+      <div
+        className="fixed inset-x-0 top-0 h-72 pointer-events-none"
+        style={{ background: "radial-gradient(ellipse at 50% 0%, rgba(16,185,129,0.12) 0%, transparent 65%)" }}
+      />
 
-        <div className="bg-card rounded-2xl border border-border p-6 shadow-sm">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-foreground/80">Your name</label>
-              <input {...register("name")} placeholder="e.g. Rahela Akter" className={inputClass} />
-              {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
+      <div className="w-full max-w-sm space-y-8 relative">
+
+        {/* Back link */}
+        <Link to="/" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Back
+        </Link>
+
+        {/* ── Email step ── */}
+        {step === "email" && (
+          <form onSubmit={handleSendOtp} className="space-y-6">
+            <div className="space-y-2">
+              <span
+                className="inline-block text-xs font-bold tracking-widest text-primary/80 uppercase px-3 py-1 rounded-full border border-primary/20"
+                style={{ background: "rgba(16,185,129,0.08)" }}
+              >
+                Early Access
+              </span>
+              <h1 className="text-2xl font-bold text-foreground leading-tight">
+                You're one of the first.
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Enter your email and we'll send you a sign-in code.
+              </p>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-foreground/80">Mobile number</label>
-              <input {...register("phone")} placeholder="01XXXXXXXXX" type="tel" className={inputClass} />
-              {errors.phone && <p className="text-xs text-destructive">{errors.phone.message}</p>}
+            <div className="space-y-3">
+              <input
+                type="email"
+                autoComplete="email"
+                placeholder="your@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className={inputClass}
+              />
+              {error && <p className="text-xs text-red-400">{error}</p>}
+              <button
+                type="submit"
+                disabled={loading || !email.trim()}
+                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-40"
+                style={{
+                  background: "linear-gradient(135deg, hsl(160,84%,39%) 0%, hsl(160,84%,30%) 100%)",
+                  boxShadow: email.trim() ? "0 0 28px rgba(16,185,129,0.25)" : "none",
+                }}
+              >
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Get access <ArrowRight className="h-4 w-4" /></>}
+              </button>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-foreground/80">Gender (optional)</label>
-              <select {...register("gender")} className={inputClass}>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
-                <option value="prefer_not_to_say">Prefer not to say</option>
-              </select>
+            <p className="text-xs text-muted-foreground/40 text-center">
+              Free. No products. No commissions.
+            </p>
+          </form>
+        )}
+
+        {/* ── OTP step ── */}
+        {step === "otp" && (
+          <form onSubmit={handleVerifyOtp} className="space-y-6">
+            <div className="space-y-2">
+              <h1 className="text-2xl font-bold text-foreground">Check your email</h1>
+              <p className="text-sm text-muted-foreground">
+                We sent a 6-digit code to <span className="text-foreground/70 font-medium">{email}</span>
+              </p>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-foreground/80">Location</label>
-              <select {...register("location")} className={inputClass}>
-                <option value="">Select your location</option>
-                <option value="dhaka">Dhaka</option>
-                <option value="chittagong">Chittagong</option>
-                <option value="sylhet">Sylhet</option>
-                <option value="rajshahi">Rajshahi</option>
-                <option value="khulna">Khulna</option>
-                <option value="barisal">Barisal</option>
-                <option value="rangpur">Rangpur</option>
-                <option value="mymensingh">Mymensingh</option>
-                <option value="other">Other</option>
-              </select>
-              {errors.location && <p className="text-xs text-destructive">{errors.location.message}</p>}
+            <div className="space-y-3">
+              <input
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                placeholder="000000"
+                maxLength={6}
+                value={otp}
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+                className={`${inputClass} text-center text-xl tracking-[0.5em] font-mono`}
+              />
+              {error && <p className="text-xs text-red-400">{error}</p>}
+              <button
+                type="submit"
+                disabled={loading || otp.length < 6}
+                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-40"
+                style={{
+                  background: "linear-gradient(135deg, hsl(160,84%,39%) 0%, hsl(160,84%,30%) 100%)",
+                  boxShadow: otp.length === 6 ? "0 0 28px rgba(16,185,129,0.25)" : "none",
+                }}
+              >
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Verify →"}
+              </button>
+              <button
+                type="button"
+                onClick={() => { setStep("email"); setOtp(""); setError(""); }}
+                className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors py-1"
+              >
+                Wrong email? Go back
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* ── Profile step ── */}
+        {step === "profile" && (
+          <form onSubmit={handleProfile} className="space-y-6">
+            <div className="space-y-2">
+              <h1 className="text-2xl font-bold text-foreground">One last thing</h1>
+              <p className="text-sm text-muted-foreground">
+                What should we call you?
+              </p>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-foreground/80">
-                Referral code <span className="text-foreground/40 font-normal">(optional)</span>
-              </label>
-              <input {...register("referralCode")} placeholder="e.g. abc12345" className={inputClass} />
-            </div>
+            <div className="space-y-4">
+              <input
+                type="text"
+                autoComplete="name"
+                placeholder="Your name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                className={inputClass}
+              />
 
-            <div className="space-y-1">
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  {...register("consent")}
-                  className="mt-0.5 h-4 w-4 rounded border-border text-primary focus:ring-primary/40"
-                />
-                <span className="text-sm text-foreground/60 leading-relaxed">
-                  I agree that Kosh may collect my learning data to measure outcomes and improve
-                  the product. No financial products are sold. No data is sold to third parties.
+              <label className="flex items-start gap-3 cursor-pointer group">
+                <div className="relative mt-0.5">
+                  <input
+                    type="checkbox"
+                    checked={consent}
+                    onChange={(e) => setConsent(e.target.checked)}
+                    className="sr-only"
+                  />
+                  <div
+                    className={`h-4 w-4 rounded border transition-all ${
+                      consent
+                        ? "border-primary bg-primary"
+                        : "border-white/20 bg-white/[0.04]"
+                    }`}
+                  >
+                    {consent && (
+                      <svg className="h-4 w-4 text-white" viewBox="0 0 16 16" fill="none">
+                        <path d="M3 8l3.5 3.5L13 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    )}
+                  </div>
+                </div>
+                <span className="text-xs text-muted-foreground leading-relaxed">
+                  I agree that Kosh may use my learning data to measure outcomes and improve the platform. No financial products are sold. No data is sold to third parties.
                 </span>
               </label>
-              {errors.consent && <p className="text-xs text-destructive">{errors.consent.message}</p>}
+
+              {error && <p className="text-xs text-red-400">{error}</p>}
+
+              <button
+                type="submit"
+                disabled={loading || !name.trim() || !consent}
+                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-40"
+                style={{
+                  background: "linear-gradient(135deg, hsl(160,84%,39%) 0%, hsl(160,84%,30%) 100%)",
+                  boxShadow: name.trim() && consent ? "0 0 28px rgba(16,185,129,0.25)" : "none",
+                }}
+              >
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Go to my dashboard →"}
+              </button>
             </div>
-
-            <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
-              {isSubmitting ? "Creating account..." : "Create account — it's free"}
-            </Button>
           </form>
-        </div>
-
-        <p className="text-center text-xs text-foreground/30">
-          No products. No commissions. No hidden agenda.
-        </p>
+        )}
       </div>
     </div>
   );
