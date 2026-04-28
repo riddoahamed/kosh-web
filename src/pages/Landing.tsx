@@ -358,12 +358,7 @@ export default function Landing() {
 
                     {/* Text */}
                     <div className="space-y-1.5 min-w-0 relative">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-semibold text-sm text-foreground">{tool.title}</span>
-                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${tool.tagStyle}`}>
-                          {tool.tag}
-                        </span>
-                      </div>
+                      <span className="font-semibold text-sm text-foreground">{tool.title}</span>
                       <p className="text-xs text-muted-foreground leading-relaxed">{tool.desc}</p>
                     </div>
 
