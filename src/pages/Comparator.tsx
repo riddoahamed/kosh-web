@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Info } from "lucide-react";
+import SignUpNudge from "@/components/shared/SignUpNudge";
 
 interface Instrument {
   id: string;
@@ -310,6 +311,12 @@ export default function Comparator() {
           </Link>
         </div>
       </div>
+
+      <SignUpNudge
+        delay={45000}
+        headline="Save your comparison"
+        sub="Free account to bookmark your best savings option."
+      />
     </div>
   );
 }

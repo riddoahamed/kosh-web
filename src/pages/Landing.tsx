@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useAuthStore } from "@/store/authStore";
+import EmailSignupModal from "@/components/shared/EmailSignupModal";
 import {
   ArrowRight,
   ShieldCheck,
@@ -16,6 +18,7 @@ import {
   Crosshair,
   Gauge,
   PieChart,
+  Lock,
 } from "lucide-react";
 
 // ── Data ──────────────────────────────────────────────────────────────────
@@ -48,6 +51,7 @@ interface Tool {
   title: string;
   desc: string;
   tag: string;
+  locked?: boolean; // requires sign-in
   // per-color tokens (precomputed so Tailwind keeps them in the bundle)
   iconColor: string;
   iconGlowFilter: string;
@@ -66,7 +70,7 @@ const TOOLS: Tool[] = [
     href: "/scam-spotter",
     icon: Radar,
     title: "Scam Spotter",
-    desc: "6 real Bangladesh scenarios. Spot scams: halal forex, bKash Ponzis, Telegram crypto, before they spot you.",
+    desc: "Real BD scam scenarios. Can you spot them?",
     tag: "Game",
     iconColor: "text-red-400",
     iconGlowFilter: "drop-shadow(0 0 6px rgba(239,68,68,0.9))",
@@ -80,11 +84,46 @@ const TOOLS: Tool[] = [
     arrowHover: "group-hover:text-red-400/70",
   },
   {
+    href: "/sip-calculator",
+    icon: Crosshair,
+    title: "Goal-based SIP",
+    desc: "How much to save monthly to hit your goal.",
+    tag: "Planner",
+    iconColor: "text-emerald-400",
+    iconGlowFilter: "drop-shadow(0 0 6px rgba(52,211,153,0.9))",
+    iconBg: "from-emerald-500/25 to-emerald-900/10",
+    iconBorder: "border-emerald-500/25",
+    iconShadow: "shadow-[0_0_18px_rgba(16,185,129,0.3)]",
+    cardBorder: "border-white/[0.07] hover:border-emerald-500/35",
+    cardHover: "hover:shadow-[0_0_45px_rgba(16,185,129,0.12),0_2px_8px_rgba(0,0,0,0.4)]",
+    cardAmbient: "bg-emerald-500/8",
+    tagStyle: "bg-emerald-500/15 text-emerald-400 border border-emerald-500/25",
+    arrowHover: "group-hover:text-emerald-400/70",
+  },
+  {
+    href: "/budget-planner",
+    icon: PieChart,
+    title: "Budget Planner",
+    desc: "See your real savings rate. BD-specific.",
+    tag: "Planner",
+    iconColor: "text-cyan-400",
+    iconGlowFilter: "drop-shadow(0 0 6px rgba(34,211,238,0.9))",
+    iconBg: "from-cyan-500/25 to-cyan-900/10",
+    iconBorder: "border-cyan-500/25",
+    iconShadow: "shadow-[0_0_18px_rgba(6,182,212,0.3)]",
+    cardBorder: "border-white/[0.07] hover:border-cyan-500/35",
+    cardHover: "hover:shadow-[0_0_45px_rgba(6,182,212,0.12),0_2px_8px_rgba(0,0,0,0.4)]",
+    cardAmbient: "bg-cyan-500/8",
+    tagStyle: "bg-cyan-500/15 text-cyan-400 border border-cyan-500/25",
+    arrowHover: "group-hover:text-cyan-400/70",
+  },
+  {
     href: "/comparator",
     icon: ArrowLeftRight,
     title: "Savings Comparator",
-    desc: "FDR vs Sanchaypatra vs DPS vs savings. After-tax returns with inflation benchmark.",
+    desc: "FDR vs Sanchaypatra vs DPS — after-tax.",
     tag: "Calculator",
+    locked: true,
     iconColor: "text-blue-400",
     iconGlowFilter: "drop-shadow(0 0 6px rgba(96,165,250,0.9))",
     iconBg: "from-blue-500/25 to-blue-900/10",
@@ -100,8 +139,9 @@ const TOOLS: Tool[] = [
     href: "/emi-calculator",
     icon: Landmark,
     title: "EMI Calculator",
-    desc: "Bank loans or credit card EMI for iPhone, bike, PC. Monthly payment and total interest before you borrow.",
+    desc: "True cost of a loan before you commit.",
     tag: "Calculator",
+    locked: true,
     iconColor: "text-violet-400",
     iconGlowFilter: "drop-shadow(0 0 6px rgba(167,139,250,0.9))",
     iconBg: "from-violet-500/25 to-violet-900/10",
@@ -114,28 +154,12 @@ const TOOLS: Tool[] = [
     arrowHover: "group-hover:text-violet-400/70",
   },
   {
-    href: "/sip-calculator",
-    icon: Crosshair,
-    title: "Goal-based SIP",
-    desc: "Studies abroad, wedding, car down payment. Exact monthly savings needed to hit your goal.",
-    tag: "Planner",
-    iconColor: "text-emerald-400",
-    iconGlowFilter: "drop-shadow(0 0 6px rgba(52,211,153,0.9))",
-    iconBg: "from-emerald-500/25 to-emerald-900/10",
-    iconBorder: "border-emerald-500/25",
-    iconShadow: "shadow-[0_0_18px_rgba(16,185,129,0.3)]",
-    cardBorder: "border-white/[0.07] hover:border-emerald-500/35",
-    cardHover: "hover:shadow-[0_0_45px_rgba(16,185,129,0.12),0_2px_8px_rgba(0,0,0,0.4)]",
-    cardAmbient: "bg-emerald-500/8",
-    tagStyle: "bg-emerald-500/15 text-emerald-400 border border-emerald-500/25",
-    arrowHover: "group-hover:text-emerald-400/70",
-  },
-  {
     href: "/car-calculator",
     icon: Gauge,
     title: "Car Affordability",
-    desc: "EMI, fuel, insurance and maintenance. See the real monthly cost and 5-year ownership bill before buying.",
+    desc: "Real monthly cost of owning a car in BD.",
     tag: "Calculator",
+    locked: true,
     iconColor: "text-amber-400",
     iconGlowFilter: "drop-shadow(0 0 6px rgba(251,191,36,0.9))",
     iconBg: "from-amber-500/25 to-amber-900/10",
@@ -146,23 +170,6 @@ const TOOLS: Tool[] = [
     cardAmbient: "bg-amber-500/8",
     tagStyle: "bg-amber-500/15 text-amber-400 border border-amber-500/25",
     arrowHover: "group-hover:text-amber-400/70",
-  },
-  {
-    href: "/budget-planner",
-    icon: PieChart,
-    title: "Budget Planner",
-    desc: "50% Needs, 30% Wants, 20% Savings. Bangladesh-specific categories to see your real savings rate.",
-    tag: "Planner",
-    iconColor: "text-cyan-400",
-    iconGlowFilter: "drop-shadow(0 0 6px rgba(34,211,238,0.9))",
-    iconBg: "from-cyan-500/25 to-cyan-900/10",
-    iconBorder: "border-cyan-500/25",
-    iconShadow: "shadow-[0_0_18px_rgba(6,182,212,0.3)]",
-    cardBorder: "border-white/[0.07] hover:border-cyan-500/35",
-    cardHover: "hover:shadow-[0_0_45px_rgba(6,182,212,0.12),0_2px_8px_rgba(0,0,0,0.4)]",
-    cardAmbient: "bg-cyan-500/8",
-    tagStyle: "bg-cyan-500/15 text-cyan-400 border border-cyan-500/25",
-    arrowHover: "group-hover:text-cyan-400/70",
   },
 ];
 
@@ -221,11 +228,16 @@ const WHY_COLORS: Record<string, { icon: string; glow: string; border: string; b
 
 // ── Component ─────────────────────────────────────────────────────────────
 export default function Landing() {
+  const profile = useAuthStore((s) => s.profile);
+
   return (
     <div className="min-h-screen bg-background">
 
       {/* ── Nav ── */}
-      <nav className="border-b border-white/[0.06] sticky top-0 z-10 backdrop-blur-2xl bg-background/70">
+      <nav
+        className="border-b border-white/[0.06] sticky top-0 z-10 backdrop-blur-2xl bg-background/70"
+        style={{ paddingTop: "env(safe-area-inset-top)" }}
+      >
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
           <img src="/logo.png" alt="Kosh" className="h-8 w-auto" />
           <div className="flex items-center gap-4">
@@ -268,7 +280,10 @@ export default function Landing() {
             }}
           />
 
-          <h1 className="relative text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.1] tracking-tight">
+          <h1
+            className="relative text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.1] tracking-tight"
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+          >
             How well do you{" "}
             <span
               className="text-primary"
@@ -302,27 +317,34 @@ export default function Landing() {
         {/* ── Tools ── */}
         <section id="tools" className="py-16 border-t border-white/[0.06]">
           <div className="max-w-4xl mx-auto space-y-8">
-            <div className="text-center space-y-2">
+            <div className="text-center space-y-1">
               <h2 className="text-2xl font-bold text-foreground tracking-tight">Free financial tools</h2>
-              <p className="text-muted-foreground text-sm">
-                Try these tools, no sign-up required.
-              </p>
+              <p className="text-muted-foreground text-sm">for you to try</p>
             </div>
 
             <div className="grid sm:grid-cols-2 gap-3">
               {TOOLS.map((tool) => {
                 const Icon = tool.icon;
+                const isLocked = tool.locked && !profile;
                 return (
                   <Link
                     key={tool.href}
-                    to={tool.href}
-                    className={`group relative flex gap-4 rounded-2xl border p-5 transition-all duration-300 hover:-translate-y-0.5 overflow-hidden ${tool.cardBorder} ${tool.cardHover}`}
+                    to={isLocked ? "/auth" : tool.href}
+                    className={`group relative flex gap-4 rounded-2xl border p-5 transition-all duration-300 hover:-translate-y-0.5 overflow-hidden ${tool.cardBorder} ${tool.cardHover} ${isLocked ? "opacity-60" : ""}`}
                     style={{ background: "rgba(255,255,255,0.03)", backdropFilter: "blur(20px)" }}
                   >
                     {/* Corner ambient blob */}
                     <div
                       className={`absolute -top-10 -right-10 w-36 h-36 rounded-full blur-3xl opacity-60 pointer-events-none ${tool.cardAmbient}`}
                     />
+
+                    {/* Lock badge for gated tools */}
+                    {isLocked && (
+                      <div className="absolute top-3 right-3 flex items-center gap-1 text-[10px] font-semibold text-white/40 bg-white/[0.06] border border-white/[0.08] px-2 py-0.5 rounded-full">
+                        <Lock className="h-2.5 w-2.5" />
+                        Sign in
+                      </div>
+                    )}
 
                     {/* Icon container */}
                     <div
@@ -346,9 +368,11 @@ export default function Landing() {
                     </div>
 
                     {/* Arrow */}
-                    <ArrowRight
-                      className={`h-4 w-4 shrink-0 mt-1 text-white/20 transition-all duration-300 ${tool.arrowHover} group-hover:translate-x-0.5`}
-                    />
+                    {!isLocked && (
+                      <ArrowRight
+                        className={`h-4 w-4 shrink-0 mt-1 text-white/20 transition-all duration-300 ${tool.arrowHover} group-hover:translate-x-0.5`}
+                      />
+                    )}
                   </Link>
                 );
               })}
@@ -443,43 +467,59 @@ export default function Landing() {
 
         {/* ── 0→1 Track ── */}
         <section className="py-16 border-t border-white/[0.06]">
-          <div className="max-w-2xl mx-auto space-y-6">
-            <h2 className="text-2xl font-bold text-foreground text-center tracking-tight">
-              The 0→1 track
-            </h2>
-            <div className="grid gap-2.5">
-              {[
-                "Why money feels confusing — the map",
-                "Inflation: why your FDR is quietly losing",
-                "The three buckets (savings ≠ investing ≠ trading)",
-                "Hype, scams, and the Grey Zone",
-                "The emergency fund nobody builds",
-                "Real options in Bangladesh (FDR, Sanchaypatra, DPS, gold, DSE)",
-                "Crypto, forex, and what's actually legal in Bangladesh",
-                "Your first money system",
-              ].map((mod, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-3 rounded-xl border border-white/[0.06] px-4 py-3 transition-all hover:border-white/[0.12]"
-                  style={{ background: "rgba(255,255,255,0.025)" }}
-                >
+          <div className="max-w-2xl mx-auto">
+            <div
+              className="rounded-2xl border border-white/[0.08] p-6 space-y-5"
+              style={{ background: "rgba(255,255,255,0.03)", backdropFilter: "blur(20px)" }}
+            >
+              {/* Level badge */}
+              <span
+                className="inline-block text-xs font-bold tracking-widest text-primary/80 uppercase px-3 py-1 rounded-full border border-primary/20"
+                style={{ background: "rgba(16,185,129,0.08)" }}
+              >
+                Level 0→1
+              </span>
+
+              <div>
+                <h2 className="text-xl font-bold text-foreground">Financial Foundations</h2>
+                <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">
+                  8 short modules for anyone starting from zero — or filling in gaps they didn't know they had. Around 12 minutes each.
+                </p>
+              </div>
+
+              <p className="text-xs text-muted-foreground">
+                <span className="text-foreground/50 font-semibold">For:</span>{" "}
+                Students, early earners, anyone who never got a proper explanation.
+              </p>
+
+              {/* Topic pills */}
+              <div className="flex flex-wrap gap-2">
+                {[
+                  "Inflation", "Savings vs Investing", "The Grey Zone",
+                  "Emergency Funds", "Sanchaypatra & FDR", "Your First Money System",
+                ].map((t) => (
                   <span
-                    className="w-7 h-7 rounded-full border border-primary/30 text-primary text-xs font-bold flex items-center justify-center shrink-0"
-                    style={{ background: "rgba(16,185,129,0.1)", textShadow: "0 0 12px rgba(16,185,129,0.6)" }}
+                    key={t}
+                    className="text-xs px-2.5 py-1 rounded-full border border-white/[0.08] text-foreground/55"
+                    style={{ background: "rgba(255,255,255,0.04)" }}
                   >
-                    {i + 1}
+                    {t}
                   </span>
-                  <span className="text-sm text-foreground/80">{mod}</span>
-                </div>
-              ))}
-            </div>
-            <div className="text-center pt-2">
-              <Button asChild size="lg" className="gap-2 w-fit">
-                <Link to="/check">
-                  Start with the check
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
+                ))}
+              </div>
+
+              {/* CTAs */}
+              <div className="flex gap-3 flex-wrap pt-1">
+                <Button asChild size="sm" className="gap-1.5 w-fit">
+                  <Link to="/check">
+                    Start with the check
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" size="sm" className="w-fit">
+                  <Link to="/auth">Sign up to begin</Link>
+                </Button>
+              </div>
             </div>
           </div>
         </section>
@@ -637,6 +677,9 @@ export default function Landing() {
           </div>
         </div>
       </footer>
+
+      {/* Email capture modal — shows after 28s, once per session */}
+      <EmailSignupModal delayMs={28000} />
     </div>
   );
 }

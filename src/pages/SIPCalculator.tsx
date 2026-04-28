@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Target, Info } from "lucide-react";
+import SignUpNudge from "@/components/shared/SignUpNudge";
 
 // ── Goal presets ───────────────────────────────────────────────────────────
 const GOAL_PRESETS = [
@@ -26,7 +27,8 @@ const RETURN_PRESETS = [
 function calcSIP(goalAmount: number, currentSavings: number, annualRate: number, years: number) {
   const months = years * 12;
   const r = annualRate / 100 / 12;
-  const gap = Math.max(0, goalAmount - currentSavings * Math.pow(1 + r, months));
+  const fvSavings = currentSavings * Math.pow(1 + r, months);
+  const gap = Math.max(0, goalAmount - fvSavings);
   if (gap <= 0) return { monthly: 0, totalDeposited: 0, totalInterest: 0 };
   if (r === 0) {
     const monthly = gap / months;
@@ -35,8 +37,10 @@ function calcSIP(goalAmount: number, currentSavings: number, annualRate: number,
   // PMT = FV * r / ((1+r)^n - 1)
   const monthly = (gap * r) / (Math.pow(1 + r, months) - 1);
   const totalDeposited = monthly * months;
-  const fv = totalDeposited + currentSavings * Math.pow(1 + r, months);
-  const totalInterest = Math.max(0, fv - currentSavings - totalDeposited);
+  // FV of the SIP stream (annuity) + FV of existing savings = goalAmount
+  const fvSIP = monthly * ((Math.pow(1 + r, months) - 1) / r);
+  const totalFV = fvSIP + fvSavings;
+  const totalInterest = Math.max(0, totalFV - currentSavings - totalDeposited);
   return { monthly, totalDeposited, totalInterest };
 }
 
@@ -89,14 +93,17 @@ export default function SIPCalculator() {
   );
 
   const alreadyThere = currentSavings >= goalAmount;
-  const totalWithInterest = totalDeposited + totalInterest + currentSavings;
+  // totalFV ≈ goalAmount; use it as the denominator so bar always sums to 100%
+  const totalFV = currentSavings + totalDeposited + totalInterest;
 
   const milestones = useMemo(
     () => (monthly > 0 ? buildMilestones(monthly, currentSavings, annualRate, years) : []),
     [monthly, currentSavings, annualRate, years]
   );
 
-  const interestPct = totalWithInterest > 0 ? Math.round((totalInterest / totalWithInterest) * 100) : 0;
+  const interestPct = totalFV > 0 ? Math.round((totalInterest / totalFV) * 100) : 0;
+  const depositPct = totalFV > 0 ? Math.round((totalDeposited / totalFV) * 100) : 0;
+  const savingsPct = 100 - interestPct - depositPct;
 
   // Inflation-adjusted goal
   const inflationRate = 7.5;
@@ -279,23 +286,35 @@ export default function SIPCalculator() {
             {/* Interest breakdown bar */}
             <div className="space-y-2">
               <div className="h-3 rounded-full overflow-hidden flex bg-muted/50">
+                {currentSavings > 0 && (
+                  <div
+                    className="bg-blue-400 h-full transition-all duration-700"
+                    style={{ width: `${savingsPct}%` }}
+                  />
+                )}
                 <div
                   className="bg-primary h-full transition-all duration-700"
-                  style={{ width: `${100 - interestPct}%` }}
+                  style={{ width: `${depositPct}%` }}
                 />
                 <div
                   className="bg-emerald-500 h-full transition-all duration-700"
                   style={{ width: `${interestPct}%` }}
                 />
               </div>
-              <div className="flex justify-between text-xs text-muted-foreground">
+              <div className="flex flex-wrap justify-between gap-y-1 text-xs text-muted-foreground">
+                {currentSavings > 0 && (
+                  <span>
+                    <span className="inline-block w-2 h-2 rounded-full bg-blue-400 mr-1" />
+                    Head start {fmt(currentSavings)} ({savingsPct}%)
+                  </span>
+                )}
                 <span>
                   <span className="inline-block w-2 h-2 rounded-full bg-primary mr-1" />
-                  You save {fmt(currentSavings + totalDeposited)}
+                  You deposit {fmt(totalDeposited)} ({depositPct}%)
                 </span>
                 <span>
                   <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 mr-1" />
-                  Interest earns {fmt(totalInterest)} ({interestPct}%)
+                  Interest {fmt(totalInterest)} ({interestPct}%)
                 </span>
               </div>
             </div>
@@ -306,11 +325,11 @@ export default function SIPCalculator() {
                 <div className="text-sm font-bold text-foreground">{fmtShort(monthly)}</div>
               </div>
               <div className="text-center">
-                <div className="text-xs text-muted-foreground">You deposit</div>
-                <div className="text-sm font-bold text-foreground">{fmt(currentSavings + totalDeposited)}</div>
+                <div className="text-xs text-muted-foreground">Total deposited</div>
+                <div className="text-sm font-bold text-foreground">{fmt(totalDeposited)}</div>
               </div>
               <div className="text-center">
-                <div className="text-xs text-muted-foreground">Interest earns</div>
+                <div className="text-xs text-muted-foreground">Interest earned</div>
                 <div className="text-sm font-bold text-emerald-600">+{fmt(totalInterest)}</div>
               </div>
             </div>
@@ -402,6 +421,12 @@ export default function SIPCalculator() {
           </p>
         </div>
       </div>
+
+      <SignUpNudge
+        delay={45000}
+        headline="Save your savings plan"
+        sub="Free account so your goals are here when you come back."
+      />
     </div>
   );
 }

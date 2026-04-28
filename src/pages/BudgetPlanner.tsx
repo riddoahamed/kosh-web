@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Wallet, ChevronDown, ChevronUp } from "lucide-react";
+import SignUpNudge from "@/components/shared/SignUpNudge";
 
 const INCOME_PRESETS = [
   { label: "৳15K", value: 15000 },
@@ -407,6 +408,12 @@ export default function BudgetPlanner() {
           </Link>
         </div>
       </div>
+
+      <SignUpNudge
+        delay={45000}
+        headline="Track your budget monthly"
+        sub="Free account to revisit and compare your numbers each month."
+      />
     </div>
   );
 }

@@ -17,6 +17,7 @@ import EMICalculator from "@/pages/EMICalculator";
 import BudgetPlanner from "@/pages/BudgetPlanner";
 import SIPCalculator from "@/pages/SIPCalculator";
 import CarCalculator from "@/pages/CarCalculator";
+import About from "@/pages/About";
 import NotFound from "@/pages/NotFound";
 
 export default function App() {
@@ -41,6 +42,7 @@ export default function App() {
         <Route path="/budget-planner" element={<BudgetPlanner />} />
         <Route path="/sip-calculator" element={<SIPCalculator />} />
         <Route path="/car-calculator" element={<CarCalculator />} />
+        <Route path="/about" element={<About />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>

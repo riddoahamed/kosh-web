@@ -5,6 +5,7 @@ import type { DiagnosticResult } from "@/types/diagnostic";
 import { ResultCard } from "@/components/diagnostic/ResultCard";
 import { ShareButton } from "@/components/shared/ShareButton";
 import { Button } from "@/components/ui/button";
+import SignUpNudge from "@/components/shared/SignUpNudge";
 import { RotateCcw } from "lucide-react";
 
 export default function Results() {
@@ -73,6 +74,12 @@ export default function Results() {
           Kosh (কোষ) — No products. No commissions. No hidden agenda.
         </p>
       </div>
+
+      <SignUpNudge
+        delay={3000}
+        headline="Save your results"
+        sub="Free account. See how your score improves over 30 days."
+      />
     </div>
   );
 }

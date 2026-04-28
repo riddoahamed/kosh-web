@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, CreditCard, Building2, Info } from "lucide-react";
+import SignUpNudge from "@/components/shared/SignUpNudge";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 type Mode = "loan" | "card";
@@ -652,6 +653,12 @@ export default function EMICalculator() {
           </p>
         </div>
       </div>
+
+      <SignUpNudge
+        delay={45000}
+        headline="Want to track your borrowing?"
+        sub="Save calculations and access them anywhere. Free account, no card needed."
+      />
     </div>
   );
 }

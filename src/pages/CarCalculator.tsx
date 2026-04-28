@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Car, Fuel, Wrench, Info, ChevronDown, ChevronUp } from "lucide-react";
+import SignUpNudge from "@/components/shared/SignUpNudge";
 
 // ── Car presets (Bangladesh reconditioned market 2024) ─────────────────────
 const CAR_PRESETS = [
@@ -450,6 +451,12 @@ export default function CarCalculator() {
           </p>
         </div>
       </div>
+
+      <SignUpNudge
+        delay={45000}
+        headline="Save your car budget"
+        sub="Free account so your numbers are here when you need them."
+      />
     </div>
   );
 }
