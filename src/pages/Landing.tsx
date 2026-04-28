@@ -235,6 +235,12 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-background">
 
+      {/* Full-page top glow — sits behind nav (which is semi-transparent) */}
+      <div
+        className="fixed inset-x-0 top-0 h-[480px] pointer-events-none z-0"
+        style={{ background: "radial-gradient(ellipse at 50% -10%, rgba(16,185,129,0.14) 0%, transparent 60%)" }}
+      />
+
       {/* ── Nav ── */}
       <nav
         className="border-b border-white/[0.06] sticky top-0 z-10 backdrop-blur-2xl bg-background/70"
@@ -269,18 +275,6 @@ export default function Landing() {
 
         {/* ── Hero ── */}
         <section ref={heroRef} className="relative py-14 md:py-24 text-center space-y-8 max-w-2xl mx-auto">
-          {/* Ambient background glow — full-width, positioned outside section overflow */}
-          <div
-            className="absolute pointer-events-none"
-            style={{
-              top: 0,
-              left: "50%",
-              transform: "translateX(-50%)",
-              width: "100vw",
-              height: "420px",
-              background: "radial-gradient(ellipse at 50% 20%, rgba(16,185,129,0.13) 0%, transparent 65%)",
-            }}
-          />
 
           <h1
             className="relative text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.1] tracking-tight"
@@ -347,7 +341,7 @@ export default function Landing() {
 
                     {/* Lock badge for gated tools */}
                     {isLocked && (
-                      <div className="absolute top-3 right-3 flex items-center gap-1 text-[10px] font-semibold text-white/40 bg-white/[0.06] border border-white/[0.08] px-2 py-0.5 rounded-full">
+                      <div className="absolute top-3 right-3 flex items-center gap-1 text-[10px] font-semibold text-muted-foreground bg-muted border border-border px-2 py-0.5 rounded-full">
                         <Lock className="h-2.5 w-2.5" />
                         Sign in
                       </div>
