@@ -113,9 +113,6 @@ export default function EmailSignupModal({ delayMs = 28000 }: Props) {
             Continue →
           </button>
 
-          <p className="text-center text-xs text-muted-foreground/40">
-            No spam. No selling. Ever.
-          </p>
         </form>
       </div>
     </>
