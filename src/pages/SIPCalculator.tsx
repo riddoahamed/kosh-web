@@ -17,10 +17,13 @@ const GOAL_PRESETS = [
 
 // ── Return presets ─────────────────────────────────────────────────────────
 const RETURN_PRESETS = [
-  { label: "DPS ~7.5%", value: 7.5 },
-  { label: "FDR ~8.5%", value: 8.5 },
-  { label: "Sanchaypatra ~11.3%", value: 11.28 },
-  { label: "Custom", value: 0 },
+  { label: "DPS", sublabel: "~7.5%", value: 7.5, note: "Bank monthly savings plan. Safe, government-regulated." },
+  { label: "FDR", sublabel: "~8.5%", value: 8.5, note: "Fixed deposit at a scheduled bank. Low risk, BDIC insured." },
+  { label: "Sanchaypatra", sublabel: "~11.3%", value: 11.28, note: "Government savings certificate. Highest safe return. Max ৳45L." },
+  { label: "Mutual Funds", sublabel: "~12%", value: 12, note: "ICB or private mutual funds (Bangladesh). Moderate risk, market-linked." },
+  { label: "Index Funds", sublabel: "~13%", value: 13, note: "Broad market index exposure. Low cost, long-term growth. Limited options in Bangladesh currently." },
+  { label: "Stocks (DSE)", sublabel: "~15–20%", value: 17, note: "Dhaka Stock Exchange equity. High risk, high potential. Requires research and patience." },
+  { label: "Custom", sublabel: "set rate", value: 0, note: "" },
 ];
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -166,7 +169,7 @@ export default function SIPCalculator() {
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-muted-foreground">৳</span>
                 <input
                   type="number"
-                  min={10000}
+                  min={0}
                   step={50000}
                   value={goalAmount}
                   onChange={(e) => { setGoalAmount(Math.max(10000, Number(e.target.value))); setSelectedGoal(null); }}
@@ -226,35 +229,50 @@ export default function SIPCalculator() {
           {/* Return rate */}
           <div className="space-y-2">
             <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              Expected annual return
+              Investment type
             </label>
             <div className="flex flex-wrap gap-2">
               {RETURN_PRESETS.map((p, i) => (
                 <button
                   key={p.label}
                   onClick={() => setReturnPresetIdx(i)}
-                  className={`text-xs px-3 py-1.5 rounded-full border transition-all ${
+                  className={`text-xs px-3 py-1.5 rounded-full border transition-all flex flex-col items-center leading-tight ${
                     returnPresetIdx === i
                       ? "border-primary bg-primary/10 text-primary font-semibold"
                       : "border-border text-muted-foreground hover:border-primary/40"
                   }`}
                 >
-                  {p.label}
+                  <span>{p.label}</span>
+                  <span className={`text-[10px] ${returnPresetIdx === i ? "text-primary/70" : "text-muted-foreground/50"}`}>{p.sublabel}</span>
                 </button>
               ))}
             </div>
+            {RETURN_PRESETS[returnPresetIdx].note && (
+              <p className="text-xs text-muted-foreground/60 leading-relaxed">
+                {RETURN_PRESETS[returnPresetIdx].note}
+              </p>
+            )}
             {RETURN_PRESETS[returnPresetIdx].value === 0 && (
               <div className="flex items-center gap-3">
                 <input
                   type="range"
                   min={1}
-                  max={20}
+                  max={30}
                   step={0.5}
                   value={customRate}
                   onChange={(e) => setCustomRate(Number(e.target.value))}
                   className="flex-1 accent-primary"
                 />
-                <span className="text-sm font-bold text-primary w-12 text-right">{customRate}%</span>
+                <input
+                  type="number"
+                  min={1}
+                  max={30}
+                  step={0.5}
+                  value={customRate}
+                  onChange={(e) => setCustomRate(Math.min(30, Math.max(1, Number(e.target.value))))}
+                  className="w-16 px-2 py-1.5 rounded-lg border border-border bg-card text-foreground text-sm font-bold text-center focus:outline-none focus:ring-2 focus:ring-primary/30"
+                />
+                <span className="text-sm font-bold text-primary">%</span>
               </div>
             )}
           </div>
@@ -382,29 +400,26 @@ export default function SIPCalculator() {
         {/* Where to invest */}
         {!alreadyThere && (
           <div className="bg-muted/40 border border-border rounded-2xl p-4 space-y-2">
-            <p className="text-xs font-semibold text-foreground">Where to put this monthly savings?</p>
+            <p className="text-xs font-semibold text-foreground">Monthly needed by investment type</p>
             <div className="space-y-1.5 text-xs text-muted-foreground">
-              <div className="flex justify-between">
-                <span>DPS (7.5%) → monthly SIP</span>
-                <span className="font-semibold text-foreground">
-                  {fmtShort(calcSIP(goalAmount, currentSavings, 7.5, years).monthly)}/mo
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span>FDR rollover (8.5%)</span>
-                <span className="font-semibold text-foreground">
-                  {fmtShort(calcSIP(goalAmount, currentSavings, 8.5, years).monthly)}/mo
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span>Sanchaypatra (11.28%)</span>
-                <span className="font-semibold text-emerald-600">
-                  {fmtShort(calcSIP(goalAmount, currentSavings, 11.28, years).monthly)}/mo
-                </span>
-              </div>
+              {[
+                { label: "DPS", rate: 7.5, color: "" },
+                { label: "FDR", rate: 8.5, color: "" },
+                { label: "Sanchaypatra", rate: 11.28, color: "text-emerald-600" },
+                { label: "Mutual Funds ~12%", rate: 12, color: "text-emerald-600" },
+                { label: "Index Funds ~13%", rate: 13, color: "text-emerald-600" },
+                { label: "Stocks (DSE) ~17%", rate: 17, color: "text-emerald-600" },
+              ].map(({ label, rate, color }) => (
+                <div key={label} className="flex justify-between">
+                  <span>{label} ({rate}%)</span>
+                  <span className={`font-semibold ${color || "text-foreground"}`}>
+                    {fmtShort(calcSIP(goalAmount, currentSavings, rate, years).monthly)}/mo
+                  </span>
+                </div>
+              ))}
             </div>
             <p className="text-xs text-muted-foreground/60 mt-1">
-              Sanchaypatra has a ৳45L max and requires NID + TIN. Best rate available with no risk.
+              Higher returns come with higher risk. Stocks and funds are market-linked — returns vary. Sanchaypatra is government-backed with no risk.
             </p>
           </div>
         )}
