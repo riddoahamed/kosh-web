@@ -17,13 +17,12 @@ const GOAL_PRESETS = [
 
 // ── Return presets ─────────────────────────────────────────────────────────
 const RETURN_PRESETS = [
-  { label: "DPS", sublabel: "~7.5%", value: 7.5, note: "Bank monthly savings plan. Safe, government-regulated." },
-  { label: "FDR", sublabel: "~8.5%", value: 8.5, note: "Fixed deposit at a scheduled bank. Low risk, BDIC insured." },
-  { label: "Sanchaypatra", sublabel: "~11.3%", value: 11.28, note: "Government savings certificate. Highest safe return. Max ৳45L." },
-  { label: "Mutual Funds", sublabel: "~12%", value: 12, note: "ICB or private mutual funds (Bangladesh). Moderate risk, market-linked." },
-  { label: "Index Funds", sublabel: "~13%", value: 13, note: "Broad market index exposure. Low cost, long-term growth. Limited options in Bangladesh currently." },
-  { label: "Stocks (DSE)", sublabel: "~15–20%", value: 17, note: "Dhaka Stock Exchange equity. High risk, high potential. Requires research and patience." },
-  { label: "Custom", sublabel: "set rate", value: 0, note: "" },
+  { label: "DPS", sublabel: "~7.5%", value: 7.5, editable: false, note: "Bank monthly savings plan. Safe, government-regulated." },
+  { label: "FDR", sublabel: "~8.5%", value: 8.5, editable: false, note: "Fixed deposit at a scheduled bank. Low risk, BDIC insured." },
+  { label: "Sanchaypatra", sublabel: "~11.3%", value: 11.28, editable: false, note: "Government savings certificate. Highest safe return. Max ৳45L." },
+  { label: "Mutual Funds", sublabel: "your rate", value: 12, editable: true, note: "ICB or private mutual funds (Bangladesh). Moderate risk, market-linked. Adjust rate to match your fund's historical returns." },
+  { label: "Index Funds", sublabel: "your rate", value: 13, editable: true, note: "Broad market index exposure. Low cost, long-term growth. Limited options in Bangladesh currently." },
+  { label: "Stocks (DSE)", sublabel: "your rate", value: 17, editable: true, note: "Dhaka Stock Exchange equity. High risk, high potential. Set the return you realistically expect." },
 ];
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -76,13 +75,11 @@ export default function SIPCalculator() {
   const [currentSavings, setCurrentSavings] = useState(0);
   const [years, setYears] = useState(5);
   const [returnPresetIdx, setReturnPresetIdx] = useState(1); // FDR default
-  const [customRate, setCustomRate] = useState(10);
+  const [customRate, setCustomRate] = useState(12);
   const [selectedGoal, setSelectedGoal] = useState<number | null>(1); // abroad studies
 
-  const annualRate =
-    RETURN_PRESETS[returnPresetIdx].value > 0
-      ? RETURN_PRESETS[returnPresetIdx].value
-      : customRate;
+  const activePreset = RETURN_PRESETS[returnPresetIdx];
+  const annualRate = activePreset.editable ? customRate : activePreset.value;
 
   function handleGoalPreset(i: number) {
     setSelectedGoal(i);
@@ -235,7 +232,7 @@ export default function SIPCalculator() {
               {RETURN_PRESETS.map((p, i) => (
                 <button
                   key={p.label}
-                  onClick={() => setReturnPresetIdx(i)}
+                  onClick={() => { setReturnPresetIdx(i); if (p.editable) setCustomRate(p.value); }}
                   className={`text-xs px-3 py-1.5 rounded-full border transition-all flex flex-col items-center leading-tight ${
                     returnPresetIdx === i
                       ? "border-primary bg-primary/10 text-primary font-semibold"
@@ -247,17 +244,17 @@ export default function SIPCalculator() {
                 </button>
               ))}
             </div>
-            {RETURN_PRESETS[returnPresetIdx].note && (
+            {activePreset.note && (
               <p className="text-xs text-muted-foreground/60 leading-relaxed">
-                {RETURN_PRESETS[returnPresetIdx].note}
+                {activePreset.note}
               </p>
             )}
-            {RETURN_PRESETS[returnPresetIdx].value === 0 && (
+            {activePreset.editable && (
               <div className="flex items-center gap-3">
                 <input
                   type="range"
                   min={1}
-                  max={30}
+                  max={40}
                   step={0.5}
                   value={customRate}
                   onChange={(e) => setCustomRate(Number(e.target.value))}
@@ -266,10 +263,10 @@ export default function SIPCalculator() {
                 <input
                   type="number"
                   min={1}
-                  max={30}
+                  max={40}
                   step={0.5}
                   value={customRate}
-                  onChange={(e) => setCustomRate(Math.min(30, Math.max(1, Number(e.target.value))))}
+                  onChange={(e) => setCustomRate(Math.min(40, Math.max(1, Number(e.target.value))))}
                   className="w-16 px-2 py-1.5 rounded-lg border border-border bg-card text-foreground text-sm font-bold text-center focus:outline-none focus:ring-2 focus:ring-primary/30"
                 />
                 <span className="text-sm font-bold text-primary">%</span>
