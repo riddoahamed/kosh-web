@@ -18,7 +18,10 @@ export const auth = {
     if (!supabase) throw new Error("Supabase not configured");
     return supabase.auth.signInWithOtp({
       email,
-      options: { shouldCreateUser: true },
+      options: {
+        shouldCreateUser: true,
+        emailRedirectTo: window.location.origin + "/auth",
+      },
     });
   },
 

@@ -1,42 +1,58 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight, Loader2, Mail } from "lucide-react";
 import { auth, db } from "@/lib/supabase";
 import { useAuthStore } from "@/store/authStore";
 
 const inputClass =
   "w-full px-4 py-3.5 rounded-xl border border-white/[0.08] bg-white/[0.04] text-foreground text-sm placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all";
 
-type Step = "email" | "otp" | "profile";
+type Step = "email" | "sent" | "profile";
 
 export default function Auth() {
   const navigate = useNavigate();
   const { setProfile } = useAuthStore();
 
-  // Detect if this looks like a returning user (has a local profile already)
   const localProfile = db.getProfile();
   const isReturning = !!localProfile;
 
-  // If already fully authenticated, skip to dashboard
-  useEffect(() => {
-    const storeProfile = useAuthStore.getState().profile;
-    if (storeProfile) navigate("/dashboard", { replace: true });
-  }, [navigate]);
-
   const [step, setStep] = useState<Step>("email");
   const [email, setEmail] = useState(localProfile?.email ?? "");
-  const [otp, setOtp] = useState("");
   const [name, setName] = useState("");
   const [age, setAge] = useState("");
   const [phone, setPhone] = useState("");
   const [consent, setConsent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  // Track whether this is definitely a returning user (confirmed after OTP)
-  const [confirmedReturning, setConfirmedReturning] = useState(false);
 
-  // ── Step 1: send OTP ───────────────────────────────────────────────────
-  const handleSendOtp = async (e: React.FormEvent) => {
+  // On load: if already signed in go to dashboard.
+  // If user landed here via magic link click, they already have a session —
+  // check for profile and either go to dashboard or show profile step.
+  useEffect(() => {
+    const init = async () => {
+      const storeProfile = useAuthStore.getState().profile;
+      if (storeProfile) {
+        navigate("/dashboard", { replace: true });
+        return;
+      }
+      const session = await auth.getSession();
+      if (session?.user) {
+        const existing = await db.fetchProfile(session.user.id);
+        if (existing) {
+          setProfile(existing);
+          navigate("/dashboard", { replace: true });
+        } else {
+          // New user who clicked magic link — collect their details
+          setEmail(session.user.email ?? "");
+          setStep("profile");
+        }
+      }
+    };
+    init();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Step 1: send magic link ───────────────────────────────────────────────
+  const handleSendLink = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) return;
     setLoading(true);
@@ -44,7 +60,7 @@ export default function Auth() {
     try {
       const { error: err } = await auth.sendOtp(email.trim().toLowerCase());
       if (err) throw err;
-      setStep("otp");
+      setStep("sent");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Something went wrong. Try again.");
     } finally {
@@ -52,38 +68,7 @@ export default function Auth() {
     }
   };
 
-  // ── Step 2: verify OTP ─────────────────────────────────────────────────
-  const handleVerifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (otp.length < 6) return;
-    setLoading(true);
-    setError("");
-    try {
-      const { data, error: err } = await auth.verifyOtp(email, otp);
-      if (err) throw err;
-
-      // Check if this user already has a profile
-      const userId = data.user?.id;
-      if (userId) {
-        const existing = await db.fetchProfile(userId);
-        if (existing) {
-          // Returning user — go straight to dashboard
-          setConfirmedReturning(true);
-          setProfile(existing);
-          navigate("/dashboard");
-          return;
-        }
-      }
-      // New user — collect name
-      setStep("profile");
-    } catch (err: unknown) {
-      setError("Incorrect code. Check your email and try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // ── Step 3: save profile ───────────────────────────────────────────────
+  // ── Step 3: save profile (new users only) ─────────────────────────────────
   const handleProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !consent) return;
@@ -130,13 +115,12 @@ export default function Auth() {
 
         {/* Back link */}
         <Link to="/" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
-          <ArrowLeft className="h-3.5 w-3.5" />
-          Back
+          ← Back
         </Link>
 
         {/* ── Email step ── */}
         {step === "email" && (
-          <form onSubmit={handleSendOtp} className="space-y-6">
+          <form onSubmit={handleSendLink} className="space-y-6">
             <div className="space-y-2">
               {isReturning ? (
                 <>
@@ -150,7 +134,7 @@ export default function Auth() {
                     Good to see you again{localProfile?.name ? `, ${localProfile.name.split(" ")[0]}` : ""}.
                   </h1>
                   <p className="text-sm text-muted-foreground">
-                    We'll send a quick sign-in code to your email.
+                    We'll send a sign-in link to your email.
                   </p>
                 </>
               ) : (
@@ -165,7 +149,7 @@ export default function Auth() {
                     You're one of the first.
                   </h1>
                   <p className="text-sm text-muted-foreground">
-                    Enter your email and we'll send you a sign-in code.
+                    Enter your email — we'll send you a one-click sign-in link.
                   </p>
                 </>
               )}
@@ -194,7 +178,7 @@ export default function Auth() {
                 {loading
                   ? <Loader2 className="h-4 w-4 animate-spin" />
                   : isReturning
-                  ? <>Sign in <ArrowRight className="h-4 w-4" /></>
+                  ? <>Send sign-in link <ArrowRight className="h-4 w-4" /></>
                   : <>Get access <ArrowRight className="h-4 w-4" /></>
                 }
               </button>
@@ -206,59 +190,52 @@ export default function Auth() {
           </form>
         )}
 
-        {/* ── OTP step ── */}
-        {step === "otp" && (
-          <form onSubmit={handleVerifyOtp} className="space-y-6">
+        {/* ── Sent step ── */}
+        {step === "sent" && (
+          <div className="space-y-6 text-center">
+            <div className="flex justify-center">
+              <div
+                className="h-16 w-16 rounded-2xl flex items-center justify-center"
+                style={{ background: "rgba(16,185,129,0.12)", border: "1px solid rgba(16,185,129,0.2)" }}
+              >
+                <Mail className="h-7 w-7 text-primary" />
+              </div>
+            </div>
             <div className="space-y-2">
-              <h1 className="text-2xl font-bold text-foreground">
-                {confirmedReturning ? "Signing you in…" : "Check your email"}
-              </h1>
+              <h1 className="text-2xl font-bold text-foreground">Check your inbox</h1>
               <p className="text-sm text-muted-foreground">
-                We sent a 6-digit code to <span className="text-foreground/70 font-medium">{email}</span>
+                We sent a sign-in link to{" "}
+                <span className="text-foreground/80 font-medium">{email}</span>.
+                <br />
+                Click the link in the email to continue.
               </p>
             </div>
-
-            <div className="space-y-3">
-              <input
-                type="text"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                placeholder="000000"
-                maxLength={6}
-                value={otp}
-                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-                className={`${inputClass} text-center text-xl tracking-[0.5em] font-mono`}
-              />
-              {error && <p className="text-xs text-red-400">{error}</p>}
+            <p className="text-xs text-muted-foreground/40">
+              Didn't get it? Check spam, or{" "}
               <button
-                type="submit"
-                disabled={loading || otp.length < 6}
-                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-40"
-                style={{
-                  background: "linear-gradient(135deg, hsl(160,84%,39%) 0%, hsl(160,84%,30%) 100%)",
-                  boxShadow: otp.length === 6 ? "0 0 28px rgba(16,185,129,0.25)" : "none",
-                }}
+                onClick={() => { setStep("email"); setError(""); }}
+                className="underline hover:text-muted-foreground transition-colors"
               >
-                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Verify →"}
+                try again
               </button>
-              <button
-                type="button"
-                onClick={() => { setStep("email"); setOtp(""); setError(""); }}
-                className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors py-1"
-              >
-                Wrong email? Go back
-              </button>
-            </div>
-          </form>
+              .
+            </p>
+          </div>
         )}
 
-        {/* ── Profile step ── */}
+        {/* ── Profile step (new users after clicking magic link) ── */}
         {step === "profile" && (
           <form onSubmit={handleProfile} className="space-y-6">
             <div className="space-y-2">
-              <h1 className="text-2xl font-bold text-foreground">Almost there</h1>
+              <span
+                className="inline-block text-xs font-bold tracking-widest text-primary/80 uppercase px-3 py-1 rounded-full border border-primary/20"
+                style={{ background: "rgba(16,185,129,0.08)" }}
+              >
+                Almost there
+              </span>
+              <h1 className="text-2xl font-bold text-foreground">Set up your account</h1>
               <p className="text-sm text-muted-foreground">
-                A few quick details to set up your account.
+                A few quick details and you're in.
               </p>
             </div>
 
