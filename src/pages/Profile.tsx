@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
 import { useProgressStore, CORE_MODULES } from "@/store/progressStore";
 import { usePointsStore } from "@/store/pointsStore";
+import { useUIStore, type Theme } from "@/store/uiStore";
 import type { KoshProfile } from "@/lib/supabase";
-import { CheckCircle2, ChevronDown, LogOut, ShieldCheck, User } from "lucide-react";
+import { CheckCircle2, ChevronDown, LogOut, Monitor, Moon, Settings, ShieldCheck, Sun, User } from "lucide-react";
 
 const DIVISIONS = [
   "Dhaka", "Chittagong", "Rajshahi", "Khulna",
@@ -50,6 +51,7 @@ export default function Profile() {
   const { profile, setProfile, logout } = useAuthStore();
   const { progress, load } = useProgressStore();
   const { total: mangoes, streak, load: loadPoints } = usePointsStore();
+  const { theme, aiWidgetHidden, setTheme, setAIWidgetHidden } = useUIStore();
 
   const [saved, setSaved] = useState(false);
   const [kycSaved, setKycSaved] = useState(false);
@@ -421,6 +423,67 @@ export default function Profile() {
                 Submit KYC
               </button>
             </div>
+          )}
+        </div>
+
+        {/* ── Settings ── */}
+        <div className="bg-card border border-border rounded-2xl p-5 space-y-5">
+          <div className="flex items-center gap-2">
+            <Settings className="h-4 w-4 text-foreground/40" />
+            <h2 className="font-semibold text-foreground">Settings</h2>
+          </div>
+
+          {/* Theme */}
+          <div className="space-y-2.5">
+            <p className="text-xs font-semibold text-foreground/50">Theme</p>
+            <div className="grid grid-cols-3 gap-2">
+              {([
+                { value: "system", label: "System", icon: Monitor },
+                { value: "light",  label: "Light",  icon: Sun },
+                { value: "dark",   label: "Dark",   icon: Moon },
+              ] as { value: Theme; label: string; icon: React.ElementType }[]).map(({ value, label, icon: Icon }) => (
+                <button
+                  key={value}
+                  onClick={() => setTheme(value)}
+                  className={`flex flex-col items-center gap-1.5 rounded-xl border-2 py-3 px-2 text-xs font-semibold transition-all ${
+                    theme === value
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border bg-muted/30 text-foreground/50 hover:border-border/80 hover:text-foreground/70"
+                  }`}
+                >
+                  <Icon className="h-4 w-4" />
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* AI Widget */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <span className="text-base" style={{ filter: "drop-shadow(0 0 4px #a3e635)" }}>✨</span>
+              <div>
+                <p className="text-sm font-semibold text-foreground">AI Assistant</p>
+                <p className="text-xs text-muted-foreground">Floating chat widget</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setAIWidgetHidden(!aiWidgetHidden)}
+              className={`relative w-11 h-6 rounded-full transition-all ${
+                aiWidgetHidden ? "bg-muted" : "bg-primary"
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-all ${
+                  aiWidgetHidden ? "left-0.5" : "left-[22px]"
+                }`}
+              />
+            </button>
+          </div>
+          {aiWidgetHidden && (
+            <p className="text-xs text-muted-foreground/60 -mt-2">
+              Widget is hidden. Toggle back on to restore the ✨ button.
+            </p>
           )}
         </div>
 

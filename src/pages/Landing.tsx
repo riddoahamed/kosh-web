@@ -594,7 +594,7 @@ export default function Landing() {
                 {[
                   { v: "800+", l: "Bangladesh-specific learning modules" },
                   { v: "3", l: "Ways to deploy (app · website · embed)" },
-                  { v: "0→1", l: "Measurable literacy score improvement" },
+                  { v: "0→100", l: "Gamified user level journey — from zero to financially literate" },
                 ].map(({ v, l }) => (
                   <div key={l}>
                     <div
@@ -608,26 +608,26 @@ export default function Landing() {
                 ))}
               </div>
 
-              {/* Feature pills */}
-              <div className="flex flex-wrap gap-2 border-t border-border pt-5">
+              {/* Feature pills — equal size grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 border-t border-border pt-5">
                 {[
-                  "Full Bangla/Banglish content library",
-                  "Gamification (points, streaks, levels)",
-                  "Diagnostic + progress tracking",
-                  "White-label branding & colors",
-                  "Analytics dashboard for your team",
-                  "Scam awareness & grey zone content",
+                  "Bangla/Banglish content",
+                  "Points, streaks, levels",
+                  "Diagnostic + tracking",
+                  "White-label branding",
+                  "Analytics dashboard",
+                  "Scam & grey zone content",
                 ].map((item) => (
-                  <span
+                  <div
                     key={item}
-                    className="inline-flex items-center gap-1.5 text-xs font-medium text-foreground/70 px-3 py-1.5 rounded-full border border-border bg-muted/40"
+                    className="flex items-center gap-1.5 text-xs font-medium text-foreground/70 px-3 py-2.5 rounded-xl border border-border bg-muted/40"
                   >
                     <CheckCircle2
                       className="h-3 w-3 text-primary shrink-0"
                       style={{ filter: "drop-shadow(0 0 3px rgba(16,185,129,0.7))" }}
                     />
-                    {item}
-                  </span>
+                    <span>{item}</span>
+                  </div>
                 ))}
               </div>
 

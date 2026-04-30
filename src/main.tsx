@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
 import { useAuthStore } from './store/authStore.ts'
+import { useUIStore } from './store/uiStore.ts'
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -10,8 +11,10 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+// Apply saved theme before React renders (prevents flash)
+useUIStore.getState().loadUI();
+
 // Start Supabase auth listener before React renders
-// Keeps session alive across page refreshes automatically
 useAuthStore.getState().initAuth();
 
 createRoot(document.getElementById('root')!).render(

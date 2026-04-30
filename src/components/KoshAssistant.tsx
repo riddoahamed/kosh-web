@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useUIStore } from "@/store/uiStore";
 
 interface Message {
   role: "user" | "assistant";
@@ -19,6 +20,7 @@ const STARTERS = [
 ];
 
 export default function KoshAssistant() {
+  const { aiWidgetHidden } = useUIStore();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -96,23 +98,30 @@ export default function KoshAssistant() {
     sendMessage(q);
   }
 
+  if (aiWidgetHidden) return null;
+
   return (
     <>
-      {/* Floating button */}
+      {/* Floating button — cobalt blue + neon lime */}
       <button
         onClick={() => setOpen((v) => !v)}
         aria-label="Open Kosh AI Assistant"
-        className={`fixed bottom-5 right-5 z-50 w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all duration-200 active:scale-95 ${
-          open ? "bg-foreground text-background" : "bg-primary text-white"
-        }`}
+        className="fixed bottom-5 right-5 z-50 w-11 h-11 rounded-full flex items-center justify-center transition-all duration-200 active:scale-95"
+        style={{
+          background: open ? "#1e293b" : "#1d4ed8",
+          boxShadow: open
+            ? "0 0 0 1.5px #a3e635, 0 4px 16px rgba(29,78,216,0.3)"
+            : "0 0 16px rgba(29,78,216,0.5), 0 0 32px rgba(163,230,53,0.15), 0 4px 12px rgba(0,0,0,0.3)",
+          border: "1.5px solid #a3e635",
+        }}
       >
         {open ? (
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a3e635" strokeWidth="2.5" strokeLinecap="round">
             <line x1="18" y1="6" x2="6" y2="18" />
             <line x1="6" y1="6" x2="18" y2="18" />
           </svg>
         ) : (
-          <span className="text-xl">✨</span>
+          <span className="text-base" style={{ filter: "drop-shadow(0 0 4px #a3e635)" }}>✨</span>
         )}
       </button>
 
@@ -127,7 +136,10 @@ export default function KoshAssistant() {
               <p className="text-sm font-bold text-foreground">Kosh Assistant</p>
               <p className="text-xs text-foreground/50">Ask anything about money in Bangladesh</p>
             </div>
-            <span className="text-xs bg-primary/10 text-primary font-semibold px-2 py-0.5 rounded-full">AI</span>
+            <span
+              className="text-xs font-bold px-2.5 py-0.5 rounded-full"
+              style={{ background: "rgba(29,78,216,0.15)", color: "#a3e635", border: "1px solid rgba(163,230,53,0.3)" }}
+            >AI</span>
           </div>
 
           {/* Messages */}
