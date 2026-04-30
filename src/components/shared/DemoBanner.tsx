@@ -5,6 +5,7 @@
 
 import { useNavigate } from "react-router-dom";
 import { isDemoMode, exitDemo } from "@/lib/demo";
+import { useAuthStore } from "@/store/authStore";
 
 export function DemoBanner() {
   const navigate = useNavigate();
@@ -13,6 +14,9 @@ export function DemoBanner() {
 
   function handleSignUp() {
     exitDemo();
+    // Clear the demo profile out of the Zustand store so Auth's
+    // useEffect doesn't see a non-null profile and bounce back here.
+    useAuthStore.getState().loadProfile();
     navigate("/auth");
   }
 

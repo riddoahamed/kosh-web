@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, Loader2, Mail } from "lucide-react";
 import { auth, db } from "@/lib/supabase";
 import { useAuthStore } from "@/store/authStore";
-import { startDemoLite } from "@/lib/demo";
+import { startDemoLite, isDemoMode, exitDemo } from "@/lib/demo";
 
 const inputClass =
   "w-full px-4 py-3.5 rounded-xl border border-white/[0.08] bg-white/[0.04] text-foreground text-sm placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all";
@@ -14,7 +14,9 @@ export default function Auth() {
   const navigate = useNavigate();
   const { setProfile } = useAuthStore();
 
-  const localProfile = db.getProfile();
+  // Ignore demo profile — a demo user visiting /auth wants to sign up properly
+  const inDemo = isDemoMode();
+  const localProfile = inDemo ? null : db.getProfile();
   const isReturning = !!localProfile;
 
   const [step, setStep] = useState<Step>(isReturning ? "returning" : "email");
@@ -28,9 +30,16 @@ export default function Auth() {
 
   // On load: if already signed in go to dashboard
   useEffect(() => {
+    // If arriving from demo-mode banner, clear the stale demo state first
+    if (inDemo) {
+      exitDemo();
+      useAuthStore.getState().loadProfile();
+    }
+
     const init = async () => {
       const storeProfile = useAuthStore.getState().profile;
-      if (storeProfile) {
+      // Don't redirect if profile is the demo one (already cleared above)
+      if (storeProfile && !isDemoMode()) {
         navigate("/dashboard", { replace: true });
         return;
       }
@@ -332,7 +341,7 @@ export default function Auth() {
                 <span className="text-3xl">🥭</span>
                 <div>
                   <p className="text-sm font-semibold text-foreground">Explore Kosh now</p>
-                  <p className="text-xs text-muted-foreground">All modules unlocked — no email needed</p>
+                  <p className="text-xs text-muted-foreground">Start from Module 1 — no email needed</p>
                 </div>
               </div>
               <button
