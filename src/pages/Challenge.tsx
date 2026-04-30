@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { CHALLENGE_DAYS, WEEK_TITLES } from "@/data/challenge";
-import { usePointsStore, POINTS } from "@/store/pointsStore";
+import { usePointsStore, MANGOES } from "@/store/pointsStore";
 
 const CHALLENGE_PROGRESS_KEY = "kosh:challenge_progress";
 
@@ -33,7 +33,7 @@ export default function Challenge() {
       next[day] = false;
     } else {
       next[day] = true;
-      addPoints(POINTS.CHALLENGE_DAY, `Day ${day} challenge ✓`);
+      addPoints(MANGOES.CHALLENGE_DAY, `Day ${day} challenge ✓`);
     }
     setProgress(next);
     saveProgress(next);
@@ -55,7 +55,7 @@ export default function Challenge() {
             <span className="text-3xl">🗓️</span>
             <div>
               <h1 className="text-2xl font-bold text-foreground">30-Day Challenge</h1>
-              <p className="text-muted-foreground text-sm">One action per day. +{POINTS.CHALLENGE_DAY} points each.</p>
+              <p className="text-muted-foreground text-sm">One action per day. +{MANGOES.CHALLENGE_DAY} 🥭 each.</p>
             </div>
           </div>
         </div>
@@ -117,7 +117,7 @@ export default function Challenge() {
                         </p>
                       </div>
                       {!done && (
-                        <span className="text-xs text-primary font-semibold shrink-0 mt-1">+{POINTS.CHALLENGE_DAY}pts</span>
+                        <span className="text-xs text-primary font-semibold shrink-0 mt-1">+{MANGOES.CHALLENGE_DAY} 🥭</span>
                       )}
                     </button>
                   );

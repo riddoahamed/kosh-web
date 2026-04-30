@@ -130,7 +130,12 @@ export function ModuleLayout({
           <ModuleQuiz questions={module.quiz} onComplete={handleQuizComplete} />
         ) : (
           <WhatsNextCard
-            moduleId={module.whatsNext.moduleId ?? module.whatsNext.nextModuleId ?? "dashboard"}
+            moduleId={
+              module.whatsNext.moduleId ??
+              module.whatsNext.nextModuleId ??
+              module.zoneId ??
+              "dashboard"
+            }
             preview={module.whatsNext.preview}
             quizScore={quizScore!}
           />

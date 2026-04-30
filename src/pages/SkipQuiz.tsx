@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getModule } from "@/data/modules";
 import { useProgressStore } from "@/store/progressStore";
-import { usePointsStore, POINTS } from "@/store/pointsStore";
+import { usePointsStore, MANGOES } from "@/store/pointsStore";
 import { db } from "@/lib/supabase";
 
 type Phase = "intro" | "quiz" | "pass" | "fail";
@@ -47,7 +47,7 @@ export default function SkipQuiz() {
           // Pass
           completeQuiz(id!, score, newResponses);
           completeModule(id!, 0);
-          addPoints(POINTS.SKIP_QUIZ_PASS, `Skipped Module ${id!} by quiz ⚡`);
+          addPoints(MANGOES.SKIP_QUIZ_PASS, `Skipped Module ${id!} by quiz ⚡`);
           setPhase("pass");
         } else {
           setPhase("fail");
@@ -62,7 +62,7 @@ export default function SkipQuiz() {
         <div className="max-w-sm w-full text-center space-y-6">
           <div className="text-6xl">⚡</div>
           <h1 className="text-2xl font-bold text-foreground">You already knew this.</h1>
-          <p className="text-muted-foreground">Module unlocked. +{POINTS.SKIP_QUIZ_PASS} Kosh points earned.</p>
+          <p className="text-muted-foreground">Module unlocked. +{MANGOES.SKIP_QUIZ_PASS} 🥭 mangoes earned.</p>
           <button
             onClick={() => navigate("/dashboard")}
             className="w-full bg-primary text-white rounded-xl py-3 font-semibold hover:bg-primary/90 transition-all"
@@ -121,7 +121,7 @@ export default function SkipQuiz() {
             </p>
           </div>
           <div className="bg-muted/50 border border-border rounded-xl p-4 text-sm text-foreground/70 space-y-1">
-            <p>✓ Pass (2/3) → module unlocked + {POINTS.SKIP_QUIZ_PASS} points</p>
+            <p>✓ Pass (2/3) → module unlocked + {MANGOES.SKIP_QUIZ_PASS} 🥭 mangoes</p>
             <p>✗ Fail → you'll read the module (10 min, worth it)</p>
           </div>
           <button
@@ -153,7 +153,7 @@ export default function SkipQuiz() {
         </div>
 
         <div className="bg-card rounded-2xl border border-border p-6 space-y-5 flex-1">
-          <p className="font-semibold text-foreground leading-snug text-lg">{question.text}</p>
+          <p className="font-semibold text-foreground leading-snug text-lg">{question.question ?? question.text}</p>
           <div className="space-y-2">
             {question.options.map((opt, i) => {
               let cls = "w-full text-left rounded-xl border-2 px-4 py-3 text-sm transition-all ";

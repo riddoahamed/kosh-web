@@ -19,6 +19,7 @@ import SIPCalculator from "@/pages/SIPCalculator";
 import CarCalculator from "@/pages/CarCalculator";
 import ZoneLibrary from "@/pages/ZoneLibrary";
 import ZoneDetail from "@/pages/ZoneDetail";
+import MangoStore from "@/pages/MangoStore";
 import About from "@/pages/About";
 import NotFound from "@/pages/NotFound";
 import KoshAssistant from "@/components/KoshAssistant";
@@ -47,6 +48,7 @@ export default function App() {
         <Route path="/car-calculator" element={<CarCalculator />} />
         <Route path="/zones" element={<ZoneLibrary />} />
         <Route path="/zones/:zoneId" element={<ZoneDetail />} />
+        <Route path="/store" element={<MangoStore />} />
         <Route path="/about" element={<About />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

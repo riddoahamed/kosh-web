@@ -6,7 +6,7 @@ import { usePointsStore } from "@/store/pointsStore";
 import { db } from "@/lib/supabase";
 import { LevelBadge } from "@/components/shared/LevelBadge";
 import { getModuleIcon } from "@/data/moduleIcons";
-import { Lock, CheckCircle2, Circle, Zap, Flame, Trophy } from "lucide-react";
+import { Lock, CheckCircle2, Circle, Zap, Flame } from "lucide-react";
 import type { LevelAssignment } from "@/types/diagnostic";
 
 const CORE_MODULES = [
@@ -31,13 +31,15 @@ export default function Dashboard() {
   const result = db.getDiagnosticResult();
   const greyZoneFlagged = result?.greyZone?.flagged ?? false;
   const { load, isUnlocked, getRecord, allCoreModulesComplete, progress } = useProgressStore();
-  const { total: points, streak, load: loadPoints } = usePointsStore();
+  const { total: points, streak, load: loadPoints, checkReengagement } = usePointsStore();
 
   useEffect(() => {
     loadProfile();
     load();
     loadPoints();
-  }, [loadProfile, load, loadPoints]);
+    // Fire re-engagement bonus if user has been away 14+ days
+    checkReengagement();
+  }, [loadProfile, load, loadPoints, checkReengagement]);
 
   useEffect(() => {
     if (!profile && !db.getProfile()) {
@@ -119,7 +121,7 @@ export default function Dashboard() {
       <nav className="border-b border-border bg-background sticky top-0 z-10">
         <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
           <Link to="/"><img src="/logo.png" alt="Kosh" className="h-8 w-auto" /></Link>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             {/* Zones link */}
             <button
               onClick={() => navigate("/zones")}
@@ -127,11 +129,21 @@ export default function Dashboard() {
             >
               Zones
             </button>
-            {/* Points */}
-            <div className="flex items-center gap-1 bg-primary/10 text-primary rounded-full px-2.5 py-1 text-xs font-bold">
-              <Trophy className="h-3 w-3" />
-              {points.toLocaleString()} pts
-            </div>
+            {/* Store link */}
+            <button
+              onClick={() => navigate("/store")}
+              className="text-xs font-semibold text-foreground/60 hover:text-primary transition-colors"
+            >
+              Store
+            </button>
+            {/* Mango balance */}
+            <button
+              onClick={() => navigate("/store")}
+              className="flex items-center gap-1 bg-primary/10 text-primary rounded-full px-2.5 py-1 text-xs font-bold hover:bg-primary/20 transition-all"
+            >
+              <span>🥭</span>
+              {points.toLocaleString()}
+            </button>
             {/* Streak */}
             {streak > 0 && (
               <div className="flex items-center gap-1 bg-orange-100 text-orange-600 rounded-full px-2.5 py-1 text-xs font-bold">
@@ -230,7 +242,7 @@ export default function Dashboard() {
                 <div className="text-sm font-semibold text-foreground">Already know this stuff?</div>
                 <div className="text-xs text-muted-foreground">Pass the comprehensive exam — unlock all 8 modules instantly</div>
               </div>
-              <span className="text-xs font-bold text-primary shrink-0">+400 pts</span>
+              <span className="text-xs font-bold text-primary shrink-0">+400 🥭</span>
             </button>
           )}
 

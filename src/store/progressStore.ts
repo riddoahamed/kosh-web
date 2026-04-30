@@ -30,6 +30,8 @@ interface ProgressStore {
   isUnlocked: (moduleId: string, greyZoneFlagged: boolean) => boolean;
   getRecord: (moduleId: string) => ModuleProgressRecord;
   allCoreModulesComplete: () => boolean;
+  /** Returns the zoneId if completing moduleId finishes that entire zone, else null */
+  checkZoneCompletion: (moduleId: string) => string | null;
 }
 
 function defaultRecord(moduleId: string): ModuleProgressRecord {
@@ -157,5 +159,19 @@ export const useProgressStore = create<ProgressStore>((set, get) => ({
   allCoreModulesComplete: () => {
     const { progress } = get();
     return CORE_MODULES.every((id) => progress[id]?.status === "completed");
+  },
+
+  checkZoneCompletion: (moduleId) => {
+    const { progress } = get();
+    for (const [zoneId, ids] of Object.entries(ZONE_MODULE_ORDER)) {
+      if (zoneId === "zone-1") continue;
+      if (!ids.includes(moduleId)) continue;
+      // Check all OTHER modules in this zone are already completed
+      const allOthersComplete = ids
+        .filter((id) => id !== moduleId)
+        .every((id) => progress[id]?.status === "completed");
+      if (allOthersComplete) return zoneId;
+    }
+    return null;
   },
 }));

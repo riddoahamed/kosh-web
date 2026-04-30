@@ -2,29 +2,29 @@ import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getModule } from "@/data/modules";
 import { useProgressStore } from "@/store/progressStore";
-import { usePointsStore, POINTS } from "@/store/pointsStore";
+import { usePointsStore, MANGOES } from "@/store/pointsStore";
 import { db } from "@/lib/supabase";
 import { ModuleLayout } from "@/components/module/ModuleLayout";
+import { getZone } from "@/data/zones";
 
 export default function Module() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const startTimeRef = useRef<number>(Date.now());
   const [progressLoaded, setProgressLoaded] = useState(false);
+  const [zoneBanner, setZoneBanner] = useState<string | null>(null);
 
-  const { load, startModule, completeQuiz, completeAction, completeModule, isUnlocked, getRecord } =
+  const { load, startModule, completeQuiz, completeAction, completeModule, isUnlocked, getRecord, checkZoneCompletion } =
     useProgressStore();
   const { addPoints } = usePointsStore();
   const greyZoneFlagged = db.getDiagnosticResult()?.greyZone?.flagged ?? false;
   const module = id ? getModule(id) : undefined;
 
-  // Step 1: load persisted progress once on mount
   useEffect(() => {
     load();
     setProgressLoaded(true);
   }, [load]);
 
-  // Step 2: guard + start — only runs after progress is loaded
   useEffect(() => {
     if (!progressLoaded || !module || !id) return;
 
@@ -37,7 +37,6 @@ export default function Module() {
     startTimeRef.current = Date.now();
 
     return () => {
-      // On unmount: save time only if module isn't already completed
       const current = useProgressStore.getState().progress[id];
       if (current?.status !== "completed") {
         const seconds = Math.round((Date.now() - startTimeRef.current) / 1000);
@@ -58,22 +57,42 @@ export default function Module() {
   if (!progressLoaded) return null;
 
   const record = getRecord(id);
+  const backTarget = module.zoneId && module.zoneId !== "zone-1"
+    ? `/zones/${module.zoneId}`
+    : "/dashboard";
+  const backLabel = module.zoneId && module.zoneId !== "zone-1"
+    ? `← Zone ${getZone(module.zoneId)?.number ?? ""}`
+    : "← Dashboard";
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Zone completion banner */}
+      {zoneBanner && (
+        <div className="fixed top-0 inset-x-0 z-50 bg-primary text-white text-center px-4 py-3 text-sm font-semibold animate-in slide-in-from-top duration-300">
+          🎉 Zone complete! +{MANGOES.ZONE_COMPLETE} 🥭 mangoes earned
+          <button onClick={() => setZoneBanner(null)} className="ml-3 opacity-70 hover:opacity-100">✕</button>
+        </div>
+      )}
+
       <div className="max-w-xl mx-auto px-4 py-8 pb-20">
         {/* Header */}
         <div className="mb-8 space-y-1">
           <button
-            onClick={() => navigate("/dashboard")}
+            onClick={() => navigate(backTarget)}
             className="text-sm font-medium text-foreground/60 hover:text-foreground transition-colors mb-4 flex items-center gap-1"
           >
-            ← Dashboard
+            {backLabel}
           </button>
 
           {module.isGreyZoneOnly && (
             <span className="inline-block text-xs font-semibold text-violet-600 bg-violet-50 border border-violet-200 rounded-full px-3 py-0.5 mb-2">
               Grey Zone Recovery
+            </span>
+          )}
+
+          {module.zoneId && module.zoneId !== "zone-1" && (
+            <span className="inline-block text-xs font-semibold text-foreground/40 mb-1">
+              Zone {getZone(module.zoneId)?.number} · {getZone(module.zoneId)?.title}
             </span>
           )}
 
@@ -88,17 +107,24 @@ export default function Module() {
           initialActionCompleted={record.actionCompleted}
           onActionComplete={() => {
             completeAction(id);
-            addPoints(POINTS.ACTION_DONE, `Action: Module ${id}`);
+            addPoints(MANGOES.ACTION_DONE, `Action: Module ${id}`);
           }}
           onQuizComplete={(score, responses) => {
             completeQuiz(id, score, responses);
-            const pts = score === 100 ? POINTS.QUIZ_100 : score >= 67 ? POINTS.QUIZ_67 : POINTS.QUIZ_33;
+            const pts = score === 100 ? MANGOES.QUIZ_100 : score >= 67 ? MANGOES.QUIZ_67 : MANGOES.QUIZ_33;
             addPoints(pts, `Quiz: Module ${id} — ${score}%`);
           }}
           onModuleComplete={() => {
             const seconds = Math.round((Date.now() - startTimeRef.current) / 1000);
             completeModule(id, Math.max(seconds, 30));
-            addPoints(POINTS.MODULE_READ, `Completed Module ${id}`);
+            addPoints(MANGOES.MODULE_READ, `Completed Module ${id}`);
+
+            // Check if this completion finishes a whole zone
+            const completedZone = checkZoneCompletion(id);
+            if (completedZone) {
+              addPoints(MANGOES.ZONE_COMPLETE, `Zone ${completedZone} complete! 🎉`);
+              setZoneBanner(completedZone);
+            }
           }}
         />
       </div>
