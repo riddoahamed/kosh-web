@@ -3,11 +3,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, Loader2, Mail } from "lucide-react";
 import { auth, db } from "@/lib/supabase";
 import { useAuthStore } from "@/store/authStore";
+import { startDemoLite } from "@/lib/demo";
 
 const inputClass =
   "w-full px-4 py-3.5 rounded-xl border border-white/[0.08] bg-white/[0.04] text-foreground text-sm placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all";
 
-type Step = "returning" | "email" | "sent" | "profile";
+type Step = "returning" | "email" | "sent" | "profile" | "rate-limited";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -48,6 +49,17 @@ export default function Auth() {
     init();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // ── Detect Supabase email rate-limit errors ──────────────────────────────
+  function isRateLimitError(err: unknown): boolean {
+    const msg = (err instanceof Error ? err.message : String(err)).toLowerCase();
+    return (
+      msg.includes("rate limit") ||
+      msg.includes("email rate") ||
+      msg.includes("over_email_send_rate_limit") ||
+      msg.includes("too many requests")
+    );
+  }
+
   // ── One-tap: send link to cached email ──────────────────────────────────
   const handleQuickLogin = async () => {
     if (!localProfile?.email) return;
@@ -59,7 +71,11 @@ export default function Auth() {
       setEmail(localProfile.email);
       setStep("sent");
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Something went wrong. Try again.");
+      if (isRateLimitError(err)) {
+        setStep("rate-limited");
+      } else {
+        setError(err instanceof Error ? err.message : "Something went wrong. Try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -76,7 +92,11 @@ export default function Auth() {
       if (err) throw err;
       setStep("sent");
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Something went wrong. Try again.");
+      if (isRateLimitError(err)) {
+        setStep("rate-limited");
+      } else {
+        setError(err instanceof Error ? err.message : "Something went wrong. Try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -281,6 +301,67 @@ export default function Auth() {
                 try again
               </button>
               .
+            </p>
+          </div>
+        )}
+
+        {/* ── Rate limited: offer demo ── */}
+        {step === "rate-limited" && (
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <span
+                className="inline-block text-xs font-bold tracking-widest text-amber-500 uppercase px-3 py-1 rounded-full border border-amber-500/20"
+                style={{ background: "rgba(245,158,11,0.08)" }}
+              >
+                Email limit reached
+              </span>
+              <h1 className="text-2xl font-bold text-foreground leading-tight">
+                Too many sign-in requests
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Our email provider has a temporary limit. Please wait a few minutes and try again — or explore Kosh right now without signing up.
+              </p>
+            </div>
+
+            {/* Demo CTA */}
+            <div
+              className="rounded-2xl border border-primary/20 p-5 space-y-4"
+              style={{ background: "rgba(16,185,129,0.05)" }}
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-3xl">🥭</span>
+                <div>
+                  <p className="text-sm font-semibold text-foreground">Explore Kosh now</p>
+                  <p className="text-xs text-muted-foreground">All modules unlocked — no email needed</p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  startDemoLite();
+                  navigate("/dashboard", { replace: true });
+                }}
+                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold text-white transition-all"
+                style={{
+                  background: "linear-gradient(135deg, hsl(160,84%,39%) 0%, hsl(160,84%,30%) 100%)",
+                  boxShadow: "0 0 28px rgba(16,185,129,0.25)",
+                }}
+              >
+                Start exploring <ArrowRight className="h-4 w-4" />
+              </button>
+              <p className="text-xs text-muted-foreground/50 text-center">
+                Your progress won't be saved until you sign up.
+              </p>
+            </div>
+
+            {/* Retry */}
+            <p className="text-center text-xs text-muted-foreground/40">
+              Ready to try again?{" "}
+              <button
+                onClick={() => setStep(isReturning ? "returning" : "email")}
+                className="underline hover:text-muted-foreground transition-colors"
+              >
+                Go back
+              </button>
             </p>
           </div>
         )}

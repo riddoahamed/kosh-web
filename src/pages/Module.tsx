@@ -5,6 +5,7 @@ import { useProgressStore } from "@/store/progressStore";
 import { usePointsStore, MANGOES } from "@/store/pointsStore";
 import { db } from "@/lib/supabase";
 import { ModuleLayout } from "@/components/module/ModuleLayout";
+import { DemoBanner } from "@/components/shared/DemoBanner";
 import { getZone } from "@/data/zones";
 
 export default function Module() {
@@ -66,6 +67,7 @@ export default function Module() {
 
   return (
     <div className="min-h-screen bg-background">
+      <DemoBanner />
       {/* Zone completion banner */}
       {zoneBanner && (
         <div className="fixed top-0 inset-x-0 z-50 bg-primary text-white text-center px-4 py-3 text-sm font-semibold animate-in slide-in-from-top duration-300">

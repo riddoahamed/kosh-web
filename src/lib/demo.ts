@@ -88,6 +88,49 @@ export function startDemo() {
   localStorage.setItem(DEMO_KEY, "true");
 }
 
+/**
+ * Lite demo — shown to public users who hit the email rate limit.
+ * Diagnostic done, level set, NO modules completed → they can actually
+ * go through the full learning experience.
+ */
+export function startDemoLite() {
+  const profile = {
+    id: DEMO_PROFILE_ID,
+    email: "guest@kosh.com.bd",
+    name: "Guest",
+    age: undefined,
+    occupation: "student",
+    division: "Dhaka",
+    consent_given: true,
+    level_assigned: 2,
+    created_at: new Date().toISOString(),
+    kyc_status: "not_submitted",
+  };
+  localStorage.setItem("kosh:profile", JSON.stringify(profile));
+
+  const diagnostic = {
+    level: 2,
+    personalityLabel: "The Curious Learner",
+    scores: { total: 52, knowledge: 48, behavior: 54, mindset: 54 },
+    greyZone: { flagged: false, exposures: [] },
+    responses: {},
+    completedAt: new Date().toISOString(),
+  };
+  localStorage.setItem("kosh:diagnostic_result", JSON.stringify(diagnostic));
+
+  // No module progress — fresh start so they can learn
+  localStorage.setItem("kosh:module_progress", JSON.stringify({}));
+
+  const mangoes = {
+    total: 0,
+    streak: 0,
+    lastVisitDate: new Date().toISOString().split("T")[0],
+    history: [],
+  };
+  localStorage.setItem("kosh:mangoes", JSON.stringify(mangoes));
+  localStorage.setItem(DEMO_KEY, "true");
+}
+
 export function isDemoMode(): boolean {
   return localStorage.getItem(DEMO_KEY) === "true";
 }

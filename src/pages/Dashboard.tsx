@@ -5,6 +5,7 @@ import { useProgressStore } from "@/store/progressStore";
 import { usePointsStore } from "@/store/pointsStore";
 import { db } from "@/lib/supabase";
 import { LevelBadge } from "@/components/shared/LevelBadge";
+import { DemoBanner } from "@/components/shared/DemoBanner";
 import { getModuleIcon } from "@/data/moduleIcons";
 import { Lock, CheckCircle2, Circle, Zap, Flame } from "lucide-react";
 import type { LevelAssignment } from "@/types/diagnostic";
@@ -117,6 +118,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-background">
+      <DemoBanner />
       {/* Nav */}
       <nav className="border-b border-border bg-background sticky top-0 z-10">
         <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
