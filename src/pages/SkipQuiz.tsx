@@ -30,7 +30,8 @@ export default function SkipQuiz() {
     if (revealed) return;
     setSelected(optionIndex);
     setRevealed(true);
-    const newResponses = { ...responses, [question.id]: optionIndex };
+    const qKey = question.id ?? String(currentQ);
+    const newResponses = { ...responses, [qKey]: optionIndex };
     setResponses(newResponses);
 
     setTimeout(() => {
@@ -40,7 +41,7 @@ export default function SkipQuiz() {
         setRevealed(false);
       } else {
         // Score it
-        const correct = questions.filter((q) => newResponses[q.id] === q.correctIndex).length;
+        const correct = questions.filter((q, idx) => newResponses[q.id ?? String(idx)] === q.correctIndex).length;
         const score = Math.round((correct / questions.length) * 100);
         if (score >= 67) {
           // Pass

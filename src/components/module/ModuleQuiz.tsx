@@ -23,7 +23,8 @@ export function ModuleQuiz({ questions, onComplete }: ModuleQuizProps) {
     const isCorrect = optionIndex === current.correctIndex;
     setSelectedOption(optionIndex);
     setAnswerState(isCorrect ? "correct" : "wrong");
-    setResponses((prev) => ({ ...prev, [current.id]: optionIndex }));
+    const qKey = current.id ?? String(currentIndex);
+    setResponses((prev) => ({ ...prev, [qKey]: optionIndex }));
 
     setTimeout(() => {
       if (currentIndex < questions.length - 1) {
@@ -31,9 +32,9 @@ export function ModuleQuiz({ questions, onComplete }: ModuleQuizProps) {
         setAnswerState("unanswered");
         setSelectedOption(null);
       } else {
-        const allResponses = { ...responses, [current.id]: optionIndex };
+        const allResponses = { ...responses, [qKey]: optionIndex };
         const correctCount = questions.filter(
-          (q) => allResponses[q.id] === q.correctIndex
+          (q, idx) => allResponses[q.id ?? String(idx)] === q.correctIndex
         ).length;
         const score = Math.round((correctCount / questions.length) * 100);
         setDone(true);
@@ -62,7 +63,7 @@ export function ModuleQuiz({ questions, onComplete }: ModuleQuizProps) {
         />
       </div>
 
-      <p className="font-semibold text-foreground leading-snug">{current.text}</p>
+      <p className="font-semibold text-foreground leading-snug">{current.question ?? current.text}</p>
 
       <div className="space-y-2">
         {current.options.map((option, i) => {

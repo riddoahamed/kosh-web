@@ -1,13 +1,22 @@
 import { create } from "zustand";
 import { db, type ModuleProgressRecord } from "@/lib/supabase";
+import { ZONE_MODULE_ORDER } from "@/data/modules";
 
 const ORDERED_MODULES = ["1", "2", "3", "4", "recovery-a", "recovery-b", "5", "6", "7", "8"];
-const CORE_MODULES = ["1", "2", "3", "4", "5", "6", "7", "8"];
+export const CORE_MODULES = ["1", "2", "3", "4", "5", "6", "7", "8"];
 
 function getPrevModuleId(moduleId: string): string | null {
   const idx = ORDERED_MODULES.indexOf(moduleId);
   if (idx <= 0) return null;
   return ORDERED_MODULES[idx - 1];
+}
+
+/** Returns the zone that owns this module id, or null if it's a Zone 1 module */
+function getZoneForModule(moduleId: string): string | null {
+  for (const [zoneId, ids] of Object.entries(ZONE_MODULE_ORDER)) {
+    if (zoneId !== "zone-1" && ids.includes(moduleId)) return zoneId;
+  }
+  return null;
 }
 
 interface ProgressStore {
@@ -105,6 +114,8 @@ export const useProgressStore = create<ProgressStore>((set, get) => ({
 
   isUnlocked: (moduleId, greyZoneFlagged) => {
     const { progress } = get();
+
+    // Zone 1 (original modules): existing sequential logic
     if (moduleId === "1") return true;
     if (moduleId === "recovery-a") {
       return greyZoneFlagged && progress["4"]?.status === "completed";
@@ -112,9 +123,27 @@ export const useProgressStore = create<ProgressStore>((set, get) => ({
     if (moduleId === "recovery-b") {
       return greyZoneFlagged && progress["recovery-a"]?.status === "completed";
     }
+
+    // Check if this is a Zone 2-5 module
+    const zoneId = getZoneForModule(moduleId);
+    if (zoneId) {
+      // Zone 2-5 modules require all Zone 1 core modules completed (comprehensive exam passed)
+      const zone1Complete = CORE_MODULES.every((id) => progress[id]?.status === "completed");
+      if (!zone1Complete) return false;
+
+      // Within the zone: first module is always unlocked once zone is unlocked
+      const zoneModules = ZONE_MODULE_ORDER[zoneId] ?? [];
+      const idxInZone = zoneModules.indexOf(moduleId);
+      if (idxInZone === 0) return true;
+
+      // Otherwise the previous module in the zone must be completed
+      const prevInZone = zoneModules[idxInZone - 1];
+      return progress[prevInZone]?.status === "completed";
+    }
+
+    // Zone 1 fallback: sequential unlock
     const prev = getPrevModuleId(moduleId);
     if (!prev) return false;
-    // Skip recovery modules in unlock chain for non-flagged users
     if ((prev === "recovery-a" || prev === "recovery-b") && !greyZoneFlagged) {
       return progress["4"]?.status === "completed";
     }

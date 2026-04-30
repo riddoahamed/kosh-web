@@ -43,8 +43,9 @@ export interface GreyZoneQuestion {
 }
 
 export interface ModuleQuizQuestion {
-  id: string;
-  text: string;
+  id?: string;
+  text?: string;        // legacy field name
+  question?: string;    // new field name
   options: string[];
   correctIndex: number;
   explanation: string;
@@ -52,21 +53,25 @@ export interface ModuleQuizQuestion {
 
 export interface Module {
   id: string;
+  zoneId?: string;
   title: string;
   tagline: string;
   estimatedMinutes: number;
   isGreyZoneOnly?: boolean;
   hook: string;
   context: string;
+  rateNote?: string;
   teaching: string;
-  bdExample: string;
+  bdExample?: string;
   actionPrompt: {
     text: string;
-    cta: string;
+    cta?: string;           // legacy field name
+    ctaButtonText?: string; // new field name
   };
   quiz: ModuleQuizQuestion[];
   whatsNext: {
-    moduleId: string;
+    moduleId?: string;           // legacy field name
+    nextModuleId?: string | null; // new field name
     preview: string;
   };
 }

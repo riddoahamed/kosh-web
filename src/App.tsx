@@ -17,8 +17,11 @@ import EMICalculator from "@/pages/EMICalculator";
 import BudgetPlanner from "@/pages/BudgetPlanner";
 import SIPCalculator from "@/pages/SIPCalculator";
 import CarCalculator from "@/pages/CarCalculator";
+import ZoneLibrary from "@/pages/ZoneLibrary";
+import ZoneDetail from "@/pages/ZoneDetail";
 import About from "@/pages/About";
 import NotFound from "@/pages/NotFound";
+import KoshAssistant from "@/components/KoshAssistant";
 
 export default function App() {
   return (
@@ -42,9 +45,12 @@ export default function App() {
         <Route path="/budget-planner" element={<BudgetPlanner />} />
         <Route path="/sip-calculator" element={<SIPCalculator />} />
         <Route path="/car-calculator" element={<CarCalculator />} />
+        <Route path="/zones" element={<ZoneLibrary />} />
+        <Route path="/zones/:zoneId" element={<ZoneDetail />} />
         <Route path="/about" element={<About />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      <KoshAssistant />
     </BrowserRouter>
   );
 }

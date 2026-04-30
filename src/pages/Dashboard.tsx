@@ -120,6 +120,13 @@ export default function Dashboard() {
         <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
           <Link to="/"><img src="/logo.png" alt="Kosh" className="h-8 w-auto" /></Link>
           <div className="flex items-center gap-3">
+            {/* Zones link */}
+            <button
+              onClick={() => navigate("/zones")}
+              className="text-xs font-semibold text-foreground/60 hover:text-primary transition-colors"
+            >
+              Zones
+            </button>
             {/* Points */}
             <div className="flex items-center gap-1 bg-primary/10 text-primary rounded-full px-2.5 py-1 text-xs font-bold">
               <Trophy className="h-3 w-3" />
@@ -236,13 +243,19 @@ export default function Dashboard() {
         {coreComplete && (
           <div className="bg-primary/5 border border-primary/20 rounded-2xl p-5 text-center space-y-3">
             <div className="text-3xl">🎓</div>
-            <p className="font-semibold text-foreground">Track complete!</p>
-            <p className="text-sm text-muted-foreground">Keep the momentum — do the 30-day challenge and retest on day 30.</p>
+            <p className="font-semibold text-foreground">Level 1 complete!</p>
+            <p className="text-sm text-muted-foreground">All 4 advanced zones are now unlocked. Keep going — or do the 30-day challenge.</p>
             <button
-              onClick={() => navigate("/challenge")}
+              onClick={() => navigate("/zones")}
               className="w-full bg-primary text-white rounded-xl py-2.5 text-sm font-semibold hover:bg-primary/90 transition-all"
             >
-              Start 30-Day Challenge →
+              Explore All Zones →
+            </button>
+            <button
+              onClick={() => navigate("/challenge")}
+              className="w-full border border-primary text-primary rounded-xl py-2.5 text-sm font-semibold hover:bg-primary/5 transition-all"
+            >
+              Start 30-Day Challenge
             </button>
           </div>
         )}

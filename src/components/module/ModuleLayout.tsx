@@ -93,20 +93,30 @@ export function ModuleLayout({
         <div className="space-y-0.5">{renderMarkdown(module.teaching)}</div>
       </div>
 
+      {/* Rate Note (for modules with rate-sensitive info) */}
+      {module.rateNote && (
+        <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 flex gap-2.5">
+          <span className="text-blue-500 text-base mt-0.5 shrink-0">ℹ️</span>
+          <p className="text-blue-800 text-xs leading-relaxed">{module.rateNote}</p>
+        </div>
+      )}
+
       {/* BD Example */}
-      <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 space-y-2">
-        <p className="text-xs font-semibold text-amber-700 uppercase tracking-widest">
-          Bangladesh Example
-        </p>
-        <p className="text-amber-900/80 text-sm leading-relaxed whitespace-pre-line">
-          {module.bdExample}
-        </p>
-      </div>
+      {module.bdExample && (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 space-y-2">
+          <p className="text-xs font-semibold text-amber-700 uppercase tracking-widest">
+            Bangladesh Example
+          </p>
+          <p className="text-amber-900/80 text-sm leading-relaxed whitespace-pre-line">
+            {module.bdExample}
+          </p>
+        </div>
+      )}
 
       {/* Action Prompt */}
       <ActionPrompt
         text={module.actionPrompt.text}
-        cta={module.actionPrompt.cta}
+        cta={module.actionPrompt.cta ?? module.actionPrompt.ctaButtonText ?? "Done"}
         completed={initialActionCompleted}
         onComplete={onActionComplete}
       />
@@ -120,7 +130,7 @@ export function ModuleLayout({
           <ModuleQuiz questions={module.quiz} onComplete={handleQuizComplete} />
         ) : (
           <WhatsNextCard
-            moduleId={module.whatsNext.moduleId}
+            moduleId={module.whatsNext.moduleId ?? module.whatsNext.nextModuleId ?? "dashboard"}
             preview={module.whatsNext.preview}
             quizScore={quizScore!}
           />
