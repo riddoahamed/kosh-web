@@ -73,11 +73,11 @@ export function ModuleQuiz({ questions, onComplete }: ModuleQuizProps) {
           if (answerState === "unanswered") {
             style += "border-border hover:border-primary/50 hover:bg-primary/5 cursor-pointer";
           } else if (i === current.correctIndex) {
-            style += "border-green-500 bg-green-50 text-green-800 cursor-default";
+            style += "border-green-500 bg-green-500/10 text-green-600 dark:text-green-400 cursor-default";
           } else if (i === selectedOption && answerState === "wrong") {
-            style += "border-red-400 bg-red-50 text-red-800 cursor-default";
+            style += "border-red-400 bg-red-500/10 text-red-600 dark:text-red-400 cursor-default";
           } else {
-            style += "border-border opacity-50 cursor-default";
+            style += "border-border opacity-40 cursor-default";
           }
 
           return (
@@ -95,8 +95,8 @@ export function ModuleQuiz({ questions, onComplete }: ModuleQuizProps) {
         <div
           className={`rounded-xl p-4 text-sm leading-relaxed ${
             answerState === "correct"
-              ? "bg-green-50 border border-green-200 text-green-800"
-              : "bg-amber-50 border border-amber-200 text-amber-800"
+              ? "bg-green-500/10 border border-green-500/30 text-green-700 dark:text-green-400"
+              : "bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400"
           }`}
         >
           <span className="font-semibold mr-1">

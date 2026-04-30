@@ -85,20 +85,20 @@ export default function Module() {
           </button>
 
           {module.isGreyZoneOnly && (
-            <span className="inline-block text-xs font-semibold text-violet-600 bg-violet-50 border border-violet-200 rounded-full px-3 py-0.5 mb-2">
+            <span className="inline-block text-xs font-semibold text-violet-500 bg-violet-500/10 border border-violet-500/25 rounded-full px-3 py-0.5 mb-2">
               Grey Zone Recovery
             </span>
           )}
 
           {module.zoneId && module.zoneId !== "zone-1" && (
-            <span className="inline-block text-xs font-semibold text-foreground/40 mb-1">
+            <span className="inline-block text-xs font-semibold text-primary/60 bg-primary/8 rounded-full px-2.5 py-0.5 mb-1">
               Zone {getZone(module.zoneId)?.number} · {getZone(module.zoneId)?.title}
             </span>
           )}
 
           <h1 className="text-2xl font-bold text-foreground leading-tight">{module.title}</h1>
-          <p className="text-foreground/50 text-sm">{module.tagline}</p>
-          <p className="text-foreground/35 text-xs">~{module.estimatedMinutes} min</p>
+          <p className="text-foreground/60 text-sm leading-relaxed">{module.tagline}</p>
+          <p className="text-foreground/35 text-xs">~{module.estimatedMinutes} min read</p>
         </div>
 
         {/* Content */}

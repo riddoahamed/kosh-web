@@ -19,33 +19,33 @@ function renderMarkdown(text: string) {
 
   for (const line of lines) {
     if (!line.trim()) {
-      elements.push(<div key={key++} className="h-2" />);
+      elements.push(<div key={key++} className="h-1" />);
       continue;
     }
 
-    const boldLine = line.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+    const boldLine = line.replace(/\*\*(.*?)\*\*/g, "<strong class='font-semibold text-foreground'>$1</strong>");
 
-    if (line.startsWith("**") && line.endsWith("**") && line.indexOf("**", 2) === line.length - 2) {
+    // Pure heading: entire line is **...**
+    if (/^\*\*[^*]+\*\*$/.test(line.trim())) {
       elements.push(
         <p
           key={key++}
-          className="font-semibold text-foreground mt-4 mb-1"
+          className="font-semibold text-foreground text-sm mt-5 mb-0.5"
           dangerouslySetInnerHTML={{ __html: boldLine }}
         />
       );
     } else if (line.startsWith("- ") || line.startsWith("→ ") || line.startsWith("✓ ") || line.startsWith("✗ ")) {
       elements.push(
-        <p
-          key={key++}
-          className="text-foreground/75 pl-2 leading-relaxed"
-          dangerouslySetInnerHTML={{ __html: boldLine }}
-        />
+        <div key={key++} className="flex gap-2.5 text-sm leading-relaxed text-foreground/75">
+          <span className="shrink-0 mt-px text-foreground/40">{line[0] === "-" ? "·" : line[0]}</span>
+          <span dangerouslySetInnerHTML={{ __html: boldLine.replace(/^[-→✓✗]\s/, "") }} />
+        </div>
       );
     } else {
       elements.push(
         <p
           key={key++}
-          className="text-foreground/80 leading-relaxed"
+          className="text-foreground/80 leading-relaxed text-sm"
           dangerouslySetInnerHTML={{ __html: boldLine }}
         />
       );
@@ -75,39 +75,39 @@ export function ModuleLayout({
   return (
     <div className="space-y-8">
       {/* Hook */}
-      <div className="rounded-2xl bg-primary/8 border border-primary/20 p-5">
+      <div className="rounded-2xl bg-primary/10 border border-primary/20 p-5">
         <p className="text-foreground/90 italic leading-relaxed text-[15px]">{module.hook}</p>
       </div>
 
       {/* Context */}
       <div className="space-y-2">
-        <p className="text-xs font-semibold text-foreground/40 uppercase tracking-widest">Context</p>
+        <p className="text-xs font-semibold text-foreground/35 uppercase tracking-widest">Context</p>
         <p className="text-foreground/70 leading-relaxed text-sm">{module.context}</p>
       </div>
 
       {/* Teaching */}
-      <div className="space-y-1">
-        <p className="text-xs font-semibold text-foreground/40 uppercase tracking-widest mb-3">
+      <div className="space-y-3">
+        <p className="text-xs font-semibold text-foreground/35 uppercase tracking-widest">
           What you need to know
         </p>
-        <div className="space-y-0.5">{renderMarkdown(module.teaching)}</div>
+        <div className="space-y-2">{renderMarkdown(module.teaching)}</div>
       </div>
 
       {/* Rate Note (for modules with rate-sensitive info) */}
       {module.rateNote && (
-        <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 flex gap-2.5">
+        <div className="rounded-xl border border-blue-500/25 bg-blue-500/8 px-4 py-3 flex gap-2.5">
           <span className="text-blue-500 text-base mt-0.5 shrink-0">ℹ️</span>
-          <p className="text-blue-800 text-xs leading-relaxed">{module.rateNote}</p>
+          <p className="text-blue-600 dark:text-blue-400 text-xs leading-relaxed">{module.rateNote}</p>
         </div>
       )}
 
       {/* BD Example */}
       {module.bdExample && (
-        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 space-y-2">
-          <p className="text-xs font-semibold text-amber-700 uppercase tracking-widest">
+        <div className="rounded-2xl border border-amber-500/25 bg-amber-500/8 p-5 space-y-2">
+          <p className="text-xs font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-widest">
             Bangladesh Example
           </p>
-          <p className="text-amber-900/80 text-sm leading-relaxed whitespace-pre-line">
+          <p className="text-foreground/75 text-sm leading-relaxed whitespace-pre-line">
             {module.bdExample}
           </p>
         </div>
@@ -123,9 +123,11 @@ export function ModuleLayout({
 
       {/* Quiz */}
       <div className="space-y-4">
-        <p className="text-xs font-semibold text-foreground/40 uppercase tracking-widest">
-          Quick check
-        </p>
+        <div className="flex items-center gap-3">
+          <div className="h-px flex-1 bg-border" />
+          <p className="text-xs font-semibold text-foreground/35 uppercase tracking-widest">Quick check</p>
+          <div className="h-px flex-1 bg-border" />
+        </div>
         {!quizDone ? (
           <ModuleQuiz questions={module.quiz} onComplete={handleQuizComplete} />
         ) : (
