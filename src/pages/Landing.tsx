@@ -78,7 +78,7 @@ const TOOLS: Tool[] = [
     iconBg: "from-red-500/25 to-red-900/10",
     iconBorder: "border-red-500/25",
     iconShadow: "shadow-[0_0_18px_rgba(239,68,68,0.3)]",
-    cardBorder: "border-white/[0.07] hover:border-red-500/35",
+    cardBorder: "border-border hover:border-red-500/35",
     cardHover: "hover:shadow-[0_0_45px_rgba(239,68,68,0.12),0_2px_8px_rgba(0,0,0,0.4)]",
     cardAmbient: "bg-red-500/8",
     tagStyle: "bg-red-500/15 text-red-400 border border-red-500/25",
@@ -95,7 +95,7 @@ const TOOLS: Tool[] = [
     iconBg: "from-emerald-500/25 to-emerald-900/10",
     iconBorder: "border-emerald-500/25",
     iconShadow: "shadow-[0_0_18px_rgba(16,185,129,0.3)]",
-    cardBorder: "border-white/[0.07] hover:border-emerald-500/35",
+    cardBorder: "border-border hover:border-emerald-500/35",
     cardHover: "hover:shadow-[0_0_45px_rgba(16,185,129,0.12),0_2px_8px_rgba(0,0,0,0.4)]",
     cardAmbient: "bg-emerald-500/8",
     tagStyle: "bg-emerald-500/15 text-emerald-400 border border-emerald-500/25",
@@ -112,7 +112,7 @@ const TOOLS: Tool[] = [
     iconBg: "from-cyan-500/25 to-cyan-900/10",
     iconBorder: "border-cyan-500/25",
     iconShadow: "shadow-[0_0_18px_rgba(6,182,212,0.3)]",
-    cardBorder: "border-white/[0.07] hover:border-cyan-500/35",
+    cardBorder: "border-border hover:border-cyan-500/35",
     cardHover: "hover:shadow-[0_0_45px_rgba(6,182,212,0.12),0_2px_8px_rgba(0,0,0,0.4)]",
     cardAmbient: "bg-cyan-500/8",
     tagStyle: "bg-cyan-500/15 text-cyan-400 border border-cyan-500/25",
@@ -130,7 +130,7 @@ const TOOLS: Tool[] = [
     iconBg: "from-blue-500/25 to-blue-900/10",
     iconBorder: "border-blue-500/25",
     iconShadow: "shadow-[0_0_18px_rgba(59,130,246,0.3)]",
-    cardBorder: "border-white/[0.07] hover:border-blue-500/35",
+    cardBorder: "border-border hover:border-blue-500/35",
     cardHover: "hover:shadow-[0_0_45px_rgba(59,130,246,0.12),0_2px_8px_rgba(0,0,0,0.4)]",
     cardAmbient: "bg-blue-500/8",
     tagStyle: "bg-blue-500/15 text-blue-400 border border-blue-500/25",
@@ -148,7 +148,7 @@ const TOOLS: Tool[] = [
     iconBg: "from-violet-500/25 to-violet-900/10",
     iconBorder: "border-violet-500/25",
     iconShadow: "shadow-[0_0_18px_rgba(139,92,246,0.3)]",
-    cardBorder: "border-white/[0.07] hover:border-violet-500/35",
+    cardBorder: "border-border hover:border-violet-500/35",
     cardHover: "hover:shadow-[0_0_45px_rgba(139,92,246,0.12),0_2px_8px_rgba(0,0,0,0.4)]",
     cardAmbient: "bg-violet-500/8",
     tagStyle: "bg-violet-500/15 text-violet-400 border border-violet-500/25",
@@ -166,7 +166,7 @@ const TOOLS: Tool[] = [
     iconBg: "from-amber-500/25 to-amber-900/10",
     iconBorder: "border-amber-500/25",
     iconShadow: "shadow-[0_0_18px_rgba(245,158,11,0.3)]",
-    cardBorder: "border-white/[0.07] hover:border-amber-500/35",
+    cardBorder: "border-border hover:border-amber-500/35",
     cardHover: "hover:shadow-[0_0_45px_rgba(245,158,11,0.12),0_2px_8px_rgba(0,0,0,0.4)]",
     cardAmbient: "bg-amber-500/8",
     tagStyle: "bg-amber-500/15 text-amber-400 border border-amber-500/25",
@@ -243,7 +243,7 @@ export default function Landing() {
 
       {/* ── Nav ── */}
       <nav
-        className="border-b border-white/[0.06] sticky top-0 z-10 backdrop-blur-2xl bg-background/70"
+        className="border-b border-border sticky top-0 z-10 backdrop-blur-2xl bg-background/70"
         style={{ paddingTop: "env(safe-area-inset-top)" }}
       >
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
@@ -316,7 +316,7 @@ export default function Landing() {
         </section>
 
         {/* ── Tools ── */}
-        <section id="tools" className="py-16 border-t border-white/[0.06]">
+        <section id="tools" className="py-16 border-t border-border">
           <div className="max-w-4xl mx-auto space-y-8">
             <div className="text-center space-y-1">
               <h2 className="text-2xl font-bold text-foreground tracking-tight">Free financial tools</h2>
@@ -331,8 +331,7 @@ export default function Landing() {
                   <Link
                     key={tool.href}
                     to={isLocked ? "/auth" : tool.href}
-                    className={`group relative flex gap-4 rounded-2xl border p-5 transition-all duration-300 hover:-translate-y-0.5 overflow-hidden ${tool.cardBorder} ${tool.cardHover} ${isLocked ? "opacity-60" : ""}`}
-                    style={{ background: "rgba(255,255,255,0.03)", backdropFilter: "blur(20px)" }}
+                    className={`group relative flex gap-4 rounded-2xl border p-5 transition-all duration-300 hover:-translate-y-0.5 overflow-hidden bg-card/60 backdrop-blur-xl ${tool.cardBorder} ${tool.cardHover} ${isLocked ? "opacity-60" : ""}`}
                   >
                     {/* Corner ambient blob */}
                     <div
@@ -377,14 +376,13 @@ export default function Landing() {
         </section>
 
         {/* ── Check preview ── */}
-        <section className="py-16 border-t border-white/[0.06]">
+        <section className="py-16 border-t border-border">
           <div className="max-w-2xl mx-auto space-y-6">
             <h2 className="text-2xl font-bold text-foreground text-center tracking-tight">
               What the check looks like
             </h2>
             <div
-              className="rounded-2xl border border-white/[0.08] p-6 space-y-4"
-              style={{ background: "rgba(255,255,255,0.03)", backdropFilter: "blur(20px)" }}
+              className="rounded-2xl border border-border p-6 space-y-4 bg-card/60 backdrop-blur-xl"
             >
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <span className="bg-blue-500/15 text-blue-400 border border-blue-500/25 text-xs font-semibold px-2 py-0.5 rounded-full">
@@ -407,12 +405,12 @@ export default function Landing() {
                     className={`px-4 py-3 rounded-xl border-2 text-sm transition-all ${
                       i === 2
                         ? "border-primary/50 text-primary font-medium"
-                        : "border-white/[0.07] text-foreground/60"
+                        : "border-border text-foreground/60"
                     }`}
                     style={
                       i === 2
                         ? { background: "rgba(16,185,129,0.08)", boxShadow: "0 0 20px rgba(16,185,129,0.1)" }
-                        : { background: "rgba(255,255,255,0.02)" }
+                        : undefined
                     }
                   >
                     {opt}
@@ -424,7 +422,7 @@ export default function Landing() {
         </section>
 
         {/* ── Why Kosh ── */}
-        <section className="py-16 border-t border-white/[0.06]">
+        <section className="py-16 border-t border-border">
           <div className="max-w-3xl mx-auto space-y-8">
             <h2 className="text-2xl font-bold text-foreground text-center tracking-tight">
               Why Kosh is different
@@ -435,8 +433,7 @@ export default function Landing() {
                 return (
                   <div
                     key={title}
-                    className={`relative rounded-2xl border p-5 space-y-4 overflow-hidden ${c.border}`}
-                    style={{ background: "rgba(255,255,255,0.03)", backdropFilter: "blur(16px)" }}
+                    className={`relative rounded-2xl border p-5 space-y-4 overflow-hidden bg-card/60 backdrop-blur-lg ${c.border}`}
                   >
                     <div
                       className="absolute -top-8 -right-8 w-28 h-28 rounded-full blur-3xl opacity-50 pointer-events-none"
@@ -462,11 +459,10 @@ export default function Landing() {
         </section>
 
         {/* ── 0→1 Track ── */}
-        <section className="py-16 border-t border-white/[0.06]">
+        <section className="py-16 border-t border-border">
           <div className="max-w-2xl mx-auto">
             <div
-              className="rounded-2xl border border-white/[0.08] p-6 space-y-5"
-              style={{ background: "rgba(255,255,255,0.03)", backdropFilter: "blur(20px)" }}
+              className="rounded-2xl border border-border p-6 space-y-5 bg-card/60 backdrop-blur-xl"
             >
               {/* Level badge */}
               <span
@@ -496,8 +492,7 @@ export default function Landing() {
                 ].map((t) => (
                   <span
                     key={t}
-                    className="text-xs px-2.5 py-1 rounded-full border border-white/[0.08] text-foreground/55"
-                    style={{ background: "rgba(255,255,255,0.04)" }}
+                    className="text-xs px-2.5 py-1 rounded-full border border-border text-foreground/55 bg-muted/40"
                   >
                     {t}
                   </span>
@@ -521,7 +516,7 @@ export default function Landing() {
         </section>
 
         {/* ── For Organizations ── */}
-        <section id="for-organizations" className="py-16 border-t border-white/[0.06]">
+        <section id="for-organizations" className="py-16 border-t border-border">
           <div className="max-w-4xl mx-auto space-y-10">
 
             {/* Header */}
@@ -548,8 +543,7 @@ export default function Landing() {
               {FOR_ORGS.map(({ icon: Icon, title, desc }) => (
                 <div
                   key={title}
-                  className="flex gap-4 rounded-2xl border border-white/[0.07] p-5"
-                  style={{ background: "rgba(255,255,255,0.03)", backdropFilter: "blur(16px)" }}
+                  className="flex gap-4 rounded-2xl border border-border p-5 bg-card/60 backdrop-blur-lg"
                 >
                   <div
                     className="h-10 w-10 rounded-xl border border-primary/20 flex items-center justify-center shrink-0"
@@ -573,7 +567,7 @@ export default function Landing() {
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest text-center">
                 Who it's built for
               </p>
-              <div className="divide-y divide-white/[0.05] rounded-xl border border-white/[0.06] overflow-hidden" style={{ background: "rgba(255,255,255,0.02)" }}>
+              <div className="divide-y divide-border rounded-xl border border-border overflow-hidden bg-card/50">
                 {TARGET_PARTNERS.map(({ label, desc }) => (
                   <div key={label} className="flex items-center gap-4 px-4 py-3">
                     <CheckCircle2
@@ -615,7 +609,7 @@ export default function Landing() {
               </div>
 
               {/* Feature pills */}
-              <div className="flex flex-wrap gap-2 border-t border-white/[0.06] pt-5">
+              <div className="flex flex-wrap gap-2 border-t border-border pt-5">
                 {[
                   "Full Bangla/Banglish content library",
                   "Gamification (points, streaks, levels)",
@@ -626,8 +620,7 @@ export default function Landing() {
                 ].map((item) => (
                   <span
                     key={item}
-                    className="inline-flex items-center gap-1.5 text-xs font-medium text-foreground/70 px-3 py-1.5 rounded-full border border-white/[0.08]"
-                    style={{ background: "rgba(255,255,255,0.04)" }}
+                    className="inline-flex items-center gap-1.5 text-xs font-medium text-foreground/70 px-3 py-1.5 rounded-full border border-border bg-muted/40"
                   >
                     <CheckCircle2
                       className="h-3 w-3 text-primary shrink-0"
@@ -656,7 +649,7 @@ export default function Landing() {
       </main>
 
       {/* ── Footer ── */}
-      <footer className="border-t border-white/[0.06] mt-12">
+      <footer className="border-t border-border mt-12">
         <div className="max-w-5xl mx-auto px-4 py-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-foreground/35">
           <img src="/logo.png" alt="Kosh" className="h-6 w-auto opacity-60" />
           <div>No products. No commissions. No hidden agenda.</div>
