@@ -7,7 +7,7 @@ import { useAuthStore } from "@/store/authStore";
 const inputClass =
   "w-full px-4 py-3.5 rounded-xl border border-white/[0.08] bg-white/[0.04] text-foreground text-sm placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all";
 
-type Step = "email" | "sent" | "profile";
+type Step = "returning" | "email" | "sent" | "profile";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -16,7 +16,7 @@ export default function Auth() {
   const localProfile = db.getProfile();
   const isReturning = !!localProfile;
 
-  const [step, setStep] = useState<Step>("email");
+  const [step, setStep] = useState<Step>(isReturning ? "returning" : "email");
   const [email, setEmail] = useState(localProfile?.email ?? "");
   const [name, setName] = useState("");
   const [age, setAge] = useState("");
@@ -25,9 +25,7 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // On load: if already signed in go to dashboard.
-  // If user landed here via magic link click, they already have a session —
-  // check for profile and either go to dashboard or show profile step.
+  // On load: if already signed in go to dashboard
   useEffect(() => {
     const init = async () => {
       const storeProfile = useAuthStore.getState().profile;
@@ -42,7 +40,6 @@ export default function Auth() {
           setProfile(existing);
           navigate("/dashboard", { replace: true });
         } else {
-          // New user who clicked magic link — collect their details
           setEmail(session.user.email ?? "");
           setStep("profile");
         }
@@ -51,7 +48,24 @@ export default function Auth() {
     init();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Step 1: send magic link ───────────────────────────────────────────────
+  // ── One-tap: send link to cached email ──────────────────────────────────
+  const handleQuickLogin = async () => {
+    if (!localProfile?.email) return;
+    setLoading(true);
+    setError("");
+    try {
+      const { error: err } = await auth.sendOtp(localProfile.email);
+      if (err) throw err;
+      setEmail(localProfile.email);
+      setStep("sent");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Something went wrong. Try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ── Send magic link (new / different account) ───────────────────────────
   const handleSendLink = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) return;
@@ -68,7 +82,7 @@ export default function Auth() {
     }
   };
 
-  // ── Step 3: save profile (new users only) ─────────────────────────────────
+  // ── Profile setup (new users after clicking magic link) ─────────────────
   const handleProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !consent) return;
@@ -90,6 +104,7 @@ export default function Auth() {
         grey_zone_flagged: savedResult?.greyZone?.flagged,
         grey_zone_exposure: savedResult?.greyZone?.exposures,
         created_at: new Date().toISOString(),
+        kyc_status: "not_submitted" as const,
       };
       setProfile(profile);
       navigate("/dashboard");
@@ -99,6 +114,12 @@ export default function Auth() {
       setLoading(false);
     }
   };
+
+  const maskedEmail = localProfile?.email
+    ? localProfile.email.replace(/(.{2})(.*)(@.*)/, (_, a, _b, c) => `${a}••••${c}`)
+    : "";
+
+  const firstName = localProfile?.name?.split(" ")[0] ?? "there";
 
   return (
     <div
@@ -112,47 +133,90 @@ export default function Auth() {
       />
 
       <div className="w-full max-w-sm space-y-8 relative">
-
-        {/* Back link */}
         <Link to="/" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
           ← Back
         </Link>
 
-        {/* ── Email step ── */}
+        {/* ── Returning user: one-tap ── */}
+        {step === "returning" && (
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <span
+                className="inline-block text-xs font-bold tracking-widest text-primary/80 uppercase px-3 py-1 rounded-full border border-primary/20"
+                style={{ background: "rgba(16,185,129,0.08)" }}
+              >
+                Welcome back
+              </span>
+              <h1 className="text-2xl font-bold text-foreground leading-tight">
+                Good to see you, {firstName}.
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                We'll send a one-click sign-in link to your email.
+              </p>
+            </div>
+
+            {/* Avatar + email card */}
+            <div
+              className="rounded-2xl border border-white/[0.08] p-5 flex items-center gap-4"
+              style={{ background: "rgba(255,255,255,0.03)" }}
+            >
+              <div
+                className="h-12 w-12 rounded-2xl flex items-center justify-center text-lg font-bold text-primary shrink-0"
+                style={{ background: "rgba(16,185,129,0.12)" }}
+              >
+                {firstName[0]?.toUpperCase() ?? "K"}
+              </div>
+              <div className="min-w-0">
+                <p className="font-semibold text-foreground text-sm">{localProfile?.name}</p>
+                <p className="text-xs text-muted-foreground mt-0.5 truncate">{maskedEmail}</p>
+              </div>
+            </div>
+
+            {error && <p className="text-xs text-red-400">{error}</p>}
+
+            <button
+              onClick={handleQuickLogin}
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-40"
+              style={{
+                background: "linear-gradient(135deg, hsl(160,84%,39%) 0%, hsl(160,84%,30%) 100%)",
+                boxShadow: "0 0 28px rgba(16,185,129,0.25)",
+              }}
+            >
+              {loading
+                ? <Loader2 className="h-4 w-4 animate-spin" />
+                : <>Send sign-in link <ArrowRight className="h-4 w-4" /></>
+              }
+            </button>
+
+            <p className="text-center text-xs text-muted-foreground/40">
+              Not {firstName}?{" "}
+              <button
+                onClick={() => { setEmail(""); setStep("email"); }}
+                className="underline hover:text-muted-foreground transition-colors"
+              >
+                Use a different account
+              </button>
+            </p>
+          </div>
+        )}
+
+        {/* ── Email input (new user or different account) ── */}
         {step === "email" && (
           <form onSubmit={handleSendLink} className="space-y-6">
             <div className="space-y-2">
-              {isReturning ? (
-                <>
-                  <span
-                    className="inline-block text-xs font-bold tracking-widest text-primary/80 uppercase px-3 py-1 rounded-full border border-primary/20"
-                    style={{ background: "rgba(16,185,129,0.08)" }}
-                  >
-                    Welcome back
-                  </span>
-                  <h1 className="text-2xl font-bold text-foreground leading-tight">
-                    Good to see you again{localProfile?.name ? `, ${localProfile.name.split(" ")[0]}` : ""}.
-                  </h1>
-                  <p className="text-sm text-muted-foreground">
-                    We'll send a sign-in link to your email.
-                  </p>
-                </>
-              ) : (
-                <>
-                  <span
-                    className="inline-block text-xs font-bold tracking-widest text-primary/80 uppercase px-3 py-1 rounded-full border border-primary/20"
-                    style={{ background: "rgba(16,185,129,0.08)" }}
-                  >
-                    Early Access
-                  </span>
-                  <h1 className="text-2xl font-bold text-foreground leading-tight">
-                    You're one of the first.
-                  </h1>
-                  <p className="text-sm text-muted-foreground">
-                    Enter your email — we'll send you a one-click sign-in link.
-                  </p>
-                </>
-              )}
+              <span
+                className="inline-block text-xs font-bold tracking-widest text-primary/80 uppercase px-3 py-1 rounded-full border border-primary/20"
+                style={{ background: "rgba(16,185,129,0.08)" }}
+              >
+                Early Access
+              </span>
+              <h1 className="text-2xl font-bold text-foreground leading-tight">
+                You're one of the first.
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Enter your email — we'll send you a one-click sign-in link. No password needed.
+              </p>
             </div>
 
             <div className="space-y-3">
@@ -177,8 +241,6 @@ export default function Auth() {
               >
                 {loading
                   ? <Loader2 className="h-4 w-4 animate-spin" />
-                  : isReturning
-                  ? <>Send sign-in link <ArrowRight className="h-4 w-4" /></>
                   : <>Get access <ArrowRight className="h-4 w-4" /></>
                 }
               </button>
@@ -190,7 +252,7 @@ export default function Auth() {
           </form>
         )}
 
-        {/* ── Sent step ── */}
+        {/* ── Sent ── */}
         {step === "sent" && (
           <div className="space-y-6 text-center">
             <div className="flex justify-center">
@@ -213,7 +275,7 @@ export default function Auth() {
             <p className="text-xs text-muted-foreground/40">
               Didn't get it? Check spam, or{" "}
               <button
-                onClick={() => { setStep("email"); setError(""); }}
+                onClick={() => { setStep(isReturning ? "returning" : "email"); setError(""); }}
                 className="underline hover:text-muted-foreground transition-colors"
               >
                 try again
@@ -223,7 +285,7 @@ export default function Auth() {
           </div>
         )}
 
-        {/* ── Profile step (new users after clicking magic link) ── */}
+        {/* ── Profile setup (new users) ── */}
         {step === "profile" && (
           <form onSubmit={handleProfile} className="space-y-6">
             <div className="space-y-2">
@@ -235,14 +297,13 @@ export default function Auth() {
               </span>
               <h1 className="text-2xl font-bold text-foreground">Set up your account</h1>
               <p className="text-sm text-muted-foreground">
-                A few quick details and you're in.
+                A few quick details and you're in. You can add more later.
               </p>
             </div>
 
             <div className="space-y-3">
-              {/* Name */}
               <div className="space-y-1">
-                <label className="text-xs font-medium text-muted-foreground">Name</label>
+                <label className="text-xs font-medium text-muted-foreground">Name *</label>
                 <input
                   type="text"
                   autoComplete="name"
@@ -254,9 +315,8 @@ export default function Auth() {
                 />
               </div>
 
-              {/* Age */}
               <div className="space-y-1">
-                <label className="text-xs font-medium text-muted-foreground">Age</label>
+                <label className="text-xs font-medium text-muted-foreground">Age *</label>
                 <input
                   type="number"
                   inputMode="numeric"
@@ -270,7 +330,6 @@ export default function Auth() {
                 />
               </div>
 
-              {/* Phone — optional */}
               <div className="space-y-1">
                 <label className="text-xs font-medium text-muted-foreground">
                   Phone <span className="text-muted-foreground/40">(optional)</span>

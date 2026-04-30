@@ -79,6 +79,20 @@ export interface KoshProfile {
   grey_zone_flagged?: boolean;
   grey_zone_exposure?: string[];
   created_at: string;
+
+  // — Extended fields for leaderboards & community —
+  institution?: string;          // University / company / school name
+  institution_type?: "university" | "college" | "school" | "company" | "other";
+  occupation?: "student" | "professional" | "business_owner" | "freelancer" | "other";
+  division?: string;             // Bangladesh division (Dhaka, Chittagong, etc.)
+  district?: string;             // Free-text district
+  bio?: string;                  // Short tagline
+
+  // — KYC fields (for mango redemption) —
+  kyc_submitted?: boolean;
+  kyc_status?: "not_submitted" | "pending" | "verified" | "rejected";
+  nid_last4?: string;            // Last 4 digits of NID only — never full NID
+  kyc_submitted_at?: string;
 }
 
 export interface ModuleProgressRecord {
@@ -153,6 +167,17 @@ export const db = {
         grey_zone_flagged: profile.grey_zone_flagged ?? false,
         grey_zone_exposure: profile.grey_zone_exposure ?? [],
         created_at: profile.created_at,
+        // Extended
+        institution: profile.institution ?? null,
+        institution_type: profile.institution_type ?? null,
+        occupation: profile.occupation ?? null,
+        division: profile.division ?? null,
+        district: profile.district ?? null,
+        bio: profile.bio ?? null,
+        kyc_submitted: profile.kyc_submitted ?? false,
+        kyc_status: profile.kyc_status ?? "not_submitted",
+        nid_last4: profile.nid_last4 ?? null,
+        kyc_submitted_at: profile.kyc_submitted_at ?? null,
       })
       .then(() => {});
   },

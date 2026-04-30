@@ -146,11 +146,18 @@ export default function Dashboard() {
             </button>
             {/* Streak */}
             {streak > 0 && (
-              <div className="flex items-center gap-1 bg-orange-100 text-orange-600 rounded-full px-2.5 py-1 text-xs font-bold">
+              <div className="flex items-center gap-1 bg-orange-100 dark:bg-orange-500/15 text-orange-600 dark:text-orange-400 rounded-full px-2.5 py-1 text-xs font-bold">
                 <Flame className="h-3 w-3" />
                 {streak}d
               </div>
             )}
+            {/* Profile avatar */}
+            <button
+              onClick={() => navigate("/profile")}
+              className="h-8 w-8 rounded-full bg-primary/15 flex items-center justify-center text-xs font-bold text-primary hover:bg-primary/25 transition-all shrink-0"
+            >
+              {profile?.name?.split(" ").map((w: string) => w[0]).slice(0, 2).join("").toUpperCase() ?? "?"}
+            </button>
           </div>
         </div>
       </nav>
