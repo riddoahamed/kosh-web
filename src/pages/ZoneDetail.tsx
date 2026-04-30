@@ -69,8 +69,8 @@ export default function ZoneDetail() {
           </div>
 
           {!zone1Complete && (
-            <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 mb-4">
-              <p className="text-amber-800 text-sm">
+            <div className="rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 mb-4">
+              <p className="text-amber-700 dark:text-amber-400 text-sm">
                 🔒 Complete Level 1 (Zone 1) to unlock this zone.
               </p>
             </div>
@@ -101,7 +101,7 @@ export default function ZoneDetail() {
                 disabled={!isModuleUnlocked}
                 className={`w-full text-left rounded-xl border-2 p-4 transition-all ${
                   isCompleted
-                    ? "border-green-200 bg-green-50"
+                    ? "border-green-500/30 bg-green-500/8"
                     : isInProgress
                     ? `${zone.borderColor} ${zone.bgColor}`
                     : isModuleUnlocked

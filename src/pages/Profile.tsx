@@ -48,8 +48,8 @@ function SelectField({
 export default function Profile() {
   const navigate = useNavigate();
   const { profile, setProfile, logout } = useAuthStore();
-  const { progress } = useProgressStore();
-  const { total: mangoes, streak } = usePointsStore();
+  const { progress, load } = useProgressStore();
+  const { total: mangoes, streak, load: loadPoints } = usePointsStore();
 
   const [saved, setSaved] = useState(false);
   const [kycSaved, setKycSaved] = useState(false);
@@ -72,7 +72,9 @@ export default function Profile() {
 
   useEffect(() => {
     if (!profile) navigate("/auth", { replace: true });
-  }, [profile, navigate]);
+    load();
+    loadPoints();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!profile) return null;
 

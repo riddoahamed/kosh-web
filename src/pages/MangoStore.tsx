@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePointsStore, MANGOES, REDEMPTION, mangoesToBdt } from "@/store/pointsStore";
 import { db } from "@/lib/supabase";
@@ -22,7 +22,10 @@ function getDaysOnPlatform(): number {
 
 export default function MangoStore() {
   const navigate = useNavigate();
-  const { total, streak, history, spendPoints } = usePointsStore();
+  const { total, streak, history, spendPoints, load: loadPoints } = usePointsStore();
+
+  useEffect(() => { loadPoints(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const [redeemOpen, setRedeemOpen] = useState(false);
   const [phone, setPhone] = useState("");
   const [redeemAmount, setRedeemAmount] = useState("");

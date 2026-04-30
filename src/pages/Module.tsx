@@ -91,7 +91,7 @@ export default function Module() {
           )}
 
           {module.zoneId && module.zoneId !== "zone-1" && (
-            <span className="inline-block text-xs font-semibold text-primary/60 bg-primary/8 rounded-full px-2.5 py-0.5 mb-1">
+            <span className="inline-block text-xs font-semibold text-primary/60 bg-primary/10 rounded-full px-2.5 py-0.5 mb-1">
               Zone {getZone(module.zoneId)?.number} · {getZone(module.zoneId)?.title}
             </span>
           )}

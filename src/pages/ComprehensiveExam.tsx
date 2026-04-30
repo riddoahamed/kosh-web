@@ -108,7 +108,7 @@ export default function ComprehensiveExam() {
               </div>
               <div className="flex items-start gap-2">
                 <Trophy className="h-4 w-4 text-yellow-500 shrink-0 mt-0.5" />
-                <span>+{EXAM_POINTS} Kosh points for passing — biggest single reward</span>
+                <span>+{EXAM_POINTS} 🥭 mangoes for passing — biggest single reward</span>
               </div>
             </div>
           </div>
@@ -159,7 +159,7 @@ export default function ComprehensiveExam() {
             </div>
             <div className="flex items-center gap-2 pt-1">
               <Trophy className="h-4 w-4 text-yellow-500" />
-              <span className="text-sm font-semibold text-foreground">+{EXAM_POINTS} points earned</span>
+              <span className="text-sm font-semibold text-foreground">+{EXAM_POINTS} 🥭 mangoes earned</span>
             </div>
           </div>
 

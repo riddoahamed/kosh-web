@@ -181,8 +181,8 @@ export default function KoshAssistant() {
             )}
 
             {error && (
-              <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2.5">
-                <p className="text-xs text-red-700">{error}</p>
+              <div className="rounded-xl border border-red-500/25 bg-red-500/10 px-3 py-2.5">
+                <p className="text-xs text-red-600 dark:text-red-400">{error}</p>
               </div>
             )}
 

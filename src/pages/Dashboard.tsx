@@ -84,7 +84,7 @@ export default function Dashboard() {
             <div className="flex items-center gap-2 mt-0.5">
               <span className="text-xs text-muted-foreground">~{minutes} min</span>
               {completed && record.quizScore > 0 && (
-                <span className="text-xs text-green-600 font-semibold bg-green-50 rounded-full px-1.5 py-0.5">
+                <span className="text-xs text-green-600 dark:text-green-400 font-semibold bg-green-500/10 rounded-full px-1.5 py-0.5">
                   {record.quizScore}%
                 </span>
               )}
@@ -214,7 +214,7 @@ export default function Dashboard() {
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <h2 className="font-semibold text-foreground">Grey Zone Recovery</h2>
-              <span className="text-xs font-semibold text-violet-600 bg-violet-50 border border-violet-200 rounded-full px-2 py-0.5">
+              <span className="text-xs font-semibold text-violet-500 bg-violet-500/10 border border-violet-500/25 rounded-full px-2 py-0.5">
                 Unlocks after Module 4
               </span>
             </div>

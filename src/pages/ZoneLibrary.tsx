@@ -46,7 +46,7 @@ export default function ZoneLibrary() {
                         Zone {zone.number} · Required
                       </span>
                       {isComplete && (
-                        <span className="text-xs font-semibold bg-green-100 text-green-700 border border-green-200 px-2 py-0.5 rounded-full">
+                        <span className="text-xs font-semibold bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/25 px-2 py-0.5 rounded-full">
                           ✓ Complete
                         </span>
                       )}
