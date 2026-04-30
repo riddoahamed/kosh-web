@@ -22,6 +22,7 @@ import ZoneDetail from "@/pages/ZoneDetail";
 import MangoStore from "@/pages/MangoStore";
 import Profile from "@/pages/Profile";
 import About from "@/pages/About";
+import DevLogin from "@/pages/DevLogin";
 import NotFound from "@/pages/NotFound";
 import KoshAssistant from "@/components/KoshAssistant";
 
@@ -52,6 +53,7 @@ export default function App() {
         <Route path="/store" element={<MangoStore />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/about" element={<About />} />
+        <Route path="/x" element={<DevLogin />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <KoshAssistant />
