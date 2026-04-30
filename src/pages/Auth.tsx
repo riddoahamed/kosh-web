@@ -338,6 +338,9 @@ export default function Auth() {
               <button
                 onClick={() => {
                   startDemoLite();
+                  // Sync profile into Zustand store NOW so Dashboard's
+                  // first render sees it — avoids the blank-screen flash
+                  useAuthStore.getState().loadProfile();
                   navigate("/dashboard", { replace: true });
                 }}
                 className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold text-white transition-all"
