@@ -28,18 +28,22 @@ import {
 const INTRO_KEY = "kosh:intro_v1";
 
 const QUESTIONS = [
-  { text: "Ever wondered about investing?",         hi: ["investing?"] },
-  { text: "Is FDR better or DPS?",                 hi: ["FDR", "DPS?"] },
-  { text: "Should I buy Crypto?",                  hi: ["Crypto?"] },
-  { text: "Who is Dorbesh?",                       hi: ["Dorbesh?"] },
-  { text: "How to apply for startup loan?",        hi: ["startup", "loan?"] },
-  { text: "Ei Trading Course ta Kinen",            hi: ["Trading", "Course"] },
+  { text: "Ever wondered about investing?",             hi: ["investing?"] },
+  { text: "Is FDR better or DPS?",                     hi: ["FDR", "DPS?"] },
+  { text: "Should I buy Crypto?",                      hi: ["Crypto?"] },
+  { text: "Who is Dorbesh?",                           hi: ["Dorbesh?"] },
+  { text: "How to apply for a startup loan?",          hi: ["startup", "loan?"] },
+  { text: "Ei Trading Course ta Kinen",                hi: ["Trading", "Course"] },
+  { text: "Where should I keep my savings?",           hi: ["savings?"] },
+  { text: "How do I start investing with 5,000 taka?", hi: ["investing", "5,000", "taka?"] },
+  { text: "Is the stock market gambling?",             hi: ["stock", "market", "gambling?"] },
+  { text: "What even is inflation?",                   hi: ["inflation?"] },
 ];
 
-const WORD_MS   = 75;   // ms between each word appearing
-const HOLD_FIRST = 1400; // hold time first visit (ms)
-const HOLD_REVISIT = 400;// hold time revisit (ms)
-const OUT_MS    = 320;   // fade-out duration (ms)
+const WORD_MS      = 110;  // ms between each word appearing
+const HOLD_FIRST   = 2000; // hold time first visit (ms)
+const HOLD_REVISIT = 600;  // hold time revisit (ms)
+const OUT_MS       = 500;  // fade-out duration (ms)
 
 function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolean }) {
   const [qIdx, setQIdx]   = useState(0);
@@ -71,7 +75,7 @@ function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolea
   // On revisit: hard cap at 2.5 s then scroll
   useEffect(() => {
     if (!isFirst) {
-      const t = setTimeout(onDone, 2500);
+      const t = setTimeout(onDone, 4000);
       return () => clearTimeout(t);
     }
   }, [isFirst, onDone]);
@@ -105,8 +109,9 @@ function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolea
             } else {
               style.animation = "none";
               style.opacity = 0;
-              style.transform = "translateY(8px)";
-              style.transition = `opacity ${OUT_MS}ms ease, transform ${OUT_MS}ms ease`;
+              style.transform = "translateY(10px)";
+              style.filter = "blur(3px)";
+              style.transition = `opacity ${OUT_MS}ms ease, transform ${OUT_MS}ms ease, filter ${OUT_MS}ms ease`;
             }
 
             if (isHi) {
@@ -283,7 +288,21 @@ export default function Landing() {
 
   const handleIntroDone = useCallback(() => {
     sessionStorage.setItem(INTRO_KEY, "1");
-    heroRef.current?.scrollIntoView({ behavior: "smooth" });
+    const target = heroRef.current;
+    if (!target) return;
+    const start = window.scrollY;
+    const end   = target.getBoundingClientRect().top + start;
+    const duration = 1200; // ms — slow, cinematic scroll
+    const startTime = performance.now();
+    const easeInOutCubic = (t: number) =>
+      t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    const step = (now: number) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      window.scrollTo(0, start + (end - start) * easeInOutCubic(progress));
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
   }, []);
 
   // Trigger tools animation when section scrolls into view
