@@ -101,8 +101,8 @@ export const ZONES: Zone[] = [
     borderColor: "border-blue-200",
     textColor: "text-blue-700",
     emoji: "📈",
-    status: "coming_soon",
-    firstModuleId: null,
+    status: "live",
+    firstModuleId: "z6-1",
     moduleCount: 5,
   },
   {
@@ -116,8 +116,8 @@ export const ZONES: Zone[] = [
     borderColor: "border-indigo-200",
     textColor: "text-indigo-700",
     emoji: "🧠",
-    status: "coming_soon",
-    firstModuleId: null,
+    status: "live",
+    firstModuleId: "z7-1",
     moduleCount: 5,
   },
   {
@@ -131,8 +131,8 @@ export const ZONES: Zone[] = [
     borderColor: "border-sky-200",
     textColor: "text-sky-700",
     emoji: "🏦",
-    status: "coming_soon",
-    firstModuleId: null,
+    status: "live",
+    firstModuleId: "z8-1",
     moduleCount: 5,
   },
   {
@@ -146,8 +146,8 @@ export const ZONES: Zone[] = [
     borderColor: "border-cyan-200",
     textColor: "text-cyan-700",
     emoji: "🗺️",
-    status: "coming_soon",
-    firstModuleId: null,
+    status: "live",
+    firstModuleId: "z9-1",
     moduleCount: 5,
   },
 ];

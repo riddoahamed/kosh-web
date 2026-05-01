@@ -3,6 +3,8 @@ import type { Module } from "@/types/curriculum";
 import { ActionPrompt } from "./ActionPrompt";
 import { ModuleQuiz } from "./ModuleQuiz";
 import { WhatsNextCard } from "./WhatsNextCard";
+import { ModuleGame } from "./ModuleGame";
+import { usePointsStore } from "@/store/pointsStore";
 
 interface ModuleLayoutProps {
   module: Module;
@@ -62,6 +64,7 @@ export function ModuleLayout({
   onQuizComplete,
   onModuleComplete,
 }: ModuleLayoutProps) {
+  const { addPoints } = usePointsStore();
   const [quizScore, setQuizScore] = useState<number | null>(null);
   const [quizDone, setQuizDone] = useState(false);
 
@@ -111,6 +114,14 @@ export function ModuleLayout({
             {module.bdExample}
           </p>
         </div>
+      )}
+
+      {/* Mini-game (optional bonus) */}
+      {module.game && (
+        <ModuleGame
+          game={module.game}
+          onComplete={(reward) => addPoints(reward, `Game: Module ${module.id} 🎮`)}
+        />
       )}
 
       {/* Action Prompt */}

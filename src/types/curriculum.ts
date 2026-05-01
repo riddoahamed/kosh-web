@@ -68,6 +68,7 @@ export interface Module {
     cta?: string;           // legacy field name
     ctaButtonText?: string; // new field name
   };
+  game?: ModuleGame;
   quiz: ModuleQuizQuestion[];
   whatsNext: {
     moduleId?: string;           // legacy field name
@@ -75,6 +76,72 @@ export interface Module {
     preview: string;
   };
 }
+
+// ── Mini-game types ──────────────────────────────────────────────────────────
+
+export type GameType =
+  | "scenario_verdict"
+  | "allocation"
+  | "order_steps"
+  | "calculator_reveal";
+
+export interface ScenarioVerdictGame {
+  type: "scenario_verdict";
+  title: string;
+  instructions: string;
+  items: Array<{
+    scenario: string;
+    correct: string;
+    explanation: string;
+  }>;
+  mangoReward: number;
+}
+
+export interface AllocationGame {
+  type: "allocation";
+  title: string;
+  instructions: string;
+  categories: Array<{
+    id: string;
+    label: string;
+    description: string;
+    suggestedRange: string;
+  }>;
+  revealAllocation: Record<string, Record<string, number>>;
+  explanation: string;
+  mangoReward: number;
+}
+
+export interface OrderStepsGame {
+  type: "order_steps";
+  title: string;
+  instructions: string;
+  steps: string[];
+  correctOrder: number[];
+  explanation: string;
+  mangoReward: number;
+}
+
+export interface CalculatorRevealGame {
+  type: "calculator_reveal";
+  title: string;
+  instructions: string;
+  correctAnswer: number | null;
+  unit: string;
+  formula?: string;
+  isReflection?: boolean;
+  isCalculation?: boolean;
+  explanation: string;
+  mangoReward: number;
+}
+
+export type ModuleGame =
+  | ScenarioVerdictGame
+  | AllocationGame
+  | OrderStepsGame
+  | CalculatorRevealGame;
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 export type ScenarioVerdict = "scam" | "real" | "risky";
 
