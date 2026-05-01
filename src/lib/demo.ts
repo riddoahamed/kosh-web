@@ -39,7 +39,7 @@ export function startDemo() {
     occupation: "student",
     division: "Dhaka",
     consent_given: true,
-    level_assigned: 2,
+    level_assigned: 1,
     created_at: new Date().toISOString(),
     kyc_status: "not_submitted",
   };
@@ -47,7 +47,7 @@ export function startDemo() {
 
   // Diagnostic result so dashboard renders the level card
   const diagnostic = {
-    level: 2,
+    level: 1,
     personalityLabel: "The Curious Learner",
     scores: { total: 58, knowledge: 55, behavior: 60, mindset: 58 },
     greyZone: { flagged: false, exposures: [] },
@@ -98,18 +98,17 @@ export function startDemoLite() {
     id: DEMO_PROFILE_ID,
     email: "guest@kosh.com.bd",
     name: "Guest",
-    age: undefined,
     occupation: "student",
     division: "Dhaka",
     consent_given: true,
-    level_assigned: 2,
+    level_assigned: 1,
     created_at: new Date().toISOString(),
     kyc_status: "not_submitted",
   };
   localStorage.setItem("kosh:profile", JSON.stringify(profile));
 
   const diagnostic = {
-    level: 2,
+    level: 1,
     personalityLabel: "The Curious Learner",
     scores: { total: 52, knowledge: 48, behavior: 54, mindset: 54 },
     greyZone: { flagged: false, exposures: [] },

@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import { auth, db, type KoshProfile } from "@/lib/supabase";
-import { isDemoMode } from "@/lib/demo";
 import type { User } from "@supabase/supabase-js";
 
 interface AuthStore {
@@ -47,13 +46,12 @@ export const useAuthStore = create<AuthStore>((set) => ({
           else set({ profile: null }); // new user, needs profile completion
         }
       } else {
-        // Signed out — but preserve demo-mode profile (no real session exists)
-        if (isDemoMode()) {
-          const demoProfile = db.getProfile();
-          set({ user: null, profile: demoProfile, isLoaded: true });
-        } else {
-          set({ user: null, profile: null, isLoaded: true });
-        }
+        // No Supabase session — fall back to whatever is in localStorage.
+        // This covers: local-only users, demo users, and offline use.
+        // Truly signed-out users are handled by logout() which calls
+        // db.clearAll() first, so db.getProfile() returns null there too.
+        const localProfile = db.getProfile();
+        set({ user: null, profile: localProfile, isLoaded: true });
       }
     });
 

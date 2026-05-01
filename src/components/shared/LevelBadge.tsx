@@ -28,7 +28,7 @@ interface Props {
 }
 
 export function LevelBadge({ level, size = "md" }: Props) {
-  const config = CONFIG[level];
+  const config = CONFIG[level] ?? CONFIG[1]; // fallback so a bad level never crashes
   return (
     <span
       className={cn(
