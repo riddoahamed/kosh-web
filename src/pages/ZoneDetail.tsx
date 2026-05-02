@@ -4,6 +4,27 @@ import { getZone } from "@/data/zones";
 import { ZONE_MODULE_ORDER, ALL_MODULES } from "@/data/modules";
 import { useProgressStore, CORE_MODULES } from "@/store/progressStore";
 
+const ZONE_ACCENT: Record<string, string> = {
+  "zone-1": "160 84% 42%",
+  "zone-2": "262 83% 58%",
+  "zone-3": "347 77% 50%",
+  "zone-4": "38  92% 50%",
+  "zone-5": "160 84% 42%",
+  "zone-6": "217 91% 60%",
+  "zone-7": "234 89% 64%",
+  "zone-8": "199 89% 48%",
+  "zone-9": "187 85% 43%",
+};
+
+function accentBg(zoneId: string, opacity = 0.08) {
+  const h = ZONE_ACCENT[zoneId] ?? "160 84% 42%";
+  return { background: `hsla(${h} / ${opacity})`, borderColor: `hsla(${h} / 0.28)` };
+}
+function accentText(zoneId: string) {
+  const h = ZONE_ACCENT[zoneId] ?? "160 84% 42%";
+  return { color: `hsl(${h})` };
+}
+
 export default function ZoneDetail() {
   const { zoneId } = useParams<{ zoneId: string }>();
   const navigate = useNavigate();
@@ -57,10 +78,10 @@ export default function ZoneDetail() {
             ← All zones
           </button>
 
-          <div className={`rounded-2xl ${zone.bgColor} ${zone.borderColor} border-2 p-5 mb-5`}>
+          <div className="rounded-2xl border-2 p-5 mb-5" style={accentBg(zone.id)}>
             <div className="flex items-center gap-2 mb-2">
               <span className="text-2xl">{zone.emoji}</span>
-              <span className={`text-xs font-bold uppercase tracking-widest ${zone.textColor}`}>
+              <span className="text-xs font-bold uppercase tracking-widest" style={accentText(zone.id)}>
                 Zone {zone.number}
               </span>
             </div>
@@ -102,26 +123,28 @@ export default function ZoneDetail() {
                 className={`w-full text-left rounded-xl border-2 p-4 transition-all ${
                   isCompleted
                     ? "border-green-500/30 bg-green-500/8"
-                    : isInProgress
-                    ? `${zone.borderColor} ${zone.bgColor}`
-                    : isModuleUnlocked
+                    : isModuleUnlocked && !isInProgress
                     ? "border-border bg-card hover:border-primary/40 hover:bg-primary/3 active:scale-[0.99]"
-                    : "border-border bg-card opacity-50 cursor-not-allowed"
+                    : !isModuleUnlocked
+                    ? "border-border bg-card opacity-50 cursor-not-allowed"
+                    : ""
                 }`}
+                style={isInProgress ? accentBg(zone.id, 0.10) : undefined}
               >
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     {/* Step number / status icon */}
                     <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${
+                      className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0 border ${
                         isCompleted
-                          ? "bg-green-500 text-white"
+                          ? "bg-green-500 text-white border-transparent"
                           : isInProgress
-                          ? `${zone.textColor} ${zone.bgColor} border ${zone.borderColor}`
+                          ? "border-transparent"
                           : isModuleUnlocked
-                          ? "bg-primary/10 text-primary"
-                          : "bg-muted text-muted-foreground"
+                          ? "bg-primary/10 text-primary border-transparent"
+                          : "bg-muted text-muted-foreground border-transparent"
                       }`}
+                      style={isInProgress ? { ...accentBg(zone.id, 0.18), ...accentText(zone.id) } : undefined}
                     >
                       {isCompleted ? "✓" : idx + 1}
                     </div>
