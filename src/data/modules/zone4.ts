@@ -1,5 +1,72 @@
 import type { Module } from "@/types/curriculum";
 
+// ── Zone 4 mini-games ─────────────────────────────────────────────────────
+
+const z4Game1 = {
+  type: "scenario_verdict" as const,
+  title: "Do They Owe Tax?",
+  instructions: "Based on Bangladesh income tax rules, decide if each person owes income tax.",
+  items: [
+    {
+      scenario: "Rafi earns ৳35,000/month as a private sector employee in Dhaka. No other income.",
+      correct: "owes_tax",
+      explanation: "৳35,000 × 12 = ৳4,20,000/year — above the current general tax-free threshold. He owes income tax on the amount above the threshold.",
+    },
+    {
+      scenario: "Shahana earns ৳12,000/month as a garment worker in Narayanganj. No other income.",
+      correct: "no_tax",
+      explanation: "৳12,000 × 12 = ৳1,44,000/year — well below the tax-free threshold. No income tax owed.",
+    },
+    {
+      scenario: "Imran earns ৳50,000/month salary + ৳15,000/month rental income from his flat.",
+      correct: "owes_tax",
+      explanation: "৳65,000 × 12 = ৳7,80,000/year — well above the threshold. Rental income must be declared and is taxable.",
+    },
+    {
+      scenario: "Nadia earns ৳20,000/month as a freelancer from overseas clients paid in foreign currency.",
+      correct: "no_tax",
+      explanation: "Foreign remittance income from export of services is currently exempt from income tax in Bangladesh — a big incentive for freelancers.",
+    },
+    {
+      scenario: "Kamal owns a small shop and earns net profit of ৳6,00,000/year.",
+      correct: "owes_tax",
+      explanation: "Business income above the threshold is taxable. Ignoring it leads to penalties and interest.",
+    },
+  ],
+  mangoReward: 25,
+};
+
+const z4Game2 = {
+  type: "scenario_verdict" as const,
+  title: "Which Tax Is This?",
+  instructions: "Identify which type of tax is being applied in each everyday situation.",
+  items: [
+    {
+      scenario: "You pay ৳700 to recharge your Grameenphone SIM. About ৳130 of it goes to the government.",
+      correct: "VAT + SD",
+      explanation: "Mobile top-ups attract 15% VAT plus Supplementary Duty — among the highest tax rates on any consumer product in Bangladesh.",
+    },
+    {
+      scenario: "Your bank pays ৳3,000 FDR interest but only ৳2,700 reaches your account.",
+      correct: "TDS",
+      explanation: "Tax Deducted at Source — the bank withholds 10% income tax on interest automatically before paying you.",
+    },
+    {
+      scenario: "You pay ৳1,200 at a restaurant. The bill says 'VAT inclusive'.",
+      correct: "VAT",
+      explanation: "Restaurant bills include 15% VAT — about ৳157 of your ৳1,200 meal went to the government.",
+    },
+    {
+      scenario: "Your employer pays ৳60,000 gross but deposits ৳55,800 in your account each month.",
+      correct: "TDS",
+      explanation: "Employers withhold income tax at source for employees above the threshold — this is your advance tax payment processed automatically.",
+    },
+  ],
+  mangoReward: 20,
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 export const moduleZ4_1: Module = {
   id: "z4-1",
   zoneId: "zone-4",
@@ -46,6 +113,9 @@ The safest approach: if your income is above the threshold, file. The penalty fo
     text: "Calculate your annual income. Is it above the current tax-free threshold? Check www.nbr.gov.bd for the current year's threshold to be certain.",
     ctaButtonText: "I calculated my tax position",
   },
+
+  game: z4Game1,
+
   quiz: [
     {
       question: "What is the investment rebate rate on qualifying investments in Bangladesh's income tax system?",
@@ -360,6 +430,9 @@ Knowing your total tax contribution — direct taxes (income tax, TDS) plus indi
     text: "Look at your last mobile recharge. Look at the last restaurant bill where VAT was charged. Estimate how much in indirect tax you have paid this month.",
     ctaButtonText: "I estimated my indirect tax load",
   },
+
+  game: z4Game2,
+
   quiz: [
     {
       question: "When you pay Tk 1,000 at a VAT-registered restaurant in Bangladesh, approximately how much of that is VAT?",

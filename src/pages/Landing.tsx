@@ -32,18 +32,28 @@ const QUESTIONS = [
   { text: "Is FDR better or DPS?",                     hi: ["FDR", "DPS?"] },
   { text: "Should I buy Crypto?",                      hi: ["Crypto?"] },
   { text: "Who is Dorbesh?",                           hi: ["Dorbesh?"] },
-  { text: "How to apply for a startup loan?",          hi: ["startup", "loan?"] },
   { text: "Ei Trading Course ta Kinen",                hi: ["Trading", "Course"] },
   { text: "Where should I keep my savings?",           hi: ["savings?"] },
   { text: "How do I start investing with 5,000 taka?", hi: ["investing", "5,000", "taka?"] },
   { text: "Is the stock market gambling?",             hi: ["stock", "market", "gambling?"] },
   { text: "What even is inflation?",                   hi: ["inflation?"] },
+  { text: "How do I actually build wealth?",           hi: ["actually", "wealth?"] },
 ];
 
-const WORD_MS      = 110;  // ms between each word appearing
-const HOLD_FIRST   = 2000; // hold time first visit (ms)
-const HOLD_REVISIT = 600;  // hold time revisit (ms)
-const OUT_MS       = 500;  // fade-out duration (ms)
+const WORD_MS      = 160;  // ms between each word appearing
+const HOLD_FIRST   = 3200; // hold time first visit (ms)
+const HOLD_REVISIT = 900;  // hold time revisit (ms)
+const OUT_MS       = 900;  // fade-out duration (ms)
+const REVISIT_MAX  = 4;    // max questions shown on revisit
+
+// Floating brand background element
+function FloatingSymbol({ children, style }: { children: React.ReactNode; style: React.CSSProperties }) {
+  return (
+    <div className="absolute pointer-events-none select-none" style={style}>
+      {children}
+    </div>
+  );
+}
 
 function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolean }) {
   const [qIdx, setQIdx]   = useState(0);
@@ -56,51 +66,114 @@ function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolea
   useEffect(() => {
     let t: ReturnType<typeof setTimeout>;
     if (phase === "in") {
-      t = setTimeout(() => setPhase("hold"), words.length * WORD_MS + 350);
+      t = setTimeout(() => setPhase("hold"), words.length * WORD_MS + 400);
     } else if (phase === "hold") {
       t = setTimeout(() => setPhase("out"), HOLD_MS);
     } else {
+      // Wait for full out animation before advancing
       t = setTimeout(() => {
-        if (qIdx < QUESTIONS.length - 1) {
+        const isLastQuestion = qIdx >= QUESTIONS.length - 1;
+        const isRevisitCap   = !isFirst && qIdx >= REVISIT_MAX - 1;
+        if (isLastQuestion || isRevisitCap) {
+          onDone();
+        } else {
           setQIdx(i => i + 1);
           setPhase("in");
-        } else {
-          onDone();
         }
-      }, OUT_MS);
+      }, OUT_MS + 80); // tiny extra buffer so fade is visually complete
     }
     return () => clearTimeout(t);
-  }, [phase, qIdx, words.length, HOLD_MS, onDone]);
+  }, [phase, qIdx, words.length, HOLD_MS, onDone, isFirst]);
 
-  // On revisit: hard cap at 2.5 s then scroll
-  useEffect(() => {
-    if (!isFirst) {
-      const t = setTimeout(onDone, 4000);
-      return () => clearTimeout(t);
-    }
-  }, [isFirst, onDone]);
+  const GREEN = "hsl(160,90%,45%)";
 
   return (
-    <section className="min-h-screen flex flex-col items-center justify-center relative select-none">
-      {/* ambient */}
+    <section className="min-h-screen flex flex-col items-center justify-center relative select-none overflow-hidden">
+
+      {/* ── Brand background elements ── */}
+
+      {/* Radial glow top */}
       <div
-        className="absolute inset-x-0 top-0 h-96 pointer-events-none"
-        style={{ background: "radial-gradient(ellipse at 50% 0%, rgba(16,185,129,0.1) 0%, transparent 65%)" }}
+        className="absolute inset-x-0 top-0 h-[60%] pointer-events-none"
+        style={{ background: "radial-gradient(ellipse at 50% -5%, hsla(160,90%,45%,0.13) 0%, transparent 60%)" }}
+      />
+      {/* Bottom vignette */}
+      <div
+        className="absolute inset-x-0 bottom-0 h-48 pointer-events-none"
+        style={{ background: "linear-gradient(to top, hsl(var(--background)), transparent)" }}
       />
 
-      {/* Question */}
-      <div className="px-6 max-w-2xl mx-auto text-center">
+      {/* Dot grid */}
+      <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ opacity: 0.035 }}>
+        <defs>
+          <pattern id="kdots" x="0" y="0" width="36" height="36" patternUnits="userSpaceOnUse">
+            <circle cx="2" cy="2" r="1.5" fill="currentColor" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#kdots)" />
+      </svg>
+
+      {/* Taka symbol — top-left */}
+      <FloatingSymbol style={{ top: "12%", left: "6%", fontSize: "96px", fontWeight: 900,
+        color: GREEN, opacity: 0.07, filter: "blur(1px)", transform: "rotate(-8deg)" }}>
+        ৳
+      </FloatingSymbol>
+
+      {/* % symbol — top-right */}
+      <FloatingSymbol style={{ top: "18%", right: "7%", fontSize: "110px", fontWeight: 900,
+        color: GREEN, opacity: 0.055, filter: "blur(2px)", transform: "rotate(10deg)" }}>
+        %
+      </FloatingSymbol>
+
+      {/* Rising chart line — bottom-left */}
+      <svg className="absolute" style={{ bottom: "18%", left: "4%", opacity: 0.09, width: 140, height: 70 }}>
+        <polyline points="0,62 28,48 56,52 84,24 112,14 140,4"
+          stroke={GREEN} strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+        {[0,28,56,84,112,140].map((x, i) => {
+          const ys = [62,48,52,24,14,4];
+          return <circle key={i} cx={x} cy={ys[i]} r="3" fill={GREEN} />;
+        })}
+      </svg>
+
+      {/* Candlestick cluster — bottom-right */}
+      <svg className="absolute" style={{ bottom: "20%", right: "5%", opacity: 0.08, width: 80, height: 80 }}>
+        {[
+          { x: 8,  high: 10, open: 22, close: 48, low: 58, bull: true  },
+          { x: 24, high: 8,  open: 12, close: 35, low: 55, bull: true  },
+          { x: 40, high: 18, open: 36, close: 22, low: 62, bull: false },
+          { x: 56, high: 5,  open: 15, close: 42, low: 68, bull: true  },
+          { x: 72, high: 2,  open: 8,  close: 50, low: 72, bull: true  },
+        ].map(({ x, high, open, close, low, bull }, i) => (
+          <g key={i}>
+            <line x1={x} y1={high} x2={x} y2={low} stroke={bull ? GREEN : "#ef4444"} strokeWidth="1.5" />
+            <rect x={x - 5} y={Math.min(open, close)} width="10" height={Math.max(2, Math.abs(close - open))}
+              fill={bull ? GREEN : "#ef4444"} rx="1" />
+          </g>
+        ))}
+      </svg>
+
+      {/* ৳ small — upper middle area */}
+      <FloatingSymbol style={{ top: "8%", left: "48%", fontSize: "28px", fontWeight: 900,
+        color: GREEN, opacity: 0.12, filter: "blur(0.5px)" }}>
+        ৳
+      </FloatingSymbol>
+
+      {/* ── Question text ── */}
+      <div className="relative z-10 px-6 max-w-3xl mx-auto text-center" style={{ marginTop: "-4vh" }}>
         <p
-          className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight tracking-tight"
-          style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+          className="font-black leading-[1.1] tracking-tight"
+          style={{
+            fontFamily: "'Bricolage Grotesque', Inter, sans-serif",
+            fontSize: "clamp(2.4rem, 8vw, 5rem)",
+          }}
         >
           {words.map((word, i) => {
             const isHi = q.hi.includes(word);
-            const style: React.CSSProperties = { marginRight: "0.28em" };
+            const style: React.CSSProperties = { marginRight: "0.26em" };
 
             if (phase === "in") {
               style.opacity = 0;
-              style.animation = `word-in 0.45s cubic-bezier(0.16,1,0.3,1) forwards`;
+              style.animation = `word-in 0.55s cubic-bezier(0.16,1,0.3,1) forwards`;
               style.animationDelay = `${i * WORD_MS}ms`;
             } else if (phase === "hold") {
               style.opacity = 1;
@@ -109,14 +182,14 @@ function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolea
             } else {
               style.animation = "none";
               style.opacity = 0;
-              style.transform = "translateY(10px)";
-              style.filter = "blur(3px)";
+              style.transform = "translateY(14px)";
+              style.filter = "blur(4px)";
               style.transition = `opacity ${OUT_MS}ms ease, transform ${OUT_MS}ms ease, filter ${OUT_MS}ms ease`;
             }
 
             if (isHi) {
-              style.color = "hsl(160,84%,42%)";
-              style.textShadow = "0 0 28px rgba(16,185,129,0.45)";
+              style.color = GREEN;
+              style.textShadow = `0 0 32px hsla(160,90%,45%,0.55), 0 0 60px hsla(160,90%,45%,0.2)`;
             }
 
             return (
@@ -129,26 +202,26 @@ function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolea
       </div>
 
       {/* Progress dots */}
-      <div className="absolute bottom-20 flex gap-1.5 items-center">
+      <div className="absolute bottom-20 flex gap-2 items-center z-10">
         {QUESTIONS.map((_, i) => (
           <div
             key={i}
             className="rounded-full transition-all duration-500"
             style={{
               height: "3px",
-              width: i === qIdx ? "20px" : "6px",
+              width: i === qIdx ? "24px" : "6px",
               background: i < qIdx
-                ? "rgba(16,185,129,0.35)"
+                ? "hsla(160,90%,45%,0.3)"
                 : i === qIdx
-                ? "hsl(160,84%,42%)"
-                : "rgba(255,255,255,0.12)",
+                ? GREEN
+                : "rgba(255,255,255,0.10)",
             }}
           />
         ))}
       </div>
 
       {/* Scroll hint */}
-      <p className="absolute bottom-8 text-[10px] tracking-widest uppercase text-foreground/20">
+      <p className="absolute bottom-8 text-[10px] tracking-[0.22em] uppercase text-foreground/18 z-10">
         scroll to explore
       </p>
     </section>

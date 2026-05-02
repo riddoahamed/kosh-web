@@ -1,5 +1,72 @@
 import type { Module } from "@/types/curriculum";
 
+// ── Zone 3 mini-games ─────────────────────────────────────────────────────
+
+const z3Game1 = {
+  type: "scenario_verdict" as const,
+  title: "Good Debt or Bad Debt?",
+  instructions: "For each borrowing scenario, decide: is this debt a tool or a trap?",
+  items: [
+    {
+      scenario: "Fatema takes a student loan at 5% interest to study computer science. Her starting salary will be ৳50,000/month.",
+      correct: "good_debt",
+      explanation: "The return on education (higher income) clearly exceeds the 5% cost. This is debt as an investment.",
+    },
+    {
+      scenario: "Raihan borrows ৳20,000 from a mobile lending app at 36% annual interest to buy a new phone for status.",
+      correct: "bad_debt",
+      explanation: "Depreciating asset + very high interest + status motivation = the definition of bad debt.",
+    },
+    {
+      scenario: "Nasrin takes a ৳2 lakh business loan at 12% to buy a sewing machine that generates ৳5,000/month net profit.",
+      correct: "good_debt",
+      explanation: "৳60,000/year return on ৳2 lakh = 30% return vs 12% cost. Leverage working correctly.",
+    },
+    {
+      scenario: "Karim uses 'buy now pay later' at 0% for 6 months for a gaming console — but has no emergency fund.",
+      correct: "bad_debt",
+      explanation: "Even at 0%, debt obligations without an emergency fund is structurally risky. One surprise and the whole system breaks.",
+    },
+    {
+      scenario: "A family takes a home loan at 9%. The EMI is ৳18,000 — the same as renting an equivalent flat.",
+      correct: "good_debt",
+      explanation: "If EMI ≈ rent, you build an asset instead of paying someone else's mortgage. Often makes sense.",
+    },
+  ],
+  mangoReward: 25,
+};
+
+const z3Game2 = {
+  type: "calculator_reveal" as const,
+  title: "The Minimum Payment Trap",
+  instructions: "A ৳40,000 credit card balance at 24% annual interest. You pay ৳1,200/month (the minimum). Guess how many months until it's fully paid off.",
+  correctAnswer: 74,
+  unit: "months",
+  formula: "Balance ÷ (payment − monthly interest) compounded each month",
+  explanation: "74 months — over 6 years. You'd pay roughly ৳49,000 in interest on a ৳40,000 balance. The minimum payment is designed to keep you in debt as long as possible.",
+  mangoReward: 30,
+};
+
+const z3Game3 = {
+  type: "order_steps" as const,
+  title: "The Debt Spiral — In Order",
+  instructions: "These 7 events form a classic debt spiral. Tap them in the order they typically occur.",
+  steps: [
+    "Income doesn't cover all monthly expenses",
+    "Borrow to fill the gap (credit card, loan app, family)",
+    "Monthly debt repayment increases fixed costs",
+    "Less money left for expenses each month",
+    "Borrow more to cover the increased gap",
+    "Debt balance grows while income stays the same",
+    "Debt service ratio exceeds 50% of income",
+  ],
+  correctOrder: [0, 1, 2, 3, 4, 5, 6],
+  explanation: "Each step makes the next one more likely. The spiral can start slowly — one bad month — and accelerate quickly. Recognizing step 1 and 2 early is what breaks it.",
+  mangoReward: 25,
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 export const moduleZ3_1: Module = {
   id: "z3-1",
   zoneId: "zone-3",
@@ -47,6 +114,9 @@ The answer most people give is "I would delay" — which means the debt is fundi
     text: "List any loans you currently have or are considering. For each: what return does the borrowed money generate? Is the return above the interest rate?",
     ctaButtonText: "I evaluated my debt decisions",
   },
+
+  game: z3Game1,
+
   quiz: [
     {
       question: "The fundamental question to ask before taking any debt is:",
@@ -161,6 +231,9 @@ If you cannot pay the full balance this month: stop using the card for new purch
     text: "If you have a credit card: look at your current balance and the minimum payment. How long would it take to pay off making only minimum payments? Most banks show this on the statement.",
     ctaButtonText: "I checked my credit card math",
   },
+
+  game: z3Game2,
+
   quiz: [
     {
       question: "You receive a credit card statement with a balance of Tk 40,000. You pay the minimum (Tk 1,200). Next month, interest is charged on approximately how much?",
@@ -386,6 +459,9 @@ Warning signs:
     text: "List every debt you currently have. Calculate your total monthly debt service as a percentage of your take-home income. Is it below 30%? Between 30-50%? Above 50%?",
     ctaButtonText: "I calculated my debt service ratio",
   },
+
+  game: z3Game3,
+
   quiz: [
     {
       question: "What is the debt service ratio, and what threshold suggests a structural problem?",

@@ -54,7 +54,16 @@
       "Bash(sed -i '' 's/emerging markets like BD/emerging markets like Bangladesh/g' /Users/riddo/Desktop/kosh/src/data/diagnosticQuestions.ts)",
       "Bash(sed -i '' 's/inflation-resistant in BD/inflation-resistant in Bangladesh/g' /Users/riddo/Desktop/kosh/src/data/modules/module6.ts)",
       "Bash(sed -i '' 's/Specific BD scam patterns/Specific Bangladesh scam patterns/g; *)",
-      "Bash(npx vite *)"
+      "Bash(npx vite *)",
+      "Bash(sed -n '160,167p' /Users/riddo/Desktop/kosh/src/data/modules/zone3.ts)",
+      "Bash(sed -n '46,53p' /Users/riddo/Desktop/kosh/src/data/modules/zone3.ts)",
+      "Bash(sed -n '385,392p' /Users/riddo/Desktop/kosh/src/data/modules/zone3.ts)",
+      "Bash(sed -n '46,55p' /Users/riddo/Desktop/kosh/src/data/modules/zone4.ts)",
+      "Bash(sed -n '318,327p' /Users/riddo/Desktop/kosh/src/data/modules/zone4.ts)",
+      "Bash(sed -n '45,54p' /Users/riddo/Desktop/kosh/src/data/modules/zone4.ts)",
+      "Bash(sed -n '359,368p' /Users/riddo/Desktop/kosh/src/data/modules/zone4.ts)",
+      "Bash(sed -n '54,62p' /Users/riddo/Desktop/kosh/src/data/modules/zone5.ts)",
+      "Bash(sed -n '497,505p' /Users/riddo/Desktop/kosh/src/data/modules/zone5.ts)"
     ]
   }
 }

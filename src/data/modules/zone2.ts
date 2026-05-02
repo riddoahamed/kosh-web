@@ -1,5 +1,93 @@
 import type { Module } from "@/types/curriculum";
 
+// ── Zone 2 mini-games ─────────────────────────────────────────────────────
+
+const z2Game1 = {
+  type: "scenario_verdict" as const,
+  title: "Which Bucket?",
+  instructions: "Each spending below fits one of the 4 buckets. Tap the right one.",
+  items: [
+    {
+      scenario: "You pay your monthly rent of ৳12,000.",
+      correct: "needs",
+      explanation: "Rent is a non-negotiable fixed need — goes straight into the Needs bucket.",
+    },
+    {
+      scenario: "You order food delivery three times this week instead of cooking.",
+      correct: "wants",
+      explanation: "Convenience food beyond basic meals is a Want — you could cook cheaper alternatives.",
+    },
+    {
+      scenario: "You set aside ৳3,000 into your bKash savings wallet every payday.",
+      correct: "savings",
+      explanation: "Intentional money set aside for the future is the core of the 4-bucket system.",
+    },
+    {
+      scenario: "You buy your monthly internet recharge of ৳700.",
+      correct: "needs",
+      explanation: "Internet for work/study is a basic utility — a Need in modern life.",
+    },
+    {
+      scenario: "You buy a new pair of sneakers because you liked the style.",
+      correct: "wants",
+      explanation: "Non-essential clothing beyond what you need falls in the Wants bucket.",
+    },
+    {
+      scenario: "You move ৳5,000 into your emergency fund after a good month.",
+      correct: "savings",
+      explanation: "Emergency fund top-ups are savings — protecting your future self.",
+    },
+  ],
+  mangoReward: 25,
+};
+
+const z2Game2 = {
+  type: "scenario_verdict" as const,
+  title: "Lifestyle Inflation or Justified Upgrade?",
+  instructions: "Decide whether each spending change is lifestyle inflation creeping in — or a genuinely worthwhile upgrade.",
+  items: [
+    {
+      scenario: "You get a raise and move from a shared flat (৳4k/month) to a private apartment (৳12k/month). Your commute drops from 1 hour to 5 minutes.",
+      correct: "justified",
+      explanation: "Time saved + wellbeing gained offsets the cost. This is a deliberate upgrade, not mindless inflation.",
+    },
+    {
+      scenario: "After getting promoted, you start buying café coffee every day instead of making it at home. ৳4,500 extra per month.",
+      correct: "inflation",
+      explanation: "Income rose, spending rose automatically — no conscious decision. Textbook lifestyle inflation.",
+    },
+    {
+      scenario: "You earn 30% more and increase your Sanchaypatra savings rate from 10% to 20% of income.",
+      correct: "justified",
+      explanation: "Scaling savings with income is the opposite of lifestyle inflation — disciplined wealth building.",
+    },
+    {
+      scenario: "You switch from local to premium clothing brands for everyday wear now that you earn more.",
+      correct: "inflation",
+      explanation: "Status spending without real improvement in utility — income up, cost up, nothing gained.",
+    },
+    {
+      scenario: "Your family grew by one child, so your grocery bill rose by ৳3,000/month.",
+      correct: "justified",
+      explanation: "Spending rising due to genuine need changes (family, health, dependents) is not lifestyle inflation.",
+    },
+  ],
+  mangoReward: 25,
+};
+
+const z2Game3 = {
+  type: "calculator_reveal" as const,
+  title: "What's Your Savings Rate?",
+  instructions: "Based on a 20% savings rate, guess how much someone earning ৳30,000/month should save. Enter your answer in Taka.",
+  correctAnswer: 6000,
+  unit: "৳",
+  formula: "Income × 20% = Target savings",
+  explanation: "৳6,000 on ৳30,000 = 20% savings rate. This is the baseline. Below 10% is a warning — your future self has no buffer. The 4-bucket system makes this automatic.",
+  mangoReward: 20,
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 export const moduleZ2_1: Module = {
   id: "z2-1",
   zoneId: "zone-2",
@@ -151,6 +239,9 @@ After 2-3 months of observation using MFS and bank data, you can identify your t
     text: "Right now: open bKash or Nagad transaction history. Scroll back 2 months. Pick one month and categorize the transactions loosely. What is your largest spending category?",
     ctaButtonText: "I reviewed my transaction history",
   },
+
+  game: z2Game1,
+
   quiz: [
     {
       question: "What is the biggest limitation of using MFS history for expense tracking in Bangladesh?",
@@ -355,6 +446,9 @@ Not all increased spending is lifestyle inflation. Some increases are genuine qu
     text: "Compare your monthly spending now vs 2 years ago (estimate if you don't have records). By how much did income increase? By how much did spending increase? What was the ratio?",
     ctaButtonText: "I estimated my lifestyle inflation rate",
   },
+
+  game: z2Game2,
+
   quiz: [
     {
       question: "What is the 'ratchet effect' in lifestyle spending?",
@@ -463,6 +557,9 @@ A simple notes app, a Google Sheet, or even a paper notebook. Write the 5 number
     text: "Do the 5-number check-in right now. Even if you don't know the exact figures, estimate. Write them down. Note the date. Do it again in 30 days.",
     ctaButtonText: "I did my monthly check-in",
   },
+
+  game: z2Game3,
+
   quiz: [
     {
       question: "What does 'net savings this month' measure?",

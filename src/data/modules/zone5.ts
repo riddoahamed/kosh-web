@@ -1,5 +1,61 @@
 import type { Module } from "@/types/curriculum";
 
+// ── Zone 5 mini-games ─────────────────────────────────────────────────────
+
+const z5Game1 = {
+  type: "scenario_verdict" as const,
+  title: "Pick the Right Instrument",
+  instructions: "Each person has a specific savings goal. Tap the instrument that fits best.",
+  items: [
+    {
+      scenario: "Kamrul has ৳5,00,000 he won't need for 5 years and wants the maximum safe return available in Bangladesh.",
+      correct: "sanchaypatra",
+      explanation: "Sanchaypatra gives the highest guaranteed return (9-11%) for money locked 3-5 years — the perfect match.",
+    },
+    {
+      scenario: "Shirin wants to save ৳3,000/month automatically for her daughter's university tuition in 10 years.",
+      correct: "dps",
+      explanation: "DPS (Deposit Pension Scheme) is exactly this — fixed monthly savings that compound into a lump sum. Banks automate the deduction.",
+    },
+    {
+      scenario: "Rahim got a ৳2,00,000 bonus. He wants higher interest than a savings account for 6 months, then needs it back.",
+      correct: "fdr",
+      explanation: "FDR is ideal for a defined short period (3-12 months) — more than savings account, with a fixed maturity date.",
+    },
+    {
+      scenario: "A family wants to preserve ৳10 lakh of wealth over decades and pass something tangible to their children.",
+      correct: "gold",
+      explanation: "Physical gold is Bangladesh's traditional store of value — it preserves purchasing power across generations, though it earns no interest.",
+    },
+    {
+      scenario: "Tanvir needs 3 months of expenses available instantly if he loses his job. He earns ৳35,000/month.",
+      correct: "savings_account",
+      explanation: "Emergency funds need instant access — a savings account, not FDR or Sanchaypatra which lock your money.",
+    },
+  ],
+  mangoReward: 25,
+};
+
+const z5Game2 = {
+  type: "order_steps" as const,
+  title: "Build the Savings Ladder",
+  instructions: "Arrange the savings ladder rungs in the correct priority order — from most urgent (tap first) to long-term.",
+  steps: [
+    "Emergency fund: 1 month of expenses in a liquid savings account",
+    "Clear all high-interest debt (credit cards, mobile loan apps)",
+    "Emergency fund: top up to 3 months of expenses",
+    "Medium-term savings in FDR or DPS for 1–3 year goals",
+    "Tax-advantaged savings (Sanchaypatra, employer-matched schemes)",
+    "Long-term locked savings in Sanchaypatra (3–5 years)",
+    "Investment portfolio — stocks, mutual funds, real assets",
+  ],
+  correctOrder: [0, 1, 2, 3, 4, 5, 6],
+  explanation: "The ladder works because each rung protects the ones above it. An emergency fund prevents you from breaking long-term savings. Clearing high-interest debt gives you a guaranteed return equal to the interest rate you were paying.",
+  mangoReward: 25,
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 export const moduleZ5_1: Module = {
   id: "z5-1",
   zoneId: "zone-5",
@@ -55,6 +111,9 @@ Not ideal for: emergency funds (not liquid enough), money you might need within 
     text: "Visit www.nationalsavings.gov.bd this week and note the current rates for all 4 Sanchaypatra types. Which type fits your situation? What amount could you realistically lock away for 3-5 years?",
     ctaButtonText: "I checked the current rates",
   },
+
+  game: z5Game1,
+
   quiz: [
     {
       question: "Which Sanchaypatra type requires the buyer to be a retired government employee?",
@@ -498,6 +557,9 @@ Building Rung 3 before Rung 1 is complete. Many people want the higher returns o
     text: "Sketch your personal savings ladder right now. Which rungs are complete? Which are empty? What is the next rung you need to build?",
     ctaButtonText: "I sketched my savings ladder",
   },
+
+  game: z5Game2,
+
   quiz: [
     {
       question: "Which instrument belongs in Rung 1 (0-3 month emergency fund)?",

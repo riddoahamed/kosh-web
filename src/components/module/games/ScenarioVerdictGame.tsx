@@ -7,14 +7,39 @@ interface Props {
 }
 
 const DISPLAY_LABELS: Record<string, string> = {
-  equity:        "Equity",
-  not_equity:    "Not Equity",
-  open_end:      "Open-end",
-  closed_end:    "Closed-end",
-  goal:          "Goal ✓",
-  wish:          "Wish",
-  A:             "Option A",
-  B:             "Option B",
+  // Zone 6
+  equity:           "Equity",
+  not_equity:       "Not Equity",
+  open_end:         "Open-end",
+  closed_end:       "Closed-end",
+  goal:             "Goal ✓",
+  wish:             "Wish",
+  A:                "Option A",
+  B:                "Option B",
+  // Zone 2
+  needs:            "Needs 🏠",
+  wants:            "Wants 🛍️",
+  savings:          "Savings 💰",
+  inflation:        "Lifestyle Inflation",
+  justified:        "Justified Upgrade",
+  // Zone 3
+  good_debt:        "Good Debt ✓",
+  bad_debt:         "Bad Debt ✗",
+  // Zone 4
+  owes_tax:         "Owes Tax",
+  no_tax:           "No Tax Due",
+  "VAT":            "VAT",
+  "TDS":            "TDS (Withholding)",
+  "VAT + SD":       "VAT + Supp. Duty",
+  // Zone 5
+  sanchaypatra:     "Sanchaypatra",
+  fdr:              "FDR",
+  dps:              "DPS",
+  gold:             "Gold",
+  savings_account:  "Savings Account",
+  // Zone 7–9 (kept from before)
+  right_fit:        "Right Fit ✓",
+  wrong_fit:        "Wrong Fit",
 };
 
 function toDisplay(value: string): string {
