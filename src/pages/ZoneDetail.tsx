@@ -3,27 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { getZone } from "@/data/zones";
 import { ZONE_MODULE_ORDER, ALL_MODULES } from "@/data/modules";
 import { useProgressStore, CORE_MODULES } from "@/store/progressStore";
-
-const ZONE_ACCENT: Record<string, string> = {
-  "zone-1": "160 84% 42%",
-  "zone-2": "262 83% 58%",
-  "zone-3": "347 77% 50%",
-  "zone-4": "38  92% 50%",
-  "zone-5": "160 84% 42%",
-  "zone-6": "217 91% 60%",
-  "zone-7": "234 89% 64%",
-  "zone-8": "199 89% 48%",
-  "zone-9": "187 85% 43%",
-};
-
-function accentBg(zoneId: string, opacity = 0.08) {
-  const h = ZONE_ACCENT[zoneId] ?? "160 84% 42%";
-  return { background: `hsla(${h} / ${opacity})`, borderColor: `hsla(${h} / 0.28)` };
-}
-function accentText(zoneId: string) {
-  const h = ZONE_ACCENT[zoneId] ?? "160 84% 42%";
-  return { color: `hsl(${h})` };
-}
+import { ZoneIcon, accentBg, accentText } from "@/components/shared/ZoneIcon";
 
 export default function ZoneDetail() {
   const { zoneId } = useParams<{ zoneId: string }>();
@@ -79,14 +59,16 @@ export default function ZoneDetail() {
           </button>
 
           <div className="rounded-2xl border-2 p-5 mb-5" style={accentBg(zone.id)}>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-2xl">{zone.emoji}</span>
-              <span className="text-xs font-bold uppercase tracking-widest" style={accentText(zone.id)}>
-                Zone {zone.number}
-              </span>
+            <div className="flex items-start gap-3">
+              <ZoneIcon zoneId={zone.id} size="lg" />
+              <div className="flex-1">
+                <span className="text-xs font-bold uppercase tracking-widest" style={accentText(zone.id)}>
+                  Zone {zone.number}
+                </span>
+                <h1 className="text-xl font-bold text-foreground mt-0.5">{zone.title}</h1>
+                <p className="text-foreground/60 text-sm mt-1 leading-relaxed">{zone.description}</p>
+              </div>
             </div>
-            <h1 className="text-xl font-bold text-foreground">{zone.title}</h1>
-            <p className="text-foreground/60 text-sm mt-1">{zone.description}</p>
           </div>
 
           {!zone1Complete && (
