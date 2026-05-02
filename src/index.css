@@ -174,6 +174,66 @@
   to   { opacity: 1; transform: translateY(0)    scale(1);    }
 }
 
+/* ── Intro section background animations ──────────────────────────────── */
+
+/* Floating ৳ symbol — gentle drift + slight rotation sway */
+@keyframes float-taka {
+  0%, 100% { transform: rotate(-8deg) translateY(0px);  }
+  35%       { transform: rotate(-12deg) translateY(-10px); }
+  70%       { transform: rotate(-5deg)  translateY(-5px);  }
+}
+
+/* Floating % symbol — slower, different phase */
+@keyframes float-pct {
+  0%, 100% { transform: rotate(10deg)  translateY(0px);  }
+  45%       { transform: rotate(14deg)  translateY(-12px); }
+  80%       { transform: rotate(8deg)   translateY(-4px);  }
+}
+
+/* Chart line draw — stroke-dashoffset reveal */
+@keyframes chart-draw {
+  from { stroke-dashoffset: 165; }
+  to   { stroke-dashoffset: 0;   }
+}
+
+/* Chart line glow pulse after draw completes */
+@keyframes chart-glow {
+  0%, 100% { opacity: 0.10; }
+  50%       { opacity: 0.22; filter: drop-shadow(0 0 5px hsla(160,90%,45%,0.6)); }
+}
+
+/* Chart dot pop-in */
+@keyframes dot-pop {
+  from { opacity: 0; transform: scale(0); }
+  60%  { transform: scale(1.35); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Candlestick live-ticker flicker — each candle at slightly different timing */
+@keyframes candle-tick {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.55; }
+}
+
+/* Scanning glow highlight sweeping across the dot grid */
+@keyframes scan-pass {
+  0%        { transform: translateX(-60%) translateY(20%);  opacity: 0;   }
+  15%, 85%  { opacity: 1; }
+  100%      { transform: translateX(120%) translateY(-20%); opacity: 0;   }
+}
+
+/* Bridge sentence entrance — whole block fades in from below */
+@keyframes bridge-rise {
+  from { opacity: 0; transform: translateY(28px) scale(0.98); filter: blur(10px); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    filter: blur(0);    }
+}
+
+/* Bridge exit — fade + lift out */
+@keyframes bridge-exit {
+  from { opacity: 1; transform: translateY(0);     filter: blur(0);   }
+  to   { opacity: 0; transform: translateY(-20px); filter: blur(6px); }
+}
+
 /* ── Premium button styles ────────────────────────────────────────────── */
 .btn-glow {
   position: relative;

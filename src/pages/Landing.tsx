@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, Fragment } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo, Fragment } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/store/authStore";
@@ -27,8 +27,10 @@ import {
 
 const INTRO_KEY = "kosh:intro_v1";
 
-const QUESTIONS = [
-  { text: "Ever wondered about investing?",             hi: ["investing?"] },
+// First question is always fixed; the rest are shuffled each page load
+const FIRST_QUESTION = { text: "Have you thought about investing?", hi: ["investing?"] };
+
+const SHUFFLEABLE_QUESTIONS = [
   { text: "Is FDR better or DPS?",                     hi: ["FDR", "DPS?"] },
   { text: "Should I buy Crypto?",                      hi: ["Crypto?"] },
   { text: "Who is Dorbesh?",                           hi: ["Dorbesh?"] },
@@ -40,13 +42,22 @@ const QUESTIONS = [
   { text: "How do I actually build wealth?",           hi: ["actually", "wealth?"] },
 ];
 
+function fisherYates<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 const WORD_MS      = 160;  // ms between each word appearing
 const HOLD_FIRST   = 3200; // hold time first visit (ms)
 const HOLD_REVISIT = 900;  // hold time revisit (ms)
 const OUT_MS       = 900;  // fade-out duration (ms)
-const REVISIT_MAX  = 4;    // max questions shown on revisit
+const REVISIT_MAX  = 6;    // max questions shown on revisit
 
-// Floating brand background element
+// Floating brand element wrapper
 function FloatingSymbol({ children, style }: { children: React.ReactNode; style: React.CSSProperties }) {
   return (
     <div className="absolute pointer-events-none select-none" style={style}>
@@ -55,56 +66,188 @@ function FloatingSymbol({ children, style }: { children: React.ReactNode; style:
   );
 }
 
+// ── Bridge screen — shown after the questions loop ─────────────────────────
+const BRIDGE_WORDS = ["Have", "you", "ever", "thought", "of", "investing,", "saving,", "spending?"];
+const BRIDGE_HI    = new Set(["investing,", "saving,", "spending?"]);
+
+function BridgeContent({ onDone }: { onDone: () => void }) {
+  const [subVisible, setSubVisible] = useState(false);
+  const [exiting,    setExiting]    = useState(false);
+  const GREEN = "hsl(160,90%,45%)";
+
+  const revealMs = BRIDGE_WORDS.length * WORD_MS + 400;
+
+  useEffect(() => {
+    const t1 = setTimeout(() => setSubVisible(true), revealMs + 250);
+    const t2 = setTimeout(() => setExiting(true),    revealMs + 250 + 2400);
+    const t3 = setTimeout(() => onDone(),             revealMs + 250 + 2400 + OUT_MS + 120);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+  }, [onDone, revealMs]);
+
+  return (
+    <div
+      className="relative z-10 px-6 max-w-3xl mx-auto text-center space-y-5"
+      style={{
+        marginTop: "-10vh",
+        animation: "bridge-rise 0.7s cubic-bezier(0.16,1,0.3,1) forwards",
+        opacity:    exiting ? 0 : undefined,
+        transform:  exiting ? "translateY(-18px)" : undefined,
+        filter:     exiting ? "blur(5px)" : undefined,
+        transition: exiting ? `opacity ${OUT_MS}ms ease, transform ${OUT_MS}ms ease, filter ${OUT_MS}ms ease` : undefined,
+      }}
+    >
+      {/* Main sentence — word-by-word reveal */}
+      <p
+        className="font-black leading-[1.15] tracking-tight"
+        style={{
+          fontFamily: "'Bricolage Grotesque', Inter, sans-serif",
+          fontSize: "clamp(2.2rem, 7.5vw, 4.8rem)",
+        }}
+      >
+        {BRIDGE_WORDS.map((word, i) => {
+          const isHi = BRIDGE_HI.has(word);
+          return (
+            <span
+              key={i}
+              className="inline-block"
+              style={{
+                marginRight: "0.24em",
+                opacity: 0,
+                animation: `word-in 0.55s cubic-bezier(0.16,1,0.3,1) forwards`,
+                animationDelay: `${i * WORD_MS}ms`,
+                color:      isHi ? GREEN : undefined,
+                textShadow: isHi
+                  ? `0 0 28px hsla(160,90%,45%,0.6), 0 0 60px hsla(160,90%,45%,0.2)`
+                  : undefined,
+              }}
+            >
+              {word}
+            </span>
+          );
+        })}
+      </p>
+
+      {/* Subtext */}
+      <p
+        style={{
+          fontSize: "clamp(1rem, 2.5vw, 1.35rem)",
+          letterSpacing: "0.015em",
+          color: "hsl(var(--foreground))",
+          opacity:   subVisible ? 0.55 : 0,
+          transform: subVisible ? "translateY(0)" : "translateY(14px)",
+          transition: "opacity 1s ease, transform 1s ease",
+          fontWeight: 500,
+        }}
+      >
+        Then Kosh is for you.
+      </p>
+
+      {/* Green divider line */}
+      <div
+        style={{
+          height: "1px",
+          width: subVisible ? "80px" : "0px",
+          background: `hsl(160,90%,45%)`,
+          boxShadow: "0 0 10px hsla(160,90%,45%,0.6)",
+          margin: "0 auto",
+          transition: "width 0.8s cubic-bezier(0.16,1,0.3,1) 0.2s",
+        }}
+      />
+    </div>
+  );
+}
+
+// ── Main intro section ────────────────────────────────────────────────────────
+
 function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolean }) {
-  const [qIdx, setQIdx]   = useState(0);
-  const [phase, setPhase] = useState<"in" | "hold" | "out">("in");
+  const [stage,  setStage]  = useState<"questions" | "bridge">("questions");
+  const [qIdx,   setQIdx]   = useState(0);
+  const [phase,  setPhase]  = useState<"in" | "hold" | "out">("in");
   const HOLD_MS = isFirst ? HOLD_FIRST : HOLD_REVISIT;
+
+  // Build question list once: first question fixed, rest shuffled
+  const QUESTIONS = useMemo(
+    () => [FIRST_QUESTION, ...fisherYates(SHUFFLEABLE_QUESTIONS)],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+
   const q     = QUESTIONS[qIdx];
   const words = q.text.split(" ");
 
-  // State machine: in → hold → out → next question (or done)
+  // State machine: in → hold → out → next (or bridge)
   useEffect(() => {
+    if (stage !== "questions") return;
     let t: ReturnType<typeof setTimeout>;
     if (phase === "in") {
       t = setTimeout(() => setPhase("hold"), words.length * WORD_MS + 400);
     } else if (phase === "hold") {
       t = setTimeout(() => setPhase("out"), HOLD_MS);
     } else {
-      // Wait for full out animation before advancing
       t = setTimeout(() => {
         const isLastQuestion = qIdx >= QUESTIONS.length - 1;
         const isRevisitCap   = !isFirst && qIdx >= REVISIT_MAX - 1;
         if (isLastQuestion || isRevisitCap) {
-          onDone();
+          setStage("bridge");
         } else {
           setQIdx(i => i + 1);
           setPhase("in");
         }
-      }, OUT_MS + 80); // tiny extra buffer so fade is visually complete
+      }, OUT_MS + 80);
     }
     return () => clearTimeout(t);
-  }, [phase, qIdx, words.length, HOLD_MS, onDone, isFirst]);
+  }, [stage, phase, qIdx, words.length, HOLD_MS, isFirst, QUESTIONS.length]);
 
   const GREEN = "hsl(160,90%,45%)";
+  const CANDLES = [
+    { x: 8,  high: 10, open: 22, close: 48, low: 58, bull: true  },
+    { x: 24, high: 8,  open: 12, close: 35, low: 55, bull: true  },
+    { x: 40, high: 18, open: 36, close: 22, low: 62, bull: false },
+    { x: 56, high: 5,  open: 15, close: 42, low: 68, bull: true  },
+    { x: 72, high: 2,  open: 8,  close: 50, low: 72, bull: true  },
+  ];
+  const CHART_PTS_X = [0, 28, 56, 84, 112, 140];
+  const CHART_PTS_Y = [62, 48, 52, 24, 14, 4];
 
   return (
     <section className="min-h-screen flex flex-col items-center justify-center relative select-none overflow-hidden">
 
-      {/* ── Brand background elements ── */}
+      {/* ── Film grain overlay ── */}
+      <svg
+        className="absolute inset-0 w-full h-full pointer-events-none z-[1]"
+        style={{ opacity: 0.038, mixBlendMode: "overlay" as React.CSSProperties["mixBlendMode"] }}
+        aria-hidden="true"
+      >
+        <defs>
+          <filter id="intro-grain" x="0%" y="0%" width="100%" height="100%"
+            colorInterpolationFilters="sRGB">
+            <feTurbulence type="fractalNoise" baseFrequency="0.88" numOctaves="4"
+              stitchTiles="stitch">
+              <animate attributeName="seed" dur="0.35s" from="0" to="40"
+                repeatCount="indefinite" calcMode="discrete" />
+            </feTurbulence>
+            <feColorMatrix type="saturate" values="0" />
+          </filter>
+        </defs>
+        <rect width="100%" height="100%" filter="url(#intro-grain)" />
+      </svg>
 
-      {/* Radial glow top */}
+      {/* ── Radial glow + vignettes ── */}
       <div
-        className="absolute inset-x-0 top-0 h-[60%] pointer-events-none"
+        className="absolute inset-x-0 top-0 h-[60%] pointer-events-none z-[1]"
         style={{ background: "radial-gradient(ellipse at 50% -5%, hsla(160,90%,45%,0.13) 0%, transparent 60%)" }}
       />
-      {/* Bottom vignette */}
       <div
-        className="absolute inset-x-0 bottom-0 h-48 pointer-events-none"
+        className="absolute inset-x-0 bottom-0 h-48 pointer-events-none z-[1]"
         style={{ background: "linear-gradient(to top, hsl(var(--background)), transparent)" }}
       />
 
-      {/* Dot grid */}
-      <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ opacity: 0.035 }}>
+      {/* ── Dot grid ── */}
+      <svg
+        className="absolute inset-0 w-full h-full pointer-events-none z-0"
+        style={{ opacity: 0.035 }}
+        aria-hidden="true"
+      >
         <defs>
           <pattern id="kdots" x="0" y="0" width="36" height="36" patternUnits="userSpaceOnUse">
             <circle cx="2" cy="2" r="1.5" fill="currentColor" />
@@ -113,115 +256,193 @@ function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolea
         <rect width="100%" height="100%" fill="url(#kdots)" />
       </svg>
 
-      {/* Taka symbol — top-left */}
-      <FloatingSymbol style={{ top: "12%", left: "6%", fontSize: "96px", fontWeight: 900,
-        color: GREEN, opacity: 0.07, filter: "blur(1px)", transform: "rotate(-8deg)" }}>
-        ৳
-      </FloatingSymbol>
+      {/* Scanning glow that slowly sweeps across the dot grid */}
+      <div
+        className="absolute pointer-events-none z-0"
+        style={{
+          top: 0, left: "-50%",
+          width: "50%", height: "100%",
+          background: "radial-gradient(ellipse at center, hsla(160,90%,45%,0.055) 0%, transparent 65%)",
+          animation: "scan-pass 18s ease-in-out infinite",
+        }}
+        aria-hidden="true"
+      />
 
-      {/* % symbol — top-right */}
-      <FloatingSymbol style={{ top: "18%", right: "7%", fontSize: "110px", fontWeight: 900,
-        color: GREEN, opacity: 0.055, filter: "blur(2px)", transform: "rotate(10deg)" }}>
-        %
-      </FloatingSymbol>
+      {/* ── ৳ symbol — top-left, animated float ── */}
+      <FloatingSymbol
+        style={{
+          top: "12%", left: "6%",
+          fontSize: "96px", fontWeight: 900,
+          color: GREEN, opacity: 0.07, filter: "blur(1px)",
+          animation: "float-taka 7.5s ease-in-out infinite",
+        }}
+      >৳</FloatingSymbol>
 
-      {/* Rising chart line — bottom-left */}
-      <svg className="absolute" style={{ bottom: "18%", left: "4%", opacity: 0.09, width: 140, height: 70 }}>
-        <polyline points="0,62 28,48 56,52 84,24 112,14 140,4"
-          stroke={GREEN} strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-        {[0,28,56,84,112,140].map((x, i) => {
-          const ys = [62,48,52,24,14,4];
-          return <circle key={i} cx={x} cy={ys[i]} r="3" fill={GREEN} />;
-        })}
-      </svg>
+      {/* ── % symbol — top-right, animated float ── */}
+      <FloatingSymbol
+        style={{
+          top: "18%", right: "7%",
+          fontSize: "110px", fontWeight: 900,
+          color: GREEN, opacity: 0.055, filter: "blur(1.5px)",
+          animation: "float-pct 9.5s ease-in-out infinite",
+        }}
+      >%</FloatingSymbol>
 
-      {/* Candlestick cluster — bottom-right */}
-      <svg className="absolute" style={{ bottom: "20%", right: "5%", opacity: 0.08, width: 80, height: 80 }}>
-        {[
-          { x: 8,  high: 10, open: 22, close: 48, low: 58, bull: true  },
-          { x: 24, high: 8,  open: 12, close: 35, low: 55, bull: true  },
-          { x: 40, high: 18, open: 36, close: 22, low: 62, bull: false },
-          { x: 56, high: 5,  open: 15, close: 42, low: 68, bull: true  },
-          { x: 72, high: 2,  open: 8,  close: 50, low: 72, bull: true  },
-        ].map(({ x, high, open, close, low, bull }, i) => (
-          <g key={i}>
-            <line x1={x} y1={high} x2={x} y2={low} stroke={bull ? GREEN : "#ef4444"} strokeWidth="1.5" />
-            <rect x={x - 5} y={Math.min(open, close)} width="10" height={Math.max(2, Math.abs(close - open))}
-              fill={bull ? GREEN : "#ef4444"} rx="1" />
-          </g>
-        ))}
-      </svg>
+      {/* ── Small ৳ — upper centre ── */}
+      <FloatingSymbol
+        style={{
+          top: "8%", left: "48%",
+          fontSize: "28px", fontWeight: 900,
+          color: GREEN, opacity: 0.12, filter: "blur(0.5px)",
+          animation: "float 5s ease-in-out infinite",
+        }}
+      >৳</FloatingSymbol>
 
-      {/* ৳ small — upper middle area */}
-      <FloatingSymbol style={{ top: "8%", left: "48%", fontSize: "28px", fontWeight: 900,
-        color: GREEN, opacity: 0.12, filter: "blur(0.5px)" }}>
-        ৳
-      </FloatingSymbol>
-
-      {/* ── Question text ── */}
-      <div className="relative z-10 px-6 max-w-3xl mx-auto text-center" style={{ marginTop: "-4vh" }}>
-        <p
-          className="font-black leading-[1.1] tracking-tight"
+      {/* ── Rising chart line — bottom-left — draws itself on load ── */}
+      <svg
+        className="absolute pointer-events-none z-[1]"
+        style={{ bottom: "18%", left: "4%", width: 144, height: 72, overflow: "visible" }}
+        aria-hidden="true"
+      >
+        {/* Glow copy below */}
+        <polyline
+          points={CHART_PTS_X.map((x, i) => `${x},${CHART_PTS_Y[i]}`).join(" ")}
+          stroke={GREEN} strokeWidth="6" fill="none" strokeLinecap="round"
+          strokeLinejoin="round" opacity="0.07"
+          strokeDasharray="165"
+          style={{ animation: "chart-draw 2.6s cubic-bezier(0.16,1,0.3,1) forwards" }}
+        />
+        {/* Main line */}
+        <polyline
+          points={CHART_PTS_X.map((x, i) => `${x},${CHART_PTS_Y[i]}`).join(" ")}
+          stroke={GREEN} strokeWidth="2.5" fill="none" strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeDasharray="165"
           style={{
-            fontFamily: "'Bricolage Grotesque', Inter, sans-serif",
-            fontSize: "clamp(2.4rem, 8vw, 5rem)",
+            animation: "chart-draw 2.6s cubic-bezier(0.16,1,0.3,1) forwards, chart-glow 5s 2.6s ease-in-out infinite",
           }}
-        >
-          {words.map((word, i) => {
-            const isHi = q.hi.includes(word);
-            const style: React.CSSProperties = { marginRight: "0.26em" };
-
-            if (phase === "in") {
-              style.opacity = 0;
-              style.animation = `word-in 0.55s cubic-bezier(0.16,1,0.3,1) forwards`;
-              style.animationDelay = `${i * WORD_MS}ms`;
-            } else if (phase === "hold") {
-              style.opacity = 1;
-              style.transform = "translateY(0)";
-              style.filter = "none";
-            } else {
-              style.animation = "none";
-              style.opacity = 0;
-              style.transform = "translateY(14px)";
-              style.filter = "blur(4px)";
-              style.transition = `opacity ${OUT_MS}ms ease, transform ${OUT_MS}ms ease, filter ${OUT_MS}ms ease`;
-            }
-
-            if (isHi) {
-              style.color = GREEN;
-              style.textShadow = `0 0 32px hsla(160,90%,45%,0.55), 0 0 60px hsla(160,90%,45%,0.2)`;
-            }
-
-            return (
-              <span key={`${qIdx}-${i}`} className="inline-block" style={style}>
-                {word}
-              </span>
-            );
-          })}
-        </p>
-      </div>
-
-      {/* Progress dots */}
-      <div className="absolute bottom-20 flex gap-2 items-center z-10">
-        {QUESTIONS.map((_, i) => (
-          <div
+        />
+        {/* Vertex dots pop in after line draws */}
+        {CHART_PTS_X.map((x, i) => (
+          <circle
             key={i}
-            className="rounded-full transition-all duration-500"
+            cx={x} cy={CHART_PTS_Y[i]} r="3.5" fill={GREEN}
             style={{
-              height: "3px",
-              width: i === qIdx ? "24px" : "6px",
-              background: i < qIdx
-                ? "hsla(160,90%,45%,0.3)"
-                : i === qIdx
-                ? GREEN
-                : "rgba(255,255,255,0.10)",
+              opacity: 0,
+              animation: `dot-pop 0.4s cubic-bezier(0.16,1,0.3,1) forwards`,
+              animationDelay: `${2.6 + i * 0.08}s`,
             }}
           />
         ))}
-      </div>
+      </svg>
 
-      {/* Scroll hint */}
-      <p className="absolute bottom-8 text-[10px] tracking-[0.22em] uppercase text-foreground/18 z-10">
+      {/* ── Candlestick cluster — bottom-right — live ticker flicker ── */}
+      <svg
+        className="absolute pointer-events-none z-[1]"
+        style={{ bottom: "20%", right: "5%", width: 80, height: 80, overflow: "visible" }}
+        aria-hidden="true"
+      >
+        {CANDLES.map(({ x, high, open, close, low, bull }, i) => {
+          const tickDur   = `${2.2 + i * 0.28}s`;
+          const tickDelay = `${i * 0.45}s`;
+          const color = bull ? GREEN : "#ef4444";
+          return (
+            <g
+              key={i}
+              style={{
+                animation:      `candle-tick ${tickDur} ease-in-out infinite`,
+                animationDelay: tickDelay,
+                opacity: 0.85,
+              }}
+            >
+              <line x1={x} y1={high} x2={x} y2={low} stroke={color} strokeWidth="1.5" />
+              <rect
+                x={x - 5} y={Math.min(open, close)}
+                width="10" height={Math.max(2, Math.abs(close - open))}
+                fill={color} rx="1"
+              />
+            </g>
+          );
+        })}
+      </svg>
+
+      {/* ── Foreground content (questions OR bridge) ── */}
+
+      {/* Questions phase */}
+      {stage === "questions" && (
+        <>
+          <div
+            className="relative z-10 px-6 max-w-3xl mx-auto text-center"
+            style={{ marginTop: "-10vh" }}
+          >
+            <p
+              className="font-black leading-[1.1] tracking-tight"
+              style={{
+                fontFamily: "'Bricolage Grotesque', Inter, sans-serif",
+                fontSize: "clamp(2.4rem, 8vw, 5rem)",
+              }}
+            >
+              {words.map((word, i) => {
+                const isHi = q.hi.includes(word);
+                const wordStyle: React.CSSProperties = { marginRight: "0.26em" };
+
+                if (phase === "in") {
+                  wordStyle.opacity = 0;
+                  wordStyle.animation = `word-in 0.55s cubic-bezier(0.16,1,0.3,1) forwards`;
+                  wordStyle.animationDelay = `${i * WORD_MS}ms`;
+                } else if (phase === "hold") {
+                  wordStyle.opacity = 1;
+                  wordStyle.transform = "translateY(0)";
+                  wordStyle.filter = "none";
+                } else {
+                  wordStyle.animation = "none";
+                  wordStyle.opacity = 0;
+                  wordStyle.transform = "translateY(14px)";
+                  wordStyle.filter = "blur(4px)";
+                  wordStyle.transition = `opacity ${OUT_MS}ms ease, transform ${OUT_MS}ms ease, filter ${OUT_MS}ms ease`;
+                }
+
+                if (isHi) {
+                  wordStyle.color = GREEN;
+                  wordStyle.textShadow = `0 0 32px hsla(160,90%,45%,0.55), 0 0 60px hsla(160,90%,45%,0.2)`;
+                }
+
+                return (
+                  <span key={`${qIdx}-${i}`} className="inline-block" style={wordStyle}>
+                    {word}
+                  </span>
+                );
+              })}
+            </p>
+          </div>
+
+          {/* Progress dots */}
+          <div className="absolute bottom-20 flex gap-2 items-center z-10">
+            {QUESTIONS.map((_, i) => (
+              <div
+                key={i}
+                className="rounded-full transition-all duration-500"
+                style={{
+                  height: "3px",
+                  width: i === qIdx ? "24px" : "6px",
+                  background:
+                    i < qIdx
+                      ? "hsla(160,90%,45%,0.3)"
+                      : i === qIdx
+                      ? GREEN
+                      : "rgba(255,255,255,0.10)",
+                }}
+              />
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* Bridge phase */}
+      {stage === "bridge" && <BridgeContent onDone={onDone} />}
+
+      {/* Scroll hint — always visible */}
+      <p className="absolute bottom-8 text-[10px] tracking-[0.22em] uppercase text-foreground/18 z-10 pointer-events-none">
         scroll to explore
       </p>
     </section>
@@ -421,8 +642,12 @@ export default function Landing() {
 
       <main className="max-w-5xl mx-auto px-4">
 
-        {/* ── Hero ── */}
-        <section ref={heroRef} className="relative py-20 md:py-28 text-center space-y-8 max-w-2xl mx-auto">
+        {/* ── Hero — fills viewport on scroll-snap arrival ── */}
+        <section
+          ref={heroRef}
+          className="relative flex flex-col items-center justify-center text-center space-y-8 max-w-2xl mx-auto"
+          style={{ minHeight: "calc(100vh - 56px)", paddingTop: "clamp(3rem, 8vw, 6rem)", paddingBottom: "clamp(3rem, 8vw, 6rem)" }}
+        >
           <h1
             className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.1] tracking-tight"
             style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
