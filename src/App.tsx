@@ -21,6 +21,7 @@ import ZoneLibrary from "@/pages/ZoneLibrary";
 import ZoneDetail from "@/pages/ZoneDetail";
 import MangoStore from "@/pages/MangoStore";
 import Profile from "@/pages/Profile";
+import Welcome from "@/pages/Welcome";
 import About from "@/pages/About";
 import DevLogin from "@/pages/DevLogin";
 import NotFound from "@/pages/NotFound";
@@ -52,6 +53,7 @@ export default function App() {
         <Route path="/zones/:zoneId" element={<ZoneDetail />} />
         <Route path="/store" element={<MangoStore />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/welcome" element={<Welcome />} />
         <Route path="/about" element={<About />} />
         <Route path="/x" element={<DevLogin />} />
         <Route path="*" element={<NotFound />} />

@@ -13,11 +13,11 @@ import type { LucideIcon } from "lucide-react";
 
 // HSL accent per zone
 export const ZONE_ACCENT: Record<string, string> = {
-  "zone-1": "160 84% 42%",
+  "zone-1": "160 90% 45%",
   "zone-2": "262 83% 58%",
   "zone-3": "347 77% 50%",
   "zone-4": "38  92% 50%",
-  "zone-5": "160 84% 42%",
+  "zone-5": "160 90% 45%",
   "zone-6": "217 91% 60%",
   "zone-7": "234 89% 64%",
   "zone-8": "199 89% 48%",

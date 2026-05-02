@@ -30,25 +30,25 @@
 
   .dark,
   [data-theme="dark"] {
-    --background: 222 20% 5%;
-    --foreground: 210 30% 96%;
-    --card: 222 18% 8%;
-    --card-foreground: 210 30% 96%;
-    --popover: 222 18% 8%;
-    --popover-foreground: 210 30% 96%;
-    --primary: 160 84% 42%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 222 16% 12%;
-    --secondary-foreground: 210 30% 96%;
-    --muted: 222 16% 10%;
-    --muted-foreground: 218 14% 55%;
-    --accent: 160 84% 42%;
-    --accent-foreground: 0 0% 100%;
+    --background: 0 0% 4%;
+    --foreground: 0 0% 95%;
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 95%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 160 90% 45%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 0 0% 11%;
+    --secondary-foreground: 0 0% 95%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 52%;
+    --accent: 160 90% 45%;
+    --accent-foreground: 0 0% 0%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-    --border: 222 16% 12%;
-    --input: 222 16% 12%;
-    --ring: 160 84% 42%;
+    --border: 0 0% 13%;
+    --input: 0 0% 13%;
+    --ring: 160 90% 45%;
   }
 
   /* Manual light override — beats system dark preference */
@@ -76,25 +76,25 @@
 
   @media (prefers-color-scheme: dark) {
     :root {
-      --background: 222 20% 5%;
-      --foreground: 210 30% 96%;
-      --card: 222 18% 8%;
-      --card-foreground: 210 30% 96%;
-      --popover: 222 18% 8%;
-      --popover-foreground: 210 30% 96%;
-      --primary: 160 84% 42%;
-      --primary-foreground: 0 0% 100%;
-      --secondary: 222 16% 12%;
-      --secondary-foreground: 210 30% 96%;
-      --muted: 222 16% 10%;
-      --muted-foreground: 218 14% 55%;
-      --accent: 160 84% 42%;
-      --accent-foreground: 0 0% 100%;
+      --background: 0 0% 4%;
+      --foreground: 0 0% 95%;
+      --card: 0 0% 7%;
+      --card-foreground: 0 0% 95%;
+      --popover: 0 0% 7%;
+      --popover-foreground: 0 0% 95%;
+      --primary: 160 90% 45%;
+      --primary-foreground: 0 0% 0%;
+      --secondary: 0 0% 11%;
+      --secondary-foreground: 0 0% 95%;
+      --muted: 0 0% 10%;
+      --muted-foreground: 0 0% 52%;
+      --accent: 160 90% 45%;
+      --accent-foreground: 0 0% 0%;
       --destructive: 0 62.8% 30.6%;
       --destructive-foreground: 210 40% 98%;
-      --border: 222 16% 12%;
-      --input: 222 16% 12%;
-      --ring: 160 84% 42%;
+      --border: 0 0% 13%;
+      --input: 0 0% 13%;
+      --ring: 160 90% 45%;
     }
   }
 
