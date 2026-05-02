@@ -155,6 +155,26 @@ function BridgeContent({ onDone }: { onDone: () => void }) {
   );
 }
 
+// ── Stock chart data (realistic uptrend with volatility) ─────────────────────
+// viewBox 0 0 500 100  — y=100 is bottom, y=0 is top
+const STOCK_PTS: [number, number][] = [
+  [0, 90],  [12, 87], [22, 89], [34, 83], [44, 85],
+  [56, 78], [66, 80], [78, 73], [88, 76], [100, 70],
+  [110, 73],[120, 66],[132, 63],[142, 67],[154, 59],
+  [164, 62],[175, 54],[185, 51],[197, 55],[208, 47],
+  [218, 44],[229, 48],[240, 40],[250, 37],[262, 41],
+  [273, 33],[283, 29],[295, 34],[306, 25],[316, 21],
+  [328, 27],[339, 18],[350, 14],[362, 19],[373, 11],
+  [384, 15],[394,  8],[406, 11],[418,  6],[430,  8],
+  [442,  4],[455,  7],[467,  3],[480,  5],[492,  2],
+  [500,  4],
+];
+const STOCK_LINE_PTS   = STOCK_PTS.map(([x, y]) => `${x},${y}`).join(" ");
+const STOCK_AREA_PTS   = `0,100 ${STOCK_LINE_PTS} 500,100`;
+const STOCK_PATH_D     = `M ${STOCK_PTS.map(([x, y]) => `${x},${y}`).join(" L ")}`;
+// Animation duration (ms) — matches the approximate total intro + bridge duration
+const STOCK_DUR        = "48s";
+
 // ── Main intro section ────────────────────────────────────────────────────────
 
 function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolean }) {
@@ -197,15 +217,6 @@ function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolea
   }, [stage, phase, qIdx, words.length, HOLD_MS, isFirst, QUESTIONS.length]);
 
   const GREEN = "hsl(160,90%,45%)";
-  const CANDLES = [
-    { x: 8,  high: 10, open: 22, close: 48, low: 58, bull: true  },
-    { x: 24, high: 8,  open: 12, close: 35, low: 55, bull: true  },
-    { x: 40, high: 18, open: 36, close: 22, low: 62, bull: false },
-    { x: 56, high: 5,  open: 15, close: 42, low: 68, bull: true  },
-    { x: 72, high: 2,  open: 8,  close: 50, low: 72, bull: true  },
-  ];
-  const CHART_PTS_X = [0, 28, 56, 84, 112, 140];
-  const CHART_PTS_Y = [62, 48, 52, 24, 14, 4];
 
   return (
     <section className="min-h-screen flex flex-col items-center justify-center relative select-none overflow-hidden">
@@ -296,72 +307,79 @@ function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolea
         }}
       >৳</FloatingSymbol>
 
-      {/* ── Rising chart line — bottom-left — draws itself on load ── */}
+      {/* ── Full-width climbing stock chart ── */}
+      {/* Spans the entire bottom band, reveals left-to-right paced with sentences */}
       <svg
         className="absolute pointer-events-none z-[1]"
-        style={{ bottom: "18%", left: "4%", width: 144, height: 72, overflow: "visible" }}
+        style={{ bottom: "5%", left: 0, width: "100%", height: "130px" }}
+        viewBox="0 0 500 100"
+        preserveAspectRatio="none"
         aria-hidden="true"
       >
-        {/* Glow copy below */}
-        <polyline
-          points={CHART_PTS_X.map((x, i) => `${x},${CHART_PTS_Y[i]}`).join(" ")}
-          stroke={GREEN} strokeWidth="6" fill="none" strokeLinecap="round"
-          strokeLinejoin="round" opacity="0.07"
-          strokeDasharray="165"
-          style={{ animation: "chart-draw 2.6s cubic-bezier(0.16,1,0.3,1) forwards" }}
+        <defs>
+          {/* Gradient fill below line */}
+          <linearGradient id="stock-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stopColor={GREEN} stopOpacity="0.16" />
+            <stop offset="85%"  stopColor={GREEN} stopOpacity="0.02" />
+            <stop offset="100%" stopColor={GREEN} stopOpacity="0" />
+          </linearGradient>
+          {/* Clip rect — animates from 0 to full width over ~48s */}
+          <clipPath id="stock-clip">
+            <rect x="0" y="0" width="0" height="110">
+              <animate
+                attributeName="width"
+                from="0" to="500"
+                dur={STOCK_DUR}
+                fill="freeze"
+                calcMode="linear"
+              />
+            </rect>
+          </clipPath>
+          {/* Invisible path used only for animateMotion on the leading dot */}
+          <path id="stock-motion-path" d={STOCK_PATH_D} fill="none" stroke="none" />
+        </defs>
+
+        {/* Area fill */}
+        <polygon
+          points={STOCK_AREA_PTS}
+          fill="url(#stock-grad)"
+          clipPath="url(#stock-clip)"
         />
+
+        {/* Wide soft glow copy */}
+        <polyline
+          points={STOCK_LINE_PTS}
+          stroke={GREEN} strokeWidth="10" fill="none"
+          strokeLinecap="round" strokeLinejoin="round"
+          opacity="0.05"
+          clipPath="url(#stock-clip)"
+        />
+
         {/* Main line */}
         <polyline
-          points={CHART_PTS_X.map((x, i) => `${x},${CHART_PTS_Y[i]}`).join(" ")}
-          stroke={GREEN} strokeWidth="2.5" fill="none" strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeDasharray="165"
-          style={{
-            animation: "chart-draw 2.6s cubic-bezier(0.16,1,0.3,1) forwards, chart-glow 5s 2.6s ease-in-out infinite",
-          }}
+          points={STOCK_LINE_PTS}
+          stroke={GREEN} strokeWidth="1.8" fill="none"
+          strokeLinecap="round" strokeLinejoin="round"
+          opacity="0.75"
+          clipPath="url(#stock-clip)"
         />
-        {/* Vertex dots pop in after line draws */}
-        {CHART_PTS_X.map((x, i) => (
-          <circle
-            key={i}
-            cx={x} cy={CHART_PTS_Y[i]} r="3.5" fill={GREEN}
-            style={{
-              opacity: 0,
-              animation: `dot-pop 0.4s cubic-bezier(0.16,1,0.3,1) forwards`,
-              animationDelay: `${2.6 + i * 0.08}s`,
-            }}
-          />
-        ))}
-      </svg>
 
-      {/* ── Candlestick cluster — bottom-right — live ticker flicker ── */}
-      <svg
-        className="absolute pointer-events-none z-[1]"
-        style={{ bottom: "20%", right: "5%", width: 80, height: 80, overflow: "visible" }}
-        aria-hidden="true"
-      >
-        {CANDLES.map(({ x, high, open, close, low, bull }, i) => {
-          const tickDur   = `${2.2 + i * 0.28}s`;
-          const tickDelay = `${i * 0.45}s`;
-          const color = bull ? GREEN : "#ef4444";
-          return (
-            <g
-              key={i}
-              style={{
-                animation:      `candle-tick ${tickDur} ease-in-out infinite`,
-                animationDelay: tickDelay,
-                opacity: 0.85,
-              }}
-            >
-              <line x1={x} y1={high} x2={x} y2={low} stroke={color} strokeWidth="1.5" />
-              <rect
-                x={x - 5} y={Math.min(open, close)}
-                width="10" height={Math.max(2, Math.abs(close - open))}
-                fill={color} rx="1"
-              />
-            </g>
-          );
-        })}
+        {/* Live leading dot — follows the path at the same pace as the clip */}
+        <circle r="3.5" fill={GREEN}>
+          <animateMotion dur={STOCK_DUR} fill="freeze" calcMode="linear">
+            <mpath href="#stock-motion-path" />
+          </animateMotion>
+          {/* Pulse ring */}
+          <animate attributeName="opacity" values="1;0.25;1" dur="1.4s" repeatCount="indefinite" />
+        </circle>
+        {/* Outer pulse ring on the leading dot */}
+        <circle r="3.5" fill="none" stroke={GREEN} strokeWidth="1.5" opacity="0.5">
+          <animateMotion dur={STOCK_DUR} fill="freeze" calcMode="linear">
+            <mpath href="#stock-motion-path" />
+          </animateMotion>
+          <animate attributeName="r" values="3.5;7;3.5" dur="1.4s" repeatCount="indefinite" />
+          <animate attributeName="opacity" values="0.5;0;0.5" dur="1.4s" repeatCount="indefinite" />
+        </circle>
       </svg>
 
       {/* ── Foreground content (questions OR bridge) ── */}
