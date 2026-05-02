@@ -1,13 +1,11 @@
 import { useState, useEffect, useCallback, useRef, useMemo, Fragment } from "react";
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/store/authStore";
 import EmailSignupModal from "@/components/shared/EmailSignupModal";
 import {
   ArrowRight,
   ShieldCheck,
   BarChart3,
-  Users,
   Building2,
   Smartphone,
   Globe,
