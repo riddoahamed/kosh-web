@@ -155,25 +155,41 @@ function BridgeContent({ onDone }: { onDone: () => void }) {
   );
 }
 
-// ── Stock chart data (realistic uptrend with volatility) ─────────────────────
-// viewBox 0 0 500 100  — y=100 is bottom, y=0 is top
+// ── Stock chart data ──────────────────────────────────────────────────────────
+// viewBox 0 0 500 100  (y=100 bottom, y=0 top)
+// Designed with real market structure: three waves separated by two corrections.
+// Path ends at x≈382 (~76% of viewBox) so the live dot lands near "saving,"
+// in the bridge sentence (which is centred and ~75% through the text).
 const STOCK_PTS: [number, number][] = [
-  [0, 90],  [12, 87], [22, 89], [34, 83], [44, 85],
-  [56, 78], [66, 80], [78, 73], [88, 76], [100, 70],
-  [110, 73],[120, 66],[132, 63],[142, 67],[154, 59],
-  [164, 62],[175, 54],[185, 51],[197, 55],[208, 47],
-  [218, 44],[229, 48],[240, 40],[250, 37],[262, 41],
-  [273, 33],[283, 29],[295, 34],[306, 25],[316, 21],
-  [328, 27],[339, 18],[350, 14],[362, 19],[373, 11],
-  [384, 15],[394,  8],[406, 11],[418,  6],[430,  8],
-  [442,  4],[455,  7],[467,  3],[480,  5],[492,  2],
-  [500,  4],
+  // ── Wave 1: initial accumulation + first rally ───────────────────────────
+  [ 0, 86], [10, 84], [20, 81], [30, 83], [40, 77],
+  [50, 79], [62, 72], [74, 75], [84, 68], [96, 66],
+  [106, 64],
+
+  // ── Correction 1: ~15-pt pullback, forms a flag ──────────────────────────
+  [116, 68], [126, 72], [136, 76], [145, 73],
+  [154, 77], [163, 73],
+
+  // ── Wave 2: recovery through prior high, new peak ────────────────────────
+  [173, 67], [183, 69], [193, 62], [202, 58],
+  [212, 60], [222, 53], [232, 49], [241, 47],
+
+  // ── Correction 2: bigger shakeout (~20 pts), "scary" dip ─────────────────
+  [251, 52], [260, 57], [269, 62], [278, 58],
+  [287, 64], [296, 68], [305, 63], [314, 57],
+
+  // ── Wave 3: strong breakout — ends near "saving," in bridge sentence ─────
+  [323, 50], [331, 44], [340, 47], [349, 40],
+  [358, 35], [367, 38], [376, 31], [382, 27],
 ];
+
+// The clip rect reveals from x=0 to x=382 (last point)
+const STOCK_END_X      = 382;
 const STOCK_LINE_PTS   = STOCK_PTS.map(([x, y]) => `${x},${y}`).join(" ");
-const STOCK_AREA_PTS   = `0,100 ${STOCK_LINE_PTS} 500,100`;
+const STOCK_AREA_PTS   = `0,100 ${STOCK_LINE_PTS} ${STOCK_END_X},100`;
 const STOCK_PATH_D     = `M ${STOCK_PTS.map(([x, y]) => `${x},${y}`).join(" L ")}`;
-// Animation duration (ms) — matches the approximate total intro + bridge duration
-const STOCK_DUR        = "48s";
+// Duration — tuned to ~first-visit intro length so the line finishes at bridge
+const STOCK_DUR        = "46s";
 
 // ── Main intro section ────────────────────────────────────────────────────────
 
@@ -308,10 +324,11 @@ function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolea
       >৳</FloatingSymbol>
 
       {/* ── Full-width climbing stock chart ── */}
-      {/* Spans the entire bottom band, reveals left-to-right paced with sentences */}
+      {/* Reveals left-to-right over ~46s — paced with questions.
+          Ends near "saving," in the bridge sentence (~76% of viewport width). */}
       <svg
         className="absolute pointer-events-none z-[1]"
-        style={{ bottom: "5%", left: 0, width: "100%", height: "130px" }}
+        style={{ bottom: "9%", left: 0, width: "100%", height: "150px" }}
         viewBox="0 0 500 100"
         preserveAspectRatio="none"
         aria-hidden="true"
@@ -323,12 +340,12 @@ function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolea
             <stop offset="85%"  stopColor={GREEN} stopOpacity="0.02" />
             <stop offset="100%" stopColor={GREEN} stopOpacity="0" />
           </linearGradient>
-          {/* Clip rect — animates from 0 to full width over ~48s */}
+          {/* Clip rect — reveals from x=0 to STOCK_END_X over STOCK_DUR */}
           <clipPath id="stock-clip">
             <rect x="0" y="0" width="0" height="110">
               <animate
                 attributeName="width"
-                from="0" to="500"
+                from="0" to={String(STOCK_END_X)}
                 dur={STOCK_DUR}
                 fill="freeze"
                 calcMode="linear"
