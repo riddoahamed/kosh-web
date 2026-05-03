@@ -86,7 +86,7 @@ function BridgeContent({ onDone }: { onDone: () => void }) {
     <div
       className="relative z-10 px-6 max-w-3xl mx-auto text-center space-y-5"
       style={{
-        marginTop: "-10vh",
+        marginTop: "-15vh",
         animation: "bridge-rise 0.7s cubic-bezier(0.16,1,0.3,1) forwards",
         opacity:    exiting ? 0 : undefined,
         transform:  exiting ? "translateY(-18px)" : undefined,
@@ -94,7 +94,7 @@ function BridgeContent({ onDone }: { onDone: () => void }) {
         transition: exiting ? `opacity ${OUT_MS}ms ease, transform ${OUT_MS}ms ease, filter ${OUT_MS}ms ease` : undefined,
       }}
     >
-      {/* Main sentence — word-by-word reveal */}
+      {/* Main sentence — typed word by word */}
       <p
         className="font-black leading-[1.15] tracking-tight"
         style={{
@@ -104,22 +104,32 @@ function BridgeContent({ onDone }: { onDone: () => void }) {
       >
         {BRIDGE_WORDS.map((word, i) => {
           const isHi = BRIDGE_HI.has(word);
+          const isLast = i === BRIDGE_WORDS.length - 1;
           return (
-            <span
-              key={i}
-              className="inline-block"
-              style={{
-                marginRight: "0.24em",
-                opacity: 0,
-                animation: `word-in 0.55s cubic-bezier(0.16,1,0.3,1) forwards`,
-                animationDelay: `${i * WORD_MS}ms`,
-                color:      isHi ? GREEN : undefined,
-                textShadow: isHi
-                  ? `0 0 28px hsla(160,90%,45%,0.6), 0 0 60px hsla(160,90%,45%,0.2)`
-                  : undefined,
-              }}
-            >
-              {word}
+            <span key={i} className="inline-block" style={{ marginRight: "0.24em" }}>
+              <span
+                className="inline-block"
+                style={{
+                  opacity: 0,
+                  animation: `word-type 0.08s ease forwards`,
+                  animationDelay: `${i * WORD_MS}ms`,
+                  color:      isHi ? GREEN : undefined,
+                  textShadow: isHi ? `0 0 28px hsla(160,90%,45%,0.6), 0 0 60px hsla(160,90%,45%,0.2)` : undefined,
+                }}
+              >
+                {word}
+              </span>
+              {/* Blinking cursor after last word, visible until exit */}
+              {isLast && !exiting && (
+                <span
+                  className="inline-block font-thin ml-1"
+                  style={{
+                    color: GREEN,
+                    opacity: 0,
+                    animation: `word-type 0.08s ease ${BRIDGE_WORDS.length * WORD_MS}ms forwards, cursor-blink 0.9s step-end ${BRIDGE_WORDS.length * WORD_MS + 200}ms infinite`,
+                  }}
+                >|</span>
+              )}
             </span>
           );
         })}
@@ -194,9 +204,10 @@ const STOCK_DUR        = "46s";
 // ── Main intro section ────────────────────────────────────────────────────────
 
 function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolean }) {
-  const [stage,  setStage]  = useState<"questions" | "bridge">("questions");
-  const [qIdx,   setQIdx]   = useState(0);
-  const [phase,  setPhase]  = useState<"in" | "hold" | "out">("in");
+  const [stage,     setStage]     = useState<"questions" | "bridge">("questions");
+  const [qIdx,      setQIdx]      = useState(0);
+  const [phase,     setPhase]     = useState<"in" | "hold" | "out">("in");
+  const [clipWidth, setClipWidth] = useState(0);
   const HOLD_MS = isFirst ? HOLD_FIRST : HOLD_REVISIT;
 
   // Build question list once: first question fixed, rest shuffled
@@ -231,6 +242,24 @@ function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolea
     }
     return () => clearTimeout(t);
   }, [stage, phase, qIdx, words.length, HOLD_MS, isFirst, QUESTIONS.length]);
+
+  // Advance chart reveal with each sentence
+  const totalSteps = isFirst ? QUESTIONS.length : REVISIT_MAX;
+  useEffect(() => {
+    const target = Math.round(((qIdx + 1) / totalSteps) * STOCK_END_X);
+    setClipWidth(target);
+  }, [qIdx, totalSteps]);
+  useEffect(() => {
+    if (stage === "bridge") setClipWidth(STOCK_END_X);
+  }, [stage]);
+
+  // Leading dot position — absolute div tracks chart tip precisely
+  const CHART_H    = 150;  // px, matches SVG height
+  const dotPtIdx   = clipWidth <= 0 ? 0
+    : Math.min(Math.round((clipWidth / STOCK_END_X) * (STOCK_PTS.length - 1)), STOCK_PTS.length - 1);
+  const [dotSvgX, dotSvgY] = STOCK_PTS[dotPtIdx];
+  const dotLeftPct  = (dotSvgX / 500) * 100;            // % of viewport width
+  const dotFromBase = CHART_H * (1 - dotSvgY / 100);    // px above chart bottom
 
   const GREEN = "hsl(160,90%,45%)";
 
@@ -293,111 +322,164 @@ function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolea
         aria-hidden="true"
       />
 
-      {/* ── ৳ symbol — top-left, animated float ── */}
-      <FloatingSymbol
-        style={{
-          top: "12%", left: "6%",
-          fontSize: "96px", fontWeight: 900,
-          color: GREEN, opacity: 0.07, filter: "blur(1px)",
-          animation: "float-taka 7.5s ease-in-out infinite",
-        }}
-      >৳</FloatingSymbol>
+      {/* ── ৳ BDT — top-left, animated float ── */}
+      <FloatingSymbol style={{
+        top: "12%", left: "6%",
+        fontSize: "96px", fontWeight: 900,
+        color: GREEN, opacity: 0.07, filter: "blur(1px)",
+        animation: "float-taka 7.5s ease-in-out infinite",
+      }}>৳</FloatingSymbol>
 
-      {/* ── % symbol — top-right, animated float ── */}
-      <FloatingSymbol
-        style={{
-          top: "18%", right: "7%",
-          fontSize: "110px", fontWeight: 900,
-          color: GREEN, opacity: 0.055, filter: "blur(1.5px)",
-          animation: "float-pct 9.5s ease-in-out infinite",
-        }}
-      >%</FloatingSymbol>
+      {/* ── % — top-right ── */}
+      <FloatingSymbol style={{
+        top: "14%", right: "6%",
+        fontSize: "90px", fontWeight: 900,
+        color: GREEN, opacity: 0.055, filter: "blur(1.5px)",
+        animation: "float-pct 9.5s ease-in-out infinite",
+      }}>%</FloatingSymbol>
 
-      {/* ── Small ৳ — upper centre ── */}
-      <FloatingSymbol
-        style={{
-          top: "8%", left: "48%",
-          fontSize: "28px", fontWeight: 900,
-          color: GREEN, opacity: 0.12, filter: "blur(0.5px)",
-          animation: "float 5s ease-in-out infinite",
-        }}
-      >৳</FloatingSymbol>
+      {/* ── ₿ BTC — upper area, amber/gold to differentiate ── */}
+      <FloatingSymbol style={{
+        top: "10%", right: "20%",
+        fontSize: "58px", fontWeight: 900,
+        color: "hsl(38,90%,56%)", opacity: 0.065, filter: "blur(0.8px)",
+        animation: "float 8s ease-in-out infinite",
+        animationDelay: "1.8s",
+      }}>₿</FloatingSymbol>
 
-      {/* ── Full-width climbing stock chart ── */}
-      {/* Reveals left-to-right over ~46s — paced with questions.
-          Ends near "saving," in the bridge sentence (~76% of viewport width). */}
+      {/* ── National Martyr's Memorial (Jatiyo Smriti Soudho) — left mid ── */}
+      {/* 7 angular towers in fan arrangement — simplified silhouette */}
       <svg
         className="absolute pointer-events-none z-[1]"
-        style={{ bottom: "9%", left: 0, width: "100%", height: "150px" }}
+        style={{ top: "32%", left: "2%", width: 124, height: 96, opacity: 0.085 }}
+        viewBox="0 0 124 96" fill="none" aria-hidden="true"
+      >
+        {/* Base platform */}
+        <line x1="0" y1="86" x2="124" y2="86" stroke={GREEN} strokeWidth="1.1"/>
+        {/* Outer-left shortest */}
+        <polygon points="10,70 2,86 18,86"  stroke={GREEN} strokeWidth="0.9" fill="none"/>
+        {/* 2nd left */}
+        <polygon points="27,54 18,86 36,86" stroke={GREEN} strokeWidth="1"   fill="none"/>
+        {/* 3rd left */}
+        <polygon points="44,35 34,86 54,86" stroke={GREEN} strokeWidth="1.1" fill="none"/>
+        {/* Centre — tallest */}
+        <polygon points="62,6  51,86 73,86" stroke={GREEN} strokeWidth="1.2" fill="none"/>
+        {/* 3rd right */}
+        <polygon points="80,35 70,86 90,86" stroke={GREEN} strokeWidth="1.1" fill="none"/>
+        {/* 2nd right */}
+        <polygon points="97,54 88,86 106,86" stroke={GREEN} strokeWidth="1"  fill="none"/>
+        {/* Outer-right shortest */}
+        <polygon points="114,70 106,86 122,86" stroke={GREEN} strokeWidth="0.9" fill="none"/>
+        {/* Reflection pool hint — horizontal lines */}
+        <line x1="10" y1="90" x2="114" y2="90" stroke={GREEN} strokeWidth="0.5" opacity="0.5"/>
+        <line x1="22" y1="93" x2="102" y2="93" stroke={GREEN} strokeWidth="0.4" opacity="0.3"/>
+      </svg>
+
+      {/* ── Water lily (Shapla — national flower) — left lower ── */}
+      <svg
+        className="absolute pointer-events-none z-[1]"
+        style={{ top: "62%", left: "4%", width: 64, height: 56, opacity: 0.08 }}
+        viewBox="0 0 64 56" fill="none" aria-hidden="true"
+      >
+        {/* Stem */}
+        <path d="M32,54 Q26,44 32,34 Q38,26 32,18" stroke={GREEN} strokeWidth="1.1" fill="none"/>
+        {/* 6 petals via bezier curves */}
+        <path d="M32,18 Q14,6  16,20 Q18,30 32,24"  stroke={GREEN} strokeWidth="1"   fill="none"/>
+        <path d="M32,18 Q22,0  30,16 Q33,22 32,18"  stroke={GREEN} strokeWidth="0.9" fill="none"/>
+        <path d="M32,18 Q42,0  34,16 Q31,22 32,18"  stroke={GREEN} strokeWidth="0.9" fill="none"/>
+        <path d="M32,18 Q50,6  48,20 Q46,30 32,24"  stroke={GREEN} strokeWidth="1"   fill="none"/>
+        <path d="M32,24 Q50,28 46,36 Q40,40 32,34"  stroke={GREEN} strokeWidth="1"   fill="none"/>
+        <path d="M32,24 Q14,28 18,36 Q24,40 32,34"  stroke={GREEN} strokeWidth="1"   fill="none"/>
+        {/* Centre */}
+        <circle cx="32" cy="20" r="5" stroke={GREEN} strokeWidth="1" fill="none"/>
+        <circle cx="32" cy="20" r="2" stroke={GREEN} strokeWidth="0.7" fill="none"/>
+        {/* Lily pad */}
+        <path d="M18,36 Q8,40 10,48 Q22,50 32,44 Q42,50 54,48 Q56,40 46,36"
+          stroke={GREEN} strokeWidth="0.9" fill="none"/>
+      </svg>
+
+      {/* ── Gold bars — lower-right ── */}
+      <svg
+        className="absolute pointer-events-none z-[1]"
+        style={{ bottom: "22%", right: "4%", width: 72, height: 68, opacity: 0.10 }}
+        viewBox="0 0 72 68" fill="none" aria-hidden="true"
+      >
+        {/* Bar 3 (bottom) */}
+        <rect x="9"  y="50" width="56" height="14" rx="2" stroke="hsl(38,90%,54%)" strokeWidth="1.2"/>
+        <line x1="15" y1="55" x2="57" y2="55" stroke="hsl(38,90%,54%)" strokeWidth="0.7" opacity="0.65"/>
+        {/* Bar 2 */}
+        <rect x="5"  y="32" width="56" height="14" rx="2" stroke="hsl(38,90%,54%)" strokeWidth="1.2"/>
+        <line x1="11" y1="37" x2="53" y2="37" stroke="hsl(38,90%,54%)" strokeWidth="0.7" opacity="0.65"/>
+        {/* Bar 1 (top) */}
+        <rect x="0"  y="14" width="56" height="14" rx="2" stroke="hsl(38,90%,54%)" strokeWidth="1.2"/>
+        <line x1="6"  y1="19" x2="48" y2="19" stroke="hsl(38,90%,54%)" strokeWidth="0.7" opacity="0.65"/>
+        {/* 3D side edge on top bar */}
+        <line x1="56" y1="14" x2="62" y2="18" stroke="hsl(38,90%,54%)" strokeWidth="0.9" opacity="0.5"/>
+        <line x1="56" y1="28" x2="62" y2="32" stroke="hsl(38,90%,54%)" strokeWidth="0.9" opacity="0.5"/>
+        <line x1="62" y1="18" x2="62" y2="32" stroke="hsl(38,90%,54%)" strokeWidth="0.9" opacity="0.5"/>
+      </svg>
+
+      {/* ── Full-width climbing stock chart — React-state-driven reveal ── */}
+      <svg
+        className="absolute pointer-events-none z-[1]"
+        style={{ bottom: "9%", left: 0, width: "100%", height: `${CHART_H}px` }}
         viewBox="0 0 500 100"
         preserveAspectRatio="none"
         aria-hidden="true"
       >
         <defs>
-          {/* Gradient fill below line */}
           <linearGradient id="stock-grad" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%"   stopColor={GREEN} stopOpacity="0.16" />
             <stop offset="85%"  stopColor={GREEN} stopOpacity="0.02" />
             <stop offset="100%" stopColor={GREEN} stopOpacity="0" />
           </linearGradient>
-          {/* Clip rect — reveals from x=0 to STOCK_END_X over STOCK_DUR */}
-          <clipPath id="stock-clip">
-            <rect x="0" y="0" width="0" height="110">
-              <animate
-                attributeName="width"
-                from="0" to={String(STOCK_END_X)}
-                dur={STOCK_DUR}
-                fill="freeze"
-                calcMode="linear"
-              />
-            </rect>
-          </clipPath>
-          {/* Invisible path used only for animateMotion on the leading dot */}
-          <path id="stock-motion-path" d={STOCK_PATH_D} fill="none" stroke="none" />
+          {/* CSS-transition-driven mask — updates with each sentence change */}
+          <mask id="stock-mask">
+            <rect
+              x="0" y="0" height="110"
+              style={{
+                width: clipWidth,
+                transition: "width 1.9s cubic-bezier(0.4, 0, 0.2, 1)",
+              }}
+              fill="white"
+            />
+          </mask>
         </defs>
-
         {/* Area fill */}
-        <polygon
-          points={STOCK_AREA_PTS}
-          fill="url(#stock-grad)"
-          clipPath="url(#stock-clip)"
-        />
-
-        {/* Wide soft glow copy */}
+        <polygon points={STOCK_AREA_PTS} fill="url(#stock-grad)" mask="url(#stock-mask)" />
+        {/* Glow copy */}
         <polyline
           points={STOCK_LINE_PTS}
           stroke={GREEN} strokeWidth="10" fill="none"
-          strokeLinecap="round" strokeLinejoin="round"
-          opacity="0.05"
-          clipPath="url(#stock-clip)"
+          strokeLinecap="round" strokeLinejoin="round" opacity="0.05"
+          mask="url(#stock-mask)"
         />
-
         {/* Main line */}
         <polyline
           points={STOCK_LINE_PTS}
           stroke={GREEN} strokeWidth="1.8" fill="none"
-          strokeLinecap="round" strokeLinejoin="round"
-          opacity="0.75"
-          clipPath="url(#stock-clip)"
+          strokeLinecap="round" strokeLinejoin="round" opacity="0.78"
+          mask="url(#stock-mask)"
         />
-
-        {/* Live leading dot — follows the path at the same pace as the clip */}
-        <circle r="3.5" fill={GREEN}>
-          <animateMotion dur={STOCK_DUR} fill="freeze" calcMode="linear">
-            <mpath href="#stock-motion-path" />
-          </animateMotion>
-          {/* Pulse ring */}
-          <animate attributeName="opacity" values="1;0.25;1" dur="1.4s" repeatCount="indefinite" />
-        </circle>
-        {/* Outer pulse ring on the leading dot */}
-        <circle r="3.5" fill="none" stroke={GREEN} strokeWidth="1.5" opacity="0.5">
-          <animateMotion dur={STOCK_DUR} fill="freeze" calcMode="linear">
-            <mpath href="#stock-motion-path" />
-          </animateMotion>
-          <animate attributeName="r" values="3.5;7;3.5" dur="1.4s" repeatCount="indefinite" />
-          <animate attributeName="opacity" values="0.5;0;0.5" dur="1.4s" repeatCount="indefinite" />
-        </circle>
       </svg>
+
+      {/* ── Leading dot — absolute div so it's always a perfect circle ── */}
+      {clipWidth > 0 && (
+        <div
+          className="absolute pointer-events-none z-[3]"
+          style={{
+            width: 9, height: 9,
+            borderRadius: "50%",
+            background: GREEN,
+            boxShadow: `0 0 8px ${GREEN}, 0 0 18px hsla(160,90%,45%,0.5)`,
+            left: `${dotLeftPct}%`,
+            bottom: `calc(9% + ${dotFromBase - 4.5}px)`,
+            transform: "translateX(-50%)",
+            transition: "left 1.9s cubic-bezier(0.4,0,0.2,1), bottom 1.9s cubic-bezier(0.4,0,0.2,1)",
+            animation: "dot-pulse 1.5s ease-in-out infinite",
+          }}
+        />
+      )}
 
       {/* ── Foreground content (questions OR bridge) ── */}
 
@@ -406,7 +488,7 @@ function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolea
         <>
           <div
             className="relative z-10 px-6 max-w-3xl mx-auto text-center"
-            style={{ marginTop: "-10vh" }}
+            style={{ marginTop: "-15vh" }}
           >
             <p
               className="font-black leading-[1.1] tracking-tight"
@@ -416,33 +498,42 @@ function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolea
               }}
             >
               {words.map((word, i) => {
-                const isHi = q.hi.includes(word);
-                const wordStyle: React.CSSProperties = { marginRight: "0.26em" };
-
-                if (phase === "in") {
-                  wordStyle.opacity = 0;
-                  wordStyle.animation = `word-in 0.55s cubic-bezier(0.16,1,0.3,1) forwards`;
-                  wordStyle.animationDelay = `${i * WORD_MS}ms`;
-                } else if (phase === "hold") {
-                  wordStyle.opacity = 1;
-                  wordStyle.transform = "translateY(0)";
-                  wordStyle.filter = "none";
-                } else {
-                  wordStyle.animation = "none";
-                  wordStyle.opacity = 0;
-                  wordStyle.transform = "translateY(14px)";
-                  wordStyle.filter = "blur(4px)";
-                  wordStyle.transition = `opacity ${OUT_MS}ms ease, transform ${OUT_MS}ms ease, filter ${OUT_MS}ms ease`;
-                }
-
-                if (isHi) {
-                  wordStyle.color = GREEN;
-                  wordStyle.textShadow = `0 0 32px hsla(160,90%,45%,0.55), 0 0 60px hsla(160,90%,45%,0.2)`;
-                }
+                const isHi    = q.hi.includes(word);
+                const isLast  = i === words.length - 1;
+                const hiStyle = isHi ? {
+                  color: GREEN,
+                  textShadow: `0 0 32px hsla(160,90%,45%,0.55), 0 0 60px hsla(160,90%,45%,0.2)`,
+                } : {};
 
                 return (
-                  <span key={`${qIdx}-${i}`} className="inline-block" style={wordStyle}>
-                    {word}
+                  <span key={`${qIdx}-${i}`} className="inline-block" style={{ marginRight: "0.26em" }}>
+                    {/* Word itself — snaps in like typing */}
+                    <span
+                      className="inline-block"
+                      style={
+                        phase === "in" ? {
+                          ...hiStyle,
+                          opacity: 0,
+                          animation: `word-type 0.08s ease forwards`,
+                          animationDelay: `${i * WORD_MS}ms`,
+                        } : phase === "hold" ? {
+                          ...hiStyle,
+                          opacity: 1,
+                        } : {
+                          ...hiStyle,
+                          opacity: 0,
+                          transition: `opacity ${OUT_MS * 0.6}ms ease ${i * 18}ms`,
+                        }
+                      }
+                    >{word}</span>
+
+                    {/* Blinking cursor after last word during hold */}
+                    {isLast && phase === "hold" && (
+                      <span
+                        className="inline-block font-thin ml-0.5"
+                        style={{ color: GREEN, animation: "cursor-blink 0.9s step-end infinite" }}
+                      >|</span>
+                    )}
                   </span>
                 );
               })}

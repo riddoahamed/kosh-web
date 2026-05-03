@@ -222,6 +222,24 @@
   100%      { transform: translateX(120%) translateY(-20%); opacity: 0;   }
 }
 
+/* Typed word snap-in (replaces blur word-in for typewriter feel) */
+@keyframes word-type {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Blinking cursor */
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* Leading dot pulse */
+@keyframes dot-pulse {
+  0%, 100% { opacity: 0.75; box-shadow: 0 0 7px hsl(160,90%,45%), 0 0 14px hsla(160,90%,45%,0.4); }
+  50%       { opacity: 1;    box-shadow: 0 0 12px hsl(160,90%,45%), 0 0 28px hsla(160,90%,45%,0.6); }
+}
+
 /* Bridge sentence entrance — whole block fades in from below */
 @keyframes bridge-rise {
   from { opacity: 0; transform: translateY(28px) scale(0.98); filter: blur(10px); }
