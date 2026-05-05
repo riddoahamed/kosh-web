@@ -712,7 +712,7 @@ export default function Dashboard() {
             <div
               className="absolute left-[21px] top-10 bottom-10 w-px pointer-events-none"
               style={{
-                background: "linear-gradient(to bottom, hsla(160,90%,45%,0.4), hsla(262,83%,58%,0.3), hsla(347,77%,50%,0.2), hsla(0,0%,20%,0.15))",
+                background: "linear-gradient(to bottom, hsla(87,100%,68%,0.4), hsla(262,83%,58%,0.3), hsla(347,77%,50%,0.2), hsla(0,0%,20%,0.15))",
               }}
             />
 

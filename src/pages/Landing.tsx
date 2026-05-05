@@ -114,7 +114,7 @@ function BridgeContent({ onDone }: { onDone: () => void }) {
                   animation: `word-type 0.08s ease forwards`,
                   animationDelay: `${i * WORD_MS}ms`,
                   color:      isHi ? GREEN : undefined,
-                  textShadow: isHi ? `0 0 28px hsla(160,90%,45%,0.6), 0 0 60px hsla(160,90%,45%,0.2)` : undefined,
+                  textShadow: isHi ? `0 0 28px hsla(87,100%,68%,0.6), 0 0 60px hsla(87,100%,68%,0.2)` : undefined,
                 }}
               >
                 {word}
@@ -155,8 +155,8 @@ function BridgeContent({ onDone }: { onDone: () => void }) {
         style={{
           height: "1px",
           width: subVisible ? "80px" : "0px",
-          background: `hsl(160,90%,45%)`,
-          boxShadow: "0 0 10px hsla(160,90%,45%,0.6)",
+          background: `hsl(87,100%,68%)`,
+          boxShadow: "0 0 10px hsla(87,100%,68%,0.6)",
           margin: "0 auto",
           transition: "width 0.8s cubic-bezier(0.16,1,0.3,1) 0.2s",
         }}
@@ -295,7 +295,7 @@ function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolea
       {/* ── Radial glow + vignettes ── */}
       <div
         className="absolute inset-x-0 top-0 h-[60%] pointer-events-none z-[1]"
-        style={{ background: "radial-gradient(ellipse at 50% -5%, hsla(160,90%,45%,0.13) 0%, transparent 60%)" }}
+        style={{ background: "radial-gradient(ellipse at 50% -5%, hsla(87,100%,68%,0.13) 0%, transparent 60%)" }}
       />
       <div
         className="absolute inset-x-0 bottom-0 h-48 pointer-events-none z-[1]"
@@ -322,7 +322,7 @@ function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolea
         style={{
           top: 0, left: "-50%",
           width: "50%", height: "100%",
-          background: "radial-gradient(ellipse at center, hsla(160,90%,45%,0.055) 0%, transparent 65%)",
+          background: "radial-gradient(ellipse at center, hsla(87,100%,68%,0.055) 0%, transparent 65%)",
           animation: "scan-pass 18s ease-in-out infinite",
         }}
         aria-hidden="true"
@@ -447,7 +447,7 @@ function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolea
             width: 9, height: 9,
             borderRadius: "50%",
             background: GREEN,
-            boxShadow: `0 0 8px ${GREEN}, 0 0 18px hsla(160,90%,45%,0.5)`,
+            boxShadow: `0 0 8px ${GREEN}, 0 0 18px hsla(87,100%,68%,0.5)`,
             left: `${dotLeftPct}%`,
             bottom: `calc(9% + ${dotFromBase - 4.5}px)`,
             transform: "translateX(-50%)",
@@ -480,7 +480,7 @@ function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolea
                 const isLast  = i === words.length - 1;
                 const hiStyle = isHi ? {
                   color: GREEN,
-                  textShadow: `0 0 32px hsla(160,90%,45%,0.55), 0 0 60px hsla(160,90%,45%,0.2)`,
+                  textShadow: `0 0 32px hsla(87,100%,68%,0.55), 0 0 60px hsla(87,100%,68%,0.2)`,
                 } : {};
 
                 return (
@@ -529,7 +529,7 @@ function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolea
                   width: i === qIdx ? "24px" : "6px",
                   background:
                     i < qIdx
-                      ? "hsla(160,90%,45%,0.3)"
+                      ? "hsla(87,100%,68%,0.3)"
                       : i === qIdx
                       ? GREEN
                       : "rgba(255,255,255,0.10)",
@@ -599,9 +599,9 @@ const TOOLS: Tool[] = [
     desc: "How much to save monthly to hit your goal.", tag: "Planner",
     iconColor: "text-emerald-400", iconGlowFilter: "drop-shadow(0 0 6px rgba(52,211,153,0.9))",
     iconBg: "from-emerald-500/25 to-emerald-900/10", iconBorder: "border-emerald-500/25",
-    iconShadow: "shadow-[0_0_18px_rgba(16,185,129,0.3)]",
+    iconShadow: "shadow-[0_0_18px_hsla(87,100%,68%,0.3)]",
     cardBorder: "border-border hover:border-emerald-500/35",
-    cardHover: "hover:shadow-[0_0_45px_rgba(16,185,129,0.12),0_2px_8px_rgba(0,0,0,0.4)]",
+    cardHover: "hover:shadow-[0_0_45px_hsla(87,100%,68%,0.12),0_2px_8px_rgba(0,0,0,0.4)]",
     cardAmbient: "bg-emerald-500/8", tagStyle: "bg-emerald-500/15 text-emerald-400 border border-emerald-500/25",
     arrowHover: "group-hover:text-emerald-400/70",
   },
@@ -719,7 +719,7 @@ export default function Landing() {
       {/* Global top glow */}
       <div
         className="fixed inset-x-0 top-0 h-[480px] pointer-events-none z-0"
-        style={{ background: "radial-gradient(ellipse at 50% -10%, rgba(16,185,129,0.13) 0%, transparent 60%)" }}
+        style={{ background: "radial-gradient(ellipse at 50% -10%, hsla(87,100%,68%,0.13) 0%, transparent 60%)" }}
       />
 
       {/* ── Nav ── */}
@@ -755,7 +755,7 @@ export default function Landing() {
             style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             How well do you{" "}
-            <span className="text-primary" style={{ textShadow: "0 0 40px rgba(16,185,129,0.5), 0 0 80px rgba(16,185,129,0.2)" }}>
+            <span className="text-primary" style={{ textShadow: "0 0 40px hsla(87,100%,68%,0.5), 0 0 80px hsla(87,100%,68%,0.2)" }}>
               actually
             </span>{" "}
             understand money?
@@ -770,7 +770,7 @@ export default function Landing() {
             <div className="flex flex-row flex-wrap gap-3 justify-center">
               <Link
                 to="/check"
-                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-all hover:shadow-[0_0_20px_rgba(16,185,129,0.35)] active:scale-95"
+                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-all hover:shadow-[0_0_20px_hsla(87,100%,68%,0.35)] active:scale-95"
               >
                 Check your money level
                 <ArrowRight className="h-3.5 w-3.5" />
@@ -824,7 +824,7 @@ export default function Landing() {
                 style={{
                   transform: toolsVisible ? "translateY(-6px) scale(1.1)" : "translateY(0) scale(1)",
                   opacity: toolsVisible ? 1 : 0.3,
-                  filter: toolsVisible ? "drop-shadow(0 0 12px rgba(16,185,129,0.4))" : "none",
+                  filter: toolsVisible ? "drop-shadow(0 0 12px hsla(87,100%,68%,0.4))" : "none",
                   transition: "all 0.6s cubic-bezier(0.16,1,0.3,1)",
                 }}
               >
@@ -889,7 +889,7 @@ export default function Landing() {
                   <div
                     key={i}
                     className={`px-4 py-3 rounded-xl border-2 text-sm transition-all ${i === 2 ? "border-primary/50 text-primary font-medium" : "border-border text-foreground/60"}`}
-                    style={i === 2 ? { background: "rgba(16,185,129,0.08)", boxShadow: "0 0 20px rgba(16,185,129,0.1)" } : undefined}
+                    style={i === 2 ? { background: "hsla(87,100%,68%,0.08)", boxShadow: "0 0 20px hsla(87,100%,68%,0.1)" } : undefined}
                   >
                     {opt}
                   </div>
@@ -912,7 +912,7 @@ export default function Landing() {
                   <div key={title} className={`relative rounded-2xl border p-5 space-y-4 overflow-hidden bg-card/60 backdrop-blur-lg ${c.border}`}>
                     <div
                       className="absolute -top-8 -right-8 w-28 h-28 rounded-full blur-3xl opacity-50 pointer-events-none"
-                      style={{ background: `radial-gradient(circle, ${color === "blue" ? "rgba(59,130,246,0.2)" : color === "emerald" ? "rgba(16,185,129,0.2)" : "rgba(139,92,246,0.2)"}, transparent)` }}
+                      style={{ background: `radial-gradient(circle, ${color === "blue" ? "rgba(59,130,246,0.2)" : color === "emerald" ? "hsla(87,100%,68%,0.2)" : "rgba(139,92,246,0.2)"}, transparent)` }}
                     />
                     <div className={`h-10 w-10 rounded-xl bg-gradient-to-br ${c.bg} border ${c.border} flex items-center justify-center`}>
                       <Icon className={`h-5 w-5 ${c.icon}`} style={{ filter: c.glow }} />
@@ -934,7 +934,7 @@ export default function Landing() {
             <div className="rounded-2xl border border-border p-8 space-y-5 bg-card/60 backdrop-blur-xl text-center">
               <span
                 className="inline-block text-xs font-bold tracking-widest text-primary/80 uppercase px-3 py-1 rounded-full border border-primary/20"
-                style={{ background: "rgba(16,185,129,0.08)" }}
+                style={{ background: "hsla(87,100%,68%,0.08)" }}
               >
                 Level Track
               </span>
@@ -978,9 +978,9 @@ export default function Landing() {
             <div className="text-center space-y-3 max-w-2xl mx-auto">
               <div
                 className="inline-flex items-center gap-2 text-primary text-sm font-semibold px-4 py-1.5 rounded-full border border-primary/25"
-                style={{ background: "rgba(16,185,129,0.08)" }}
+                style={{ background: "hsla(87,100%,68%,0.08)" }}
               >
-                <Building2 className="h-4 w-4" style={{ filter: "drop-shadow(0 0 4px rgba(16,185,129,0.8))" }} />
+                <Building2 className="h-4 w-4" style={{ filter: "drop-shadow(0 0 4px hsla(87,100%,68%,0.8))" }} />
                 For Organizations
               </div>
               <h2 className="text-2xl font-bold text-foreground tracking-tight">Add financial literacy as a product/service</h2>
@@ -992,8 +992,8 @@ export default function Landing() {
             <div className="grid sm:grid-cols-2 gap-3">
               {FOR_ORGS.map(({ icon: Icon, title, desc }) => (
                 <div key={title} className="flex gap-4 rounded-2xl border border-border p-5 bg-card/60 backdrop-blur-lg">
-                  <div className="h-10 w-10 rounded-xl border border-primary/20 flex items-center justify-center shrink-0" style={{ background: "rgba(16,185,129,0.1)", boxShadow: "0 0 14px rgba(16,185,129,0.2)" }}>
-                    <Icon className="h-5 w-5 text-primary" style={{ filter: "drop-shadow(0 0 4px rgba(16,185,129,0.7))" }} />
+                  <div className="h-10 w-10 rounded-xl border border-primary/20 flex items-center justify-center shrink-0" style={{ background: "hsla(87,100%,68%,0.1)", boxShadow: "0 0 14px hsla(87,100%,68%,0.2)" }}>
+                    <Icon className="h-5 w-5 text-primary" style={{ filter: "drop-shadow(0 0 4px hsla(87,100%,68%,0.7))" }} />
                   </div>
                   <div>
                     <h3 className="font-semibold text-sm text-foreground">{title}</h3>
@@ -1008,7 +1008,7 @@ export default function Landing() {
               <div className="divide-y divide-border rounded-xl border border-border overflow-hidden bg-card/50">
                 {TARGET_PARTNERS.map(({ label, desc }) => (
                   <div key={label} className="flex items-center gap-4 px-4 py-3">
-                    <CheckCircle2 className="h-4 w-4 text-primary shrink-0" style={{ filter: "drop-shadow(0 0 4px rgba(16,185,129,0.8))" }} />
+                    <CheckCircle2 className="h-4 w-4 text-primary shrink-0" style={{ filter: "drop-shadow(0 0 4px hsla(87,100%,68%,0.8))" }} />
                     <span className="text-sm font-semibold text-foreground w-36 shrink-0">{label}</span>
                     <p className="text-xs text-muted-foreground leading-relaxed">{desc}</p>
                   </div>
@@ -1018,7 +1018,7 @@ export default function Landing() {
 
             <div
               className="rounded-2xl border border-primary/15 p-7 space-y-6"
-              style={{ background: "rgba(16,185,129,0.04)", backdropFilter: "blur(20px)", boxShadow: "0 0 60px rgba(16,185,129,0.07), inset 0 1px 0 rgba(255,255,255,0.05)" }}
+              style={{ background: "hsla(87,100%,68%,0.04)", backdropFilter: "blur(20px)", boxShadow: "0 0 60px hsla(87,100%,68%,0.07), inset 0 1px 0 rgba(255,255,255,0.05)" }}
             >
               <div className="grid sm:grid-cols-3 gap-6 text-center">
                 {[
@@ -1027,7 +1027,7 @@ export default function Landing() {
                   { v: "0→100", l: "Gamified user level journey — from zero to financially literate" },
                 ].map(({ v, l }) => (
                   <div key={l}>
-                    <div className="text-2xl font-bold text-primary" style={{ textShadow: "0 0 24px rgba(16,185,129,0.5)" }}>{v}</div>
+                    <div className="text-2xl font-bold text-primary" style={{ textShadow: "0 0 24px hsla(87,100%,68%,0.5)" }}>{v}</div>
                     <div className="text-xs text-muted-foreground mt-1">{l}</div>
                   </div>
                 ))}
@@ -1036,7 +1036,7 @@ export default function Landing() {
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 border-t border-border pt-5">
                 {["Bangla/Banglish content","Points, streaks, levels","Diagnostic + tracking","White-label branding","Analytics dashboard","Scam & grey zone content"].map((item) => (
                   <div key={item} className="flex items-center gap-1.5 text-xs font-medium text-foreground/70 px-3 py-2.5 rounded-xl border border-border bg-muted/40">
-                    <CheckCircle2 className="h-3 w-3 text-primary shrink-0" style={{ filter: "drop-shadow(0 0 3px rgba(16,185,129,0.7))" }} />
+                    <CheckCircle2 className="h-3 w-3 text-primary shrink-0" style={{ filter: "drop-shadow(0 0 3px hsla(87,100%,68%,0.7))" }} />
                     <span>{item}</span>
                   </div>
                 ))}

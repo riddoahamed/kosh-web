@@ -175,9 +175,9 @@ const COLOR_MAP: Record<string, {
     glow: "drop-shadow(0 0 6px rgba(52,211,153,0.9))",
     border: "border-emerald-400/40",
     bg: "from-emerald-500/20 to-emerald-900/5",
-    ambient: "rgba(16,185,129,0.25)",
-    cardShadow: "0 0 0 1px rgba(16,185,129,0.1), 0 8px 32px rgba(16,185,129,0.12), inset 0 1px 0 rgba(255,255,255,0.18)",
-    cardBorder: "1px solid rgba(16,185,129,0.35)",
+    ambient: "hsla(87,100%,68%,0.25)",
+    cardShadow: "0 0 0 1px hsla(87,100%,68%,0.1), 0 8px 32px hsla(87,100%,68%,0.12), inset 0 1px 0 rgba(255,255,255,0.18)",
+    cardBorder: "1px solid hsla(87,100%,68%,0.35)",
   },
   blue: {
     icon: "text-blue-400",
@@ -206,7 +206,7 @@ const WHY_ITEMS = [
   "Knowing more about money should be free.",
 ];
 
-const GREEN = { color: "hsl(160, 84%, 42%)", textShadow: "0 0 20px rgba(16,185,129,0.45)" };
+const GREEN = { color: "hsl(87,100%,68%)", textShadow: "0 0 20px hsla(87,100%,68%,0.45)" };
 const RED   = { color: "hsl(0, 84%, 62%)",   textShadow: "0 0 20px rgba(239,68,68,0.45)" };
 
 // ── Component ──────────────────────────────────────────────────────────────
@@ -265,7 +265,7 @@ export default function About() {
 
       {/* Gradient flush to top — positioned relative to the page wrapper, not the section */}
       <div className="absolute inset-x-0 top-14 h-72 pointer-events-none z-0"
-        style={{ background: "radial-gradient(ellipse at 50% 0%, rgba(16,185,129,0.18) 0%, transparent 70%)" }}
+        style={{ background: "radial-gradient(ellipse at 50% 0%, hsla(87,100%,68%,0.18) 0%, transparent 70%)" }}
       />
 
       <main className="max-w-2xl mx-auto px-4 pt-8 pb-16 space-y-16 relative z-[1]">
@@ -344,7 +344,7 @@ export default function About() {
               >
                 <span
                   className="h-1.5 w-1.5 rounded-full shrink-0"
-                  style={{ background: "rgba(16,185,129,0.9)", boxShadow: "0 0 6px rgba(16,185,129,0.8)" }}
+                  style={{ background: "hsla(87,100%,68%,0.9)", boxShadow: "0 0 6px hsla(87,100%,68%,0.8)" }}
                 />
                 <span className="text-sm text-foreground/80">{item}</span>
               </div>
@@ -368,13 +368,13 @@ export default function About() {
                     background: "rgba(255,255,255,0.07)",
                     backdropFilter: "blur(40px)",
                     WebkitBackdropFilter: "blur(40px)",
-                    border: "1px solid rgba(16,185,129,0.35)",
-                    boxShadow: "0 0 0 1px rgba(16,185,129,0.1), 0 8px 32px rgba(16,185,129,0.12), inset 0 1px 0 rgba(255,255,255,0.18)",
+                    border: "1px solid hsla(87,100%,68%,0.35)",
+                    boxShadow: "0 0 0 1px hsla(87,100%,68%,0.1), 0 8px 32px hsla(87,100%,68%,0.12), inset 0 1px 0 rgba(255,255,255,0.18)",
                   }}
                 >
-                  <div className="absolute inset-x-0 top-0 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(16,185,129,0.6) 50%, transparent)" }} />
-                  <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-3xl opacity-50 pointer-events-none" style={{ background: "radial-gradient(circle, rgba(16,185,129,0.3), transparent)" }} />
-                  <div className={`relative h-9 w-9 rounded-xl bg-gradient-to-br ${c.bg} border ${c.border} flex items-center justify-center`} style={{ boxShadow: "0 0 14px rgba(16,185,129,0.3)" }}>
+                  <div className="absolute inset-x-0 top-0 h-px" style={{ background: "linear-gradient(90deg, transparent, hsla(87,100%,68%,0.6) 50%, transparent)" }} />
+                  <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-3xl opacity-50 pointer-events-none" style={{ background: "radial-gradient(circle, hsla(87,100%,68%,0.3), transparent)" }} />
+                  <div className={`relative h-9 w-9 rounded-xl bg-gradient-to-br ${c.bg} border ${c.border} flex items-center justify-center`} style={{ boxShadow: "0 0 14px hsla(87,100%,68%,0.3)" }}>
                     <Icon className={`h-4 w-4 ${c.icon}`} style={{ filter: c.glow }} />
                   </div>
                   <div className="relative">

@@ -117,7 +117,7 @@ export default function Auth() {
       {/* Ambient glow */}
       <div
         className="fixed inset-x-0 top-0 h-72 pointer-events-none"
-        style={{ background: "radial-gradient(ellipse at 50% 0%, rgba(16,185,129,0.12) 0%, transparent 65%)" }}
+        style={{ background: "radial-gradient(ellipse at 50% 0%, hsla(87,100%,68%,0.12) 0%, transparent 65%)" }}
       />
 
       <div className="w-full max-w-sm space-y-6 relative">
@@ -161,8 +161,9 @@ export default function Auth() {
                 disabled={loading || !email.trim()}
                 className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-40"
                 style={{
-                  background: "linear-gradient(135deg, hsl(160,84%,39%) 0%, hsl(160,84%,30%) 100%)",
-                  boxShadow: email.trim() ? "0 0 28px rgba(16,185,129,0.25)" : "none",
+                  background: "linear-gradient(135deg, hsl(87,95%,62%) 0%, hsl(175,100%,42%) 100%)",
+                  color: "hsl(235,60%,8%)",
+                  boxShadow: email.trim() ? "0 0 28px hsla(87,100%,68%,0.25)" : "none",
                 }}
               >
                 {loading
@@ -184,7 +185,7 @@ export default function Auth() {
             <div className="flex justify-center">
               <div
                 className="h-16 w-16 rounded-2xl flex items-center justify-center"
-                style={{ background: "rgba(16,185,129,0.12)", border: "1px solid rgba(16,185,129,0.2)" }}
+                style={{ background: "hsla(87,100%,68%,0.12)", border: "1px solid hsla(87,100%,68%,0.2)" }}
               >
                 <Mail className="h-7 w-7 text-primary" />
               </div>
@@ -220,7 +221,7 @@ export default function Auth() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-primary/20 p-5 space-y-4" style={{ background: "rgba(16,185,129,0.05)" }}>
+            <div className="rounded-2xl border border-primary/20 p-5 space-y-4" style={{ background: "hsla(87,100%,68%,0.05)" }}>
               <div className="flex items-center gap-3">
                 <span className="text-3xl">🥭</span>
                 <div>
@@ -235,7 +236,7 @@ export default function Auth() {
                   navigate("/dashboard", { replace: true });
                 }}
                 className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold text-white transition-all"
-                style={{ background: "linear-gradient(135deg, hsl(160,84%,39%) 0%, hsl(160,84%,30%) 100%)", boxShadow: "0 0 28px rgba(16,185,129,0.25)" }}
+                style={{ background: "linear-gradient(135deg, hsl(87,95%,62%) 0%, hsl(175,100%,42%) 100%)", color: "hsl(235,60%,8%)", boxShadow: "0 0 28px hsla(87,100%,68%,0.25)" }}
               >
                 Start exploring <ArrowRight className="h-4 w-4" />
               </button>
@@ -257,7 +258,7 @@ export default function Auth() {
             <div className="space-y-2">
               <span
                 className="inline-block text-xs font-bold tracking-widest text-primary/80 uppercase px-3 py-1 rounded-full border border-primary/20"
-                style={{ background: "rgba(16,185,129,0.08)" }}
+                style={{ background: "hsla(87,100%,68%,0.08)" }}
               >
                 Almost there
               </span>
@@ -301,7 +302,7 @@ export default function Auth() {
                 type="submit"
                 disabled={loading || !name.trim() || !age || !consent}
                 className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-40"
-                style={{ background: "linear-gradient(135deg, hsl(160,84%,39%) 0%, hsl(160,84%,30%) 100%)", boxShadow: name.trim() && age && consent ? "0 0 28px rgba(16,185,129,0.25)" : "none" }}
+                style={{ background: "linear-gradient(135deg, hsl(87,95%,62%) 0%, hsl(175,100%,42%) 100%)", color: "hsl(235,60%,8%)", boxShadow: name.trim() && age && consent ? "0 0 28px hsla(87,100%,68%,0.25)" : "none" }}
               >
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Go to my dashboard →"}
               </button>

@@ -82,8 +82,8 @@ export function OrderStepsGame({ game, onComplete }: Props) {
       {selectedOrder.length === game.steps.length && !revealed && (
         <button
           onClick={handleReveal}
-          className="w-full py-3 rounded-xl text-sm font-semibold text-white transition-all"
-          style={{ background: "linear-gradient(135deg, hsl(160,84%,39%) 0%, hsl(160,84%,30%) 100%)" }}
+          className="w-full py-3 rounded-xl text-sm font-semibold transition-all"
+          style={{ background: "linear-gradient(135deg, hsl(87,95%,62%) 0%, hsl(175,100%,42%) 100%)", color: "hsl(235,60%,8%)" }}
         >
           Reveal answer
         </button>

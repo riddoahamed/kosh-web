@@ -85,13 +85,13 @@ export default function EmailSignupModal({
           style={{
             background: "rgba(10,16,12,0.96)",
             backdropFilter: "blur(40px)",
-            boxShadow: "0 -4px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(16,185,129,0.08), inset 0 1px 0 rgba(255,255,255,0.05)",
+            boxShadow: "0 -4px 40px rgba(0,0,0,0.4), 0 0 0 1px hsla(87,100%,68%,0.08), inset 0 1px 0 rgba(255,255,255,0.05)",
           }}
         >
           {/* Shimmer line */}
           <div
             className="absolute top-0 inset-x-0 h-px rounded-t-2xl"
-            style={{ background: "linear-gradient(90deg, transparent 10%, rgba(16,185,129,0.5) 50%, transparent 90%)" }}
+            style={{ background: "linear-gradient(90deg, transparent 10%, hsla(87,100%,68%,0.5) 50%, transparent 90%)" }}
           />
 
           {/* Dismiss */}
@@ -125,10 +125,11 @@ export default function EmailSignupModal({
             <button
               type="submit"
               disabled={!email.trim()}
-              className="px-3.5 py-2.5 rounded-xl text-sm font-semibold text-white shrink-0 transition-all disabled:opacity-30"
+              className="px-3.5 py-2.5 rounded-xl text-sm font-semibold shrink-0 transition-all disabled:opacity-30"
               style={{
-                background: "linear-gradient(135deg, hsl(160,84%,39%) 0%, hsl(160,84%,30%) 100%)",
-                boxShadow: email.trim() ? "0 0 20px rgba(16,185,129,0.3)" : "none",
+                background: "linear-gradient(135deg, hsl(87,95%,62%) 0%, hsl(175,100%,42%) 100%)",
+                color: "hsl(235,60%,8%)",
+                boxShadow: email.trim() ? "0 0 20px hsla(87,100%,68%,0.3)" : "none",
               }}
             >
               <ArrowRight className="h-4 w-4" />

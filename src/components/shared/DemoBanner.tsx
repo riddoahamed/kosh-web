@@ -24,8 +24,8 @@ export function DemoBanner() {
     <div
       className="w-full flex items-center justify-between gap-3 px-4 py-2.5 text-xs font-medium"
       style={{
-        background: "linear-gradient(90deg, rgba(16,185,129,0.15) 0%, rgba(16,185,129,0.08) 100%)",
-        borderBottom: "1px solid rgba(16,185,129,0.2)",
+        background: "linear-gradient(90deg, hsla(87,100%,68%,0.15) 0%, hsla(87,100%,68%,0.08) 100%)",
+        borderBottom: "1px solid hsla(87,100%,68%,0.2)",
       }}
     >
       <div className="flex items-center gap-2 min-w-0">

@@ -8,7 +8,7 @@ const FEATURES = [
     icon: BookOpen,
     label: "Budget",
     desc: "Know where every taka goes",
-    hsl: "160 90% 45%",
+    hsl: "87 100% 68%",
   },
   {
     icon: TrendingUp,
@@ -55,17 +55,17 @@ export default function Welcome() {
           <div
             className="w-20 h-20 rounded-2xl flex items-center justify-center"
             style={{
-              background: "hsla(160 90% 45% / 0.12)",
-              border: "1.5px solid hsla(160 90% 45% / 0.35)",
+              background: "hsla(87 100% 68% / 0.12)",
+              border: "1.5px solid hsla(87 100% 68% / 0.35)",
               boxShadow:
-                "0 0 40px hsla(160 90% 45% / 0.25), 0 0 80px hsla(160 90% 45% / 0.10), inset 0 1px 0 hsla(160 90% 45% / 0.15)",
+                "0 0 40px hsla(87 100% 68% / 0.25), 0 0 80px hsla(87 100% 68% / 0.10), inset 0 1px 0 hsla(87 100% 68% / 0.15)",
             }}
           >
             <span
               className="text-4xl font-black tracking-tighter"
               style={{
-                color: "hsl(160 90% 45%)",
-                textShadow: "0 0 20px hsla(160 90% 45% / 0.8), 0 0 40px hsla(160 90% 45% / 0.4)",
+                color: "hsl(87 100% 68%)",
+                textShadow: "0 0 20px hsla(87 100% 68% / 0.8), 0 0 40px hsla(87 100% 68% / 0.4)",
                 fontFamily: "Inter, sans-serif",
               }}
             >
@@ -138,7 +138,7 @@ export default function Welcome() {
             <div key={label} className="text-center">
               <p
                 className="text-xl font-black"
-                style={{ color: "hsl(160 90% 45%)" }}
+                style={{ color: "hsl(87 100% 68%)" }}
               >
                 {value}
               </p>
@@ -158,9 +158,9 @@ export default function Welcome() {
             onClick={() => navigate("/dashboard")}
             className="w-full rounded-xl py-4 font-bold text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
             style={{
-              background: "hsl(160 90% 45%)",
-              color: "#000",
-              boxShadow: "0 0 28px hsla(160 90% 45% / 0.40)",
+              background: "linear-gradient(135deg, hsl(87,95%,62%) 0%, hsl(175,100%,42%) 100%)",
+              color: "hsl(235,60%,8%)",
+              boxShadow: "0 0 28px hsla(87,100%,68% / 0.40)",
             }}
           >
             <Sparkles size={16} />

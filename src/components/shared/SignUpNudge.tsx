@@ -58,7 +58,7 @@ export default function SignUpNudge({
           backdropFilter: "blur(32px)",
           WebkitBackdropFilter: "blur(32px)",
           boxShadow:
-            "0 0 0 1px rgba(16,185,129,0.12), 0 8px 40px rgba(0,0,0,0.6), 0 0 60px rgba(16,185,129,0.07)",
+            "0 0 0 1px hsla(87,100%,68%,0.12), 0 8px 40px rgba(0,0,0,0.6), 0 0 60px hsla(87,100%,68%,0.07)",
         }}
       >
         {/* Subtle top glow line */}
@@ -66,14 +66,14 @@ export default function SignUpNudge({
           className="absolute inset-x-0 top-0 h-px"
           style={{
             background:
-              "linear-gradient(90deg, transparent, rgba(16,185,129,0.5) 50%, transparent)",
+              "linear-gradient(90deg, transparent, hsla(87,100%,68%,0.5) 50%, transparent)",
           }}
         />
 
         {/* Ambient blob */}
         <div
           className="absolute -top-12 -right-12 w-40 h-40 rounded-full blur-3xl pointer-events-none opacity-40"
-          style={{ background: "radial-gradient(circle, rgba(16,185,129,0.25), transparent)" }}
+          style={{ background: "radial-gradient(circle, hsla(87,100%,68%,0.25), transparent)" }}
         />
 
         <div className="relative p-5">
@@ -90,13 +90,13 @@ export default function SignUpNudge({
             <div
               className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0 border border-primary/25"
               style={{
-                background: "rgba(16,185,129,0.12)",
-                boxShadow: "0 0 16px rgba(16,185,129,0.25)",
+                background: "hsla(87,100%,68%,0.12)",
+                boxShadow: "0 0 16px hsla(87,100%,68%,0.25)",
               }}
             >
               <Sparkles
                 className="h-4 w-4 text-primary"
-                style={{ filter: "drop-shadow(0 0 4px rgba(16,185,129,0.8))" }}
+                style={{ filter: "drop-shadow(0 0 4px hsla(87,100%,68%,0.8))" }}
               />
             </div>
             <div>

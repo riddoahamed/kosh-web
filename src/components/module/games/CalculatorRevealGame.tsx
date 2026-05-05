@@ -58,8 +58,8 @@ export function CalculatorRevealGame({ game, onComplete }: Props) {
           <button
             onClick={handleReveal}
             disabled={!input.trim()}
-            className="px-5 py-3 rounded-xl text-sm font-semibold text-white disabled:opacity-40 transition-all"
-            style={{ background: "linear-gradient(135deg, hsl(160,84%,39%) 0%, hsl(160,84%,30%) 100%)" }}
+            className="px-5 py-3 rounded-xl text-sm font-semibold disabled:opacity-40 transition-all"
+            style={{ background: "linear-gradient(135deg, hsl(87,95%,62%) 0%, hsl(175,100%,42%) 100%)", color: "hsl(235,60%,8%)" }}
           >
             Reveal
           </button>
