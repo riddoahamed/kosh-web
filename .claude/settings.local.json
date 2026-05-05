@@ -63,7 +63,9 @@
       "Bash(sed -n '45,54p' /Users/riddo/Desktop/kosh/src/data/modules/zone4.ts)",
       "Bash(sed -n '359,368p' /Users/riddo/Desktop/kosh/src/data/modules/zone4.ts)",
       "Bash(sed -n '54,62p' /Users/riddo/Desktop/kosh/src/data/modules/zone5.ts)",
-      "Bash(sed -n '497,505p' /Users/riddo/Desktop/kosh/src/data/modules/zone5.ts)"
+      "Bash(sed -n '497,505p' /Users/riddo/Desktop/kosh/src/data/modules/zone5.ts)",
+      "Bash(npx vercel *)",
+      "Bash(awk 'NR==6')"
     ]
   }
 }

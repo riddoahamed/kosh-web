@@ -71,7 +71,7 @@ const BRIDGE_HI    = new Set(["investing,", "saving,", "spending?"]);
 function BridgeContent({ onDone }: { onDone: () => void }) {
   const [subVisible, setSubVisible] = useState(false);
   const [exiting,    setExiting]    = useState(false);
-  const GREEN = "hsl(160,90%,45%)";
+  const GREEN = "hsl(87,100%,68%)"; // Kosh Lime
 
   const revealMs = BRIDGE_WORDS.length * WORD_MS + 400;
 
@@ -267,7 +267,7 @@ function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolea
   const dotLeftPct  = (dotSvgX / 500) * 100;            // % of viewport width
   const dotFromBase = CHART_H * (1 - dotSvgY / 100);    // px above chart bottom
 
-  const GREEN = "hsl(160,90%,45%)";
+  const GREEN = "hsl(87,100%,68%)"; // Kosh Lime
 
   return (
     <section className="min-h-screen flex flex-col items-center justify-center relative select-none overflow-hidden">

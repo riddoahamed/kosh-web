@@ -11,17 +11,19 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-// HSL accent per zone
+// HSL accent per zone — anchored to Kosh brand palette
+// Zone-1 = Kosh Lime, Zone-5 = Kosh Teal, Zone-7 = Kosh Cobalt
+// (the three brand colors hold the foundation, savings, and mindset zones)
 export const ZONE_ACCENT: Record<string, string> = {
-  "zone-1": "160 90% 45%",
-  "zone-2": "262 83% 58%",
-  "zone-3": "347 77% 50%",
-  "zone-4": "38  92% 50%",
-  "zone-5": "160 90% 45%",
-  "zone-6": "217 91% 60%",
-  "zone-7": "234 89% 64%",
-  "zone-8": "199 89% 48%",
-  "zone-9": "187 85% 43%",
+  "zone-1": "87 100% 60%",   // Kosh Lime — money foundations
+  "zone-2": "262 83% 65%",   // Violet — buckets / spending psychology
+  "zone-3": "347 77% 58%",   // Crimson — debt
+  "zone-4": "38  92% 55%",   // Amber — taxes
+  "zone-5": "175 100% 45%",  // Kosh Teal — savings instruments
+  "zone-6": "217 91% 65%",   // Sky blue — investing
+  "zone-7": "240 70% 60%",   // Kosh Cobalt — psychology / mindset
+  "zone-8": "199 89% 55%",   // Cyan — business finance
+  "zone-9": "187 85% 50%",   // Aqua — wealth
 };
 
 const ZONE_ICON: Record<string, LucideIcon> = {

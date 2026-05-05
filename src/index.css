@@ -1,100 +1,119 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300..900;1,14..32,300..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/*
+  ── Kosh brand palette ──────────────────────────────────────────────────────
+  Kosh Lime    #B7FF5E   →  hsl( 87 100% 68%)   — primary, action, growth
+  Teal         #00C2B2   →  hsl(175 100% 38%)   — secondary, completion
+  Deep Cobalt  #2A2BD9   →  hsl(240  70% 51%)   — accent depth, links
+  Indigo Navy  #0E1133   →  hsl(235  50% 12%)   — base background
+  Off White    #F6F7FA   →  hsl(225  29% 97%)   — text on dark
+  Slate Gray   #9AA3B2   →  hsl(217  14% 65%)   — muted text
+*/
+
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 225 29% 97%;
+    --foreground: 235 57% 13%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 235 57% 13%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 160 84% 39%;
+    --popover-foreground: 235 57% 13%;
+    --primary: 87 75% 42%;            /* darker lime for AA contrast on white */
     --primary-foreground: 0 0% 100%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 160 84% 39%;
+    --secondary: 225 29% 94%;
+    --secondary-foreground: 235 57% 13%;
+    --muted: 225 29% 94%;
+    --muted-foreground: 217 14% 45%;
+    --accent: 175 100% 32%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 160 84% 39%;
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 225 29% 89%;
+    --input: 225 29% 89%;
+    --ring: 87 100% 50%;
     --radius: 0.75rem;
+
+    /* Brand-only — direct named tokens for accent moments */
+    --kosh-lime: 87 100% 68%;
+    --kosh-teal: 175 100% 42%;
+    --kosh-cobalt: 240 70% 51%;
+    --kosh-navy: 235 50% 12%;
+    --kosh-navy-deep: 235 60% 8%;
   }
 
   .dark,
   [data-theme="dark"] {
-    --background: 0 0% 4%;
-    --foreground: 0 0% 95%;
-    --card: 0 0% 7%;
-    --card-foreground: 0 0% 95%;
-    --popover: 0 0% 7%;
-    --popover-foreground: 0 0% 95%;
-    --primary: 160 90% 45%;
-    --primary-foreground: 0 0% 0%;
-    --secondary: 0 0% 11%;
-    --secondary-foreground: 0 0% 95%;
-    --muted: 0 0% 10%;
-    --muted-foreground: 0 0% 52%;
-    --accent: 160 90% 45%;
-    --accent-foreground: 0 0% 0%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 0 0% 13%;
-    --input: 0 0% 13%;
-    --ring: 160 90% 45%;
+    --background: 235 60% 8%;          /* deeper than Indigo Navy for hero contrast */
+    --foreground: 225 29% 97%;
+    --card: 235 50% 12%;                /* Indigo Navy ~#0E1133 */
+    --card-foreground: 225 29% 97%;
+    --popover: 235 50% 12%;
+    --popover-foreground: 225 29% 97%;
+    --primary: 87 100% 68%;            /* Kosh Lime #B7FF5E */
+    --primary-foreground: 235 60% 8%;
+    --secondary: 235 40% 15%;
+    --secondary-foreground: 225 29% 97%;
+    --muted: 235 40% 14%;
+    --muted-foreground: 217 14% 65%;   /* Slate Gray */
+    --accent: 175 100% 42%;            /* Teal */
+    --accent-foreground: 235 60% 8%;
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 225 29% 97%;
+    --border: 235 35% 20%;
+    --input: 235 35% 20%;
+    --ring: 87 100% 68%;
   }
 
   /* Manual light override — beats system dark preference */
   .light {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 225 29% 97%;
+    --foreground: 235 57% 13%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 235 57% 13%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 160 84% 39%;
+    --popover-foreground: 235 57% 13%;
+    --primary: 87 75% 42%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 160 84% 39%;
+    --secondary: 225 29% 94%;
+    --secondary-foreground: 235 57% 13%;
+    --muted: 225 29% 94%;
+    --muted-foreground: 217 14% 45%;
+    --accent: 175 100% 32%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 160 84% 39%;
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 225 29% 89%;
+    --input: 225 29% 89%;
+    --ring: 87 100% 50%;
   }
 
   @media (prefers-color-scheme: dark) {
     :root {
-      --background: 0 0% 4%;
-      --foreground: 0 0% 95%;
-      --card: 0 0% 7%;
-      --card-foreground: 0 0% 95%;
-      --popover: 0 0% 7%;
-      --popover-foreground: 0 0% 95%;
-      --primary: 160 90% 45%;
-      --primary-foreground: 0 0% 0%;
-      --secondary: 0 0% 11%;
-      --secondary-foreground: 0 0% 95%;
-      --muted: 0 0% 10%;
-      --muted-foreground: 0 0% 52%;
-      --accent: 160 90% 45%;
-      --accent-foreground: 0 0% 0%;
-      --destructive: 0 62.8% 30.6%;
-      --destructive-foreground: 210 40% 98%;
-      --border: 0 0% 13%;
-      --input: 0 0% 13%;
-      --ring: 160 90% 45%;
+      --background: 235 60% 8%;
+      --foreground: 225 29% 97%;
+      --card: 235 50% 12%;
+      --card-foreground: 225 29% 97%;
+      --popover: 235 50% 12%;
+      --popover-foreground: 225 29% 97%;
+      --primary: 87 100% 68%;
+      --primary-foreground: 235 60% 8%;
+      --secondary: 235 40% 15%;
+      --secondary-foreground: 225 29% 97%;
+      --muted: 235 40% 14%;
+      --muted-foreground: 217 14% 65%;
+      --accent: 175 100% 42%;
+      --accent-foreground: 235 60% 8%;
+      --destructive: 0 70% 55%;
+      --destructive-foreground: 225 29% 97%;
+      --border: 235 35% 20%;
+      --input: 235 35% 20%;
+      --ring: 87 100% 68%;
     }
   }
 
@@ -104,9 +123,51 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: "Inter", system-ui, sans-serif;
+    font-family: "Inter", "Hind Siliguri", system-ui, sans-serif;
     font-feature-settings: "cv11", "ss01";
     -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* Brand typography & surface utilities */
+@layer utilities {
+  .font-display {
+    font-family: "Manrope", "Inter", system-ui, sans-serif;
+    font-feature-settings: "ss01", "cv11";
+    letter-spacing: -0.02em;
+  }
+  .font-bangla {
+    font-family: "Hind Siliguri", "Inter", system-ui, sans-serif;
+  }
+
+  /* Direct named brand tokens for accent moments */
+  .text-lime    { color: hsl(var(--kosh-lime)); }
+  .text-teal    { color: hsl(var(--kosh-teal)); }
+  .text-cobalt  { color: hsl(var(--kosh-cobalt)); }
+  .bg-navy      { background: hsl(var(--kosh-navy)); }
+  .bg-navy-deep { background: hsl(var(--kosh-navy-deep)); }
+
+  /* Brand card — navy-tinted with subtle cobalt edge highlight */
+  .brand-card {
+    background:
+      linear-gradient(180deg, hsla(240, 70%, 51%, 0.04) 0%, transparent 40%),
+      hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    box-shadow:
+      0 1px 0 hsla(225, 29%, 97%, 0.04) inset,
+      0 4px 24px hsla(235, 60%, 4%, 0.4);
+  }
+
+  /* Hero card — cobalt + lime corner glow on navy */
+  .brand-hero {
+    background:
+      radial-gradient(ellipse at 100% 0%, hsla(87, 100%, 68%, 0.10) 0%, transparent 45%),
+      radial-gradient(ellipse at 0% 100%, hsla(240, 70%, 51%, 0.22) 0%, transparent 55%),
+      linear-gradient(135deg, hsl(235, 50%, 12%) 0%, hsl(235, 60%, 8%) 100%);
+    border: 1px solid hsla(240, 70%, 51%, 0.25);
+    box-shadow:
+      inset 0 1px 0 hsla(225, 29%, 97%, 0.05),
+      0 12px 40px hsla(235, 60%, 4%, 0.5);
   }
 }
 
@@ -199,7 +260,7 @@
 /* Chart line glow pulse after draw completes */
 @keyframes chart-glow {
   0%, 100% { opacity: 0.10; }
-  50%       { opacity: 0.22; filter: drop-shadow(0 0 5px hsla(160,90%,45%,0.6)); }
+  50%       { opacity: 0.22; filter: drop-shadow(0 0 5px hsla(87,100%,68%,0.6)); }
 }
 
 /* Chart dot pop-in */
@@ -236,8 +297,8 @@
 
 /* Leading dot pulse */
 @keyframes dot-pulse {
-  0%, 100% { opacity: 0.75; box-shadow: 0 0 7px hsl(160,90%,45%), 0 0 14px hsla(160,90%,45%,0.4); }
-  50%       { opacity: 1;    box-shadow: 0 0 12px hsl(160,90%,45%), 0 0 28px hsla(160,90%,45%,0.6); }
+  0%, 100% { opacity: 0.75; box-shadow: 0 0 7px hsl(87,100%,68%), 0 0 14px hsla(87,100%,68%,0.4); }
+  50%       { opacity: 1;    box-shadow: 0 0 12px hsl(87,100%,68%), 0 0 28px hsla(87,100%,68%,0.6); }
 }
 
 /* Bridge sentence entrance — whole block fades in from below */
@@ -253,14 +314,16 @@
 }
 
 /* ── Premium button styles ────────────────────────────────────────────── */
+/* Brand lime → teal gradient with cobalt-edged glow. Dark text on lime. */
 .btn-glow {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, hsl(160 84% 42%), hsl(168 84% 36%));
+  color: hsl(235 60% 8%);
+  background: linear-gradient(135deg, hsl(87 100% 68%) 0%, hsl(95 90% 55%) 50%, hsl(175 100% 42%) 100%);
   box-shadow:
-    0 0 20px rgba(16, 185, 129, 0.4),
-    0 4px 15px rgba(16, 185, 129, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    0 0 22px hsla(87, 100%, 68%, 0.45),
+    0 4px 18px hsla(240, 70%, 51%, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
   transition: box-shadow 0.3s ease, transform 0.15s ease;
 }
 
@@ -281,24 +344,24 @@
 
 .btn-glow:hover {
   box-shadow:
-    0 0 30px rgba(16, 185, 129, 0.6),
-    0 6px 20px rgba(16, 185, 129, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    0 0 32px hsla(87, 100%, 68%, 0.65),
+    0 6px 22px hsla(240, 70%, 51%, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
   transform: translateY(-1px);
 }
 
 .btn-glow:active {
   transform: translateY(0);
   box-shadow:
-    0 0 16px rgba(16, 185, 129, 0.4),
-    0 2px 8px rgba(16, 185, 129, 0.2);
+    0 0 18px hsla(87, 100%, 68%, 0.45),
+    0 2px 10px hsla(240, 70%, 51%, 0.25);
 }
 
 .btn-glass {
-  background: rgba(16, 185, 129, 0.06);
-  border: 1px solid rgba(16, 185, 129, 0.25);
+  background: hsla(87, 100%, 68%, 0.07);
+  border: 1px solid hsla(87, 100%, 68%, 0.28);
   box-shadow:
-    0 0 16px rgba(16, 185, 129, 0.08),
+    0 0 16px hsla(87, 100%, 68%, 0.10),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
   transition: all 0.25s ease;
   backdrop-filter: blur(8px);
@@ -306,10 +369,10 @@
 }
 
 .btn-glass:hover {
-  background: rgba(16, 185, 129, 0.12);
-  border-color: rgba(16, 185, 129, 0.45);
+  background: hsla(87, 100%, 68%, 0.13);
+  border-color: hsla(87, 100%, 68%, 0.5);
   box-shadow:
-    0 0 24px rgba(16, 185, 129, 0.18),
+    0 0 26px hsla(87, 100%, 68%, 0.22),
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
   transform: translateY(-1px);
 }

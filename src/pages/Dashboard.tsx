@@ -36,11 +36,75 @@ const RECOVERY_MODULES = [
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function getGreeting(): string {
+function getGreeting(): { en: string; bn: string } {
   const h = new Date().getHours();
-  if (h < 12) return "Good morning";
-  if (h < 17) return "Good afternoon";
-  return "Good evening";
+  if (h < 12)  return { en: "Good morning",   bn: "শুভ সকাল" };
+  if (h < 17)  return { en: "Good afternoon", bn: "শুভ অপরাহ্ন" };
+  return            { en: "Good evening",   bn: "শুভ সন্ধ্যা" };
+}
+
+// ── Bangladesh skyline silhouette — line-art motif ──────────────────────────
+// Mosque dome → Padma Bridge cables → modern buildings.
+// Used as a subtle band behind the hero. Stroke color inherits via currentColor.
+function BangladeshSkyline({ className, opacity = 0.22 }: { className?: string; opacity?: number }) {
+  return (
+    <svg
+      viewBox="0 0 400 60"
+      preserveAspectRatio="xMidYEnd slice"
+      className={className}
+      style={{ opacity }}
+      aria-hidden="true"
+    >
+      <g stroke="currentColor" strokeWidth="1" fill="none" strokeLinecap="round" strokeLinejoin="round">
+        {/* Mosque with dome + minaret */}
+        <path d="M14,55 L14,40 Q14,30 22,30 Q30,30 30,40 L30,55" />
+        <path d="M14,40 Q22,24 30,40" />
+        <line x1="22" y1="30" x2="22" y2="22" />
+        <circle cx="22" cy="20" r="1.2" />
+        <line x1="9"  y1="55" x2="9"  y2="36" />
+        <line x1="35" y1="55" x2="35" y2="36" />
+
+        {/* Low-rise blocks with windows */}
+        <path d="M48,55 L48,38 L66,38 L66,55" />
+        <path d="M51,42 L51,52 M55,42 L55,52 M59,42 L59,52 M63,42 L63,52" />
+
+        {/* Mid-rise tower */}
+        <path d="M74,55 L74,28 L92,28 L92,55" />
+        <line x1="92" y1="28" x2="92" y2="18" />
+
+        {/* Padma-style cable-stay bridge */}
+        <path d="M108,55 L150,22 L192,55" />
+        <line x1="150" y1="22" x2="150" y2="55" />
+        <line x1="125" y1="55" x2="150" y2="32" />
+        <line x1="138" y1="55" x2="150" y2="40" />
+        <line x1="162" y1="40" x2="175" y2="55" />
+        <line x1="150" y1="32" x2="174" y2="55" />
+        <line x1="105" y1="55" x2="195" y2="55" strokeWidth="0.6" opacity="0.6" />
+
+        {/* Skyscraper — slim spire */}
+        <path d="M210,55 L210,12 L213,12 L213,9 L217,9 L217,12 L220,12 L220,55" />
+
+        {/* Office tower */}
+        <path d="M232,55 L232,32 L252,32 L252,55" />
+        <line x1="237" y1="36" x2="237" y2="52" opacity="0.8" />
+        <line x1="242" y1="36" x2="242" y2="52" opacity="0.8" />
+        <line x1="247" y1="36" x2="247" y2="52" opacity="0.8" />
+
+        {/* Stepped building */}
+        <path d="M262,55 L262,42 L272,42 L272,36 L284,36 L284,55" />
+
+        {/* Second bridge tower (right side) */}
+        <path d="M298,55 L330,28 L362,55" />
+        <line x1="330" y1="28" x2="330" y2="55" />
+        <line x1="312" y1="55" x2="330" y2="36" />
+        <line x1="346" y1="44" x2="356" y2="55" />
+
+        {/* Tail buildings */}
+        <path d="M372,55 L372,38 L386,38 L386,55" />
+        <path d="M390,55 L390,46 L398,46 L398,55" />
+      </g>
+    </svg>
+  );
 }
 
 // ── Sub-components ───────────────────────────────────────────────────────────
@@ -328,7 +392,7 @@ export default function Dashboard() {
   }
 
   const firstName = profile?.name?.split(" ")[0] ?? "there";
-  const greeting = getGreeting();
+  const greeting  = getGreeting();
 
   // Journey steps — 4 milestones
   const JOURNEY_STEPS = [
@@ -381,74 +445,75 @@ export default function Dashboard() {
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-5">
 
         {/* ── Hero card ──────────────────────────────────────────────────── */}
-        <div
-          className="rounded-2xl border border-border p-5 relative overflow-hidden"
-          style={{
-            background: "linear-gradient(135deg, hsla(160,90%,45%,0.07) 0%, hsla(0,0%,7%,1) 60%)",
-          }}
-        >
-          {/* Top glow */}
-          <div
-            className="absolute inset-x-0 top-0 h-24 pointer-events-none"
-            style={{ background: "radial-gradient(ellipse at 30% 0%, hsla(160,90%,45%,0.12) 0%, transparent 70%)" }}
-          />
+        <div className="brand-hero rounded-2xl p-5 pb-20 relative overflow-hidden">
+          {/* Bangladesh skyline — subtle line-art band along the bottom edge */}
+          <div className="absolute inset-x-0 bottom-0 h-16 pointer-events-none text-cobalt">
+            <BangladeshSkyline className="absolute inset-0 w-full h-full" opacity={0.32} />
+            {/* Soft fade so it grounds into the card */}
+            <div
+              className="absolute inset-x-0 bottom-0 h-8"
+              style={{ background: "linear-gradient(to top, hsl(var(--card)) 0%, transparent 100%)" }}
+            />
+          </div>
 
           <div className="relative z-10 flex items-start justify-between gap-4">
             {/* Left: greeting + journey steps */}
-            <div className="flex-1 min-w-0 space-y-3">
+            <div className="flex-1 min-w-0 space-y-3.5">
               <div>
-                <p className="text-xs text-muted-foreground">{greeting},</p>
-                <h1 className="text-xl font-bold text-foreground tracking-tight leading-tight">
-                  {firstName} 👋
+                <p className="text-[10px] uppercase tracking-[0.22em] font-bold text-primary/70">
+                  {greeting.en}
+                </p>
+                <h1 className="text-2xl font-display font-extrabold text-foreground leading-[1.05] tracking-tight mt-1">
+                  Hi, <span className="text-primary" style={{ textShadow: "0 0 24px hsla(var(--kosh-lime) / 0.45)" }}>{firstName}</span>
                 </h1>
-                {!result && (
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Take the money check to unlock your level.
-                  </p>
-                )}
+                <p className="text-[13px] font-bangla text-muted-foreground mt-0.5 leading-snug">
+                  {greeting.bn} — {result ? "ready to grow today?" : "take the money check to unlock your level."}
+                </p>
               </div>
 
-              {/* Journey steps */}
+              {/* Journey steps — Lime active, Teal completed for two-tone identity */}
               <div className="flex items-center gap-0">
-                {JOURNEY_STEPS.map((step, i) => (
-                  <div key={step.label} className="flex items-center">
-                    <div className="flex flex-col items-center gap-0.5">
-                      <div
-                        className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border-2 transition-all"
-                        style={
-                          step.done
-                            ? { borderColor: "hsl(160 90% 45%)", background: "hsla(160,90%,45%,0.2)", color: "hsl(160 90% 45%)" }
-                            : step.active
-                            ? { borderColor: "hsl(160 90% 45%)", background: "transparent", color: "hsl(160 90% 45%)", boxShadow: "0 0 8px hsla(160,90%,45%,0.5)" }
-                            : { borderColor: "hsl(var(--border))", background: "transparent", color: "hsl(var(--muted-foreground))" }
-                        }
-                      >
-                        {step.done ? "✓" : i + 1}
+                {JOURNEY_STEPS.map((step, i) => {
+                  const lime = "hsl(var(--kosh-lime))";
+                  const teal = "hsl(var(--kosh-teal))";
+                  return (
+                    <div key={step.label} className="flex items-center">
+                      <div className="flex flex-col items-center gap-1">
+                        <div
+                          className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold border-2 transition-all font-display"
+                          style={
+                            step.done
+                              ? { borderColor: teal, background: "hsla(175,100%,42%,0.18)", color: teal, boxShadow: "0 0 10px hsla(175,100%,42%,0.4)" }
+                              : step.active
+                              ? { borderColor: lime, background: "hsla(87,100%,68%,0.12)", color: lime, boxShadow: "0 0 12px hsla(87,100%,68%,0.55)" }
+                              : { borderColor: "hsla(225,29%,97%,0.18)", background: "transparent", color: "hsl(var(--muted-foreground))" }
+                          }
+                        >
+                          {step.done ? "✓" : i + 1}
+                        </div>
+                        <span
+                          className="text-[9px] font-semibold uppercase tracking-wider"
+                          style={
+                            step.done ? { color: teal }
+                            : step.active ? { color: lime }
+                            : { color: "hsl(var(--muted-foreground))", opacity: 0.55 }
+                          }
+                        >
+                          {step.label}
+                        </span>
                       </div>
-                      <span
-                        className="text-[9px] font-semibold uppercase tracking-wide"
-                        style={
-                          step.done || step.active
-                            ? { color: "hsl(160 90% 45%)" }
-                            : { color: "hsl(var(--muted-foreground))", opacity: 0.5 }
-                        }
-                      >
-                        {step.label}
-                      </span>
+                      {i < JOURNEY_STEPS.length - 1 && (
+                        <div
+                          className="h-px w-7 mb-4 mx-0.5 transition-all"
+                          style={{
+                            background: step.done ? teal : "hsla(225,29%,97%,0.16)",
+                            opacity: step.done ? 0.9 : 1,
+                          }}
+                        />
+                      )}
                     </div>
-                    {i < JOURNEY_STEPS.length - 1 && (
-                      <div
-                        className="h-px w-6 mb-3 mx-0.5 transition-all"
-                        style={{
-                          background: step.done
-                            ? "hsl(160 90% 45%)"
-                            : "hsl(var(--border))",
-                          opacity: step.done ? 1 : 0.3,
-                        }}
-                      />
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
@@ -457,9 +522,9 @@ export default function Dashboard() {
               <div className="flex flex-col items-center gap-1.5 shrink-0">
                 <CircularProgress
                   pct={trackPct}
-                  size={84}
+                  size={88}
                   strokeWidth={7}
-                  accent="160 90% 45%"
+                  accent="87 100% 68%"
                   label={`${trackPct}%`}
                   sublabel="complete"
                 />
@@ -468,11 +533,15 @@ export default function Dashboard() {
             ) : (
               <button
                 onClick={() => navigate("/check")}
-                className="shrink-0 flex flex-col items-center gap-1.5 rounded-xl border border-primary/25 px-3 py-3 text-center hover:border-primary/50 transition-all"
-                style={{ background: "hsla(160,90%,45%,0.05)" }}
+                className="shrink-0 flex flex-col items-center gap-1.5 rounded-xl px-3 py-3 text-center transition-all hover:scale-[1.02] active:scale-95"
+                style={{
+                  background: "hsla(87,100%,68%,0.10)",
+                  border: "1px solid hsla(87,100%,68%,0.35)",
+                  boxShadow: "0 0 18px hsla(87,100%,68%,0.18)",
+                }}
               >
                 <span className="text-2xl">📊</span>
-                <span className="text-[10px] font-semibold text-primary leading-tight">Check your<br />level</span>
+                <span className="text-[10px] font-bold text-primary leading-tight font-display">Check your<br />level</span>
               </button>
             )}
           </div>
@@ -482,42 +551,55 @@ export default function Dashboard() {
         {nextModule && (
           <button
             onClick={() => navigate(`/module/${nextModule.id}`)}
-            className="w-full flex items-center gap-3 rounded-xl border border-primary/20 p-4 text-left hover:border-primary/40 transition-all group"
-            style={{ background: "hsla(160,90%,45%,0.06)" }}
+            className="w-full flex items-center gap-3 rounded-xl p-4 text-left transition-all group"
+            style={{
+              background: "linear-gradient(135deg, hsla(87,100%,68%,0.08) 0%, hsla(240,70%,51%,0.05) 100%)",
+              border: "1px solid hsla(87,100%,68%,0.25)",
+              boxShadow: "0 4px 20px hsla(235,60%,4%,0.3)",
+            }}
           >
             <div
-              className="h-10 w-10 rounded-xl flex items-center justify-center shrink-0"
-              style={{ background: "hsla(160,90%,45%,0.15)", border: "1px solid hsla(160,90%,45%,0.3)", boxShadow: "0 0 14px hsla(160,90%,45%,0.3)" }}
+              className="h-11 w-11 rounded-xl flex items-center justify-center shrink-0"
+              style={{
+                background: "hsla(87,100%,68%,0.16)",
+                border: "1px solid hsla(87,100%,68%,0.4)",
+                boxShadow: "0 0 16px hsla(87,100%,68%,0.35)",
+              }}
             >
-              <BookOpen className="h-5 w-5 text-primary" style={{ filter: "drop-shadow(0 0 4px hsla(160,90%,45%,0.7))" }} />
+              <BookOpen className="h-5 w-5" style={{ color: "hsl(var(--kosh-lime))", filter: "drop-shadow(0 0 5px hsla(87,100%,68%,0.7))" }} />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-primary/60">Continue Learning</div>
+              <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary/80 font-display">Continue Learning</div>
               <div className="text-sm font-semibold text-foreground leading-snug truncate">{nextModule.title}</div>
               <div className="text-xs text-muted-foreground">~{nextModule.minutes} min</div>
             </div>
-            <ArrowRight className="h-4 w-4 text-primary/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" />
+            <ArrowRight className="h-4 w-4 text-primary/50 group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" />
           </button>
         )}
 
         {/* ── Congratulations banner (zone 1 complete) ──────────────────── */}
         {coreComplete && (
           <div
-            className="rounded-2xl border p-5 space-y-2 relative overflow-hidden"
+            className="rounded-2xl p-5 space-y-2 relative overflow-hidden"
             style={{
-              borderColor: "hsla(160,90%,45%,0.35)",
-              background: "linear-gradient(135deg, hsla(160,90%,45%,0.1) 0%, hsla(0,0%,7%,1) 70%)",
+              border: "1px solid hsla(175,100%,42%,0.4)",
+              background: "linear-gradient(135deg, hsla(175,100%,42%,0.14) 0%, hsla(87,100%,68%,0.08) 50%, hsl(var(--card)) 100%)",
             }}
           >
-            <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl pointer-events-none"
-              style={{ background: "hsla(160,90%,45%,0.12)" }} />
+            <div className="absolute top-0 right-0 w-36 h-36 rounded-full blur-3xl pointer-events-none"
+              style={{ background: "hsla(87,100%,68%,0.18)" }} />
+            <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full blur-3xl pointer-events-none"
+              style={{ background: "hsla(175,100%,42%,0.18)" }} />
             <div className="relative flex items-start gap-3">
-              <Trophy className="h-6 w-6 shrink-0 mt-0.5" style={{ color: "hsl(160 90% 45%)", filter: "drop-shadow(0 0 6px hsla(160,90%,45%,0.8))" }} />
+              <Trophy className="h-6 w-6 shrink-0 mt-0.5" style={{ color: "hsl(var(--kosh-teal))", filter: "drop-shadow(0 0 8px hsla(175,100%,42%,0.9))" }} />
               <div>
-                <div className="font-bold text-foreground">Zone 1 complete! 🎉</div>
+                <div className="font-display font-extrabold text-foreground tracking-tight">Zone 1 complete! 🎉</div>
                 <div className="text-sm text-muted-foreground mt-0.5 leading-relaxed">
                   You've built your money foundation. All advanced zones are now unlocked — keep going!
                 </div>
+                <p className="text-xs font-bangla text-muted-foreground/80 mt-1.5">
+                  ভিত্তি তৈরি — এবার এগিয়ে চলুন।
+                </p>
               </div>
             </div>
           </div>
@@ -530,7 +612,7 @@ export default function Dashboard() {
             <div className="flex items-center gap-2">
               <ZoneIcon zoneId="zone-1" size="sm" />
               <div>
-                <h2 className="font-semibold text-foreground text-sm leading-tight">Zone 1 · Money Foundations</h2>
+                <h2 className="font-display font-extrabold text-foreground text-base leading-tight tracking-tight">Zone 1 · Money Foundations</h2>
                 <p className="text-xs text-muted-foreground">{completedCount}/8 modules · {trackPct}% done</p>
               </div>
             </div>
@@ -616,7 +698,7 @@ export default function Dashboard() {
         {/* ── Zone Roadmap ───────────────────────────────────────────────── */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <h2 className="font-semibold text-foreground">Your Learning Journey</h2>
+            <h2 className="font-display font-extrabold text-foreground tracking-tight">Your Learning Journey</h2>
             {!coreComplete && (
               <span className="text-[10px] font-semibold text-muted-foreground bg-muted border border-border rounded-full px-2 py-0.5">
                 Unlocks after Zone 1
@@ -657,14 +739,18 @@ export default function Dashboard() {
         {/* ── 30-Day Challenge ───────────────────────────────────────────── */}
         <button
           onClick={() => navigate("/challenge")}
-          className="w-full bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 rounded-2xl p-4 flex items-center gap-4 hover:border-primary/40 transition-all text-left"
+          className="w-full rounded-2xl p-4 flex items-center gap-4 transition-all text-left group"
+          style={{
+            background: "linear-gradient(90deg, hsla(240,70%,51%,0.10) 0%, hsla(87,100%,68%,0.06) 100%)",
+            border: "1px solid hsla(240,70%,51%,0.25)",
+          }}
         >
           <span className="text-3xl">🗓️</span>
           <div className="flex-1">
-            <div className="font-semibold text-foreground text-sm">30-Day Challenge</div>
+            <div className="font-display font-extrabold text-foreground text-sm tracking-tight">30-Day Challenge</div>
             <div className="text-xs text-muted-foreground">Daily actions · +10 points each</div>
           </div>
-          <span className="text-primary text-sm font-semibold">Start →</span>
+          <span className="text-primary text-sm font-bold font-display group-hover:translate-x-0.5 transition-transform">Start →</span>
         </button>
 
         <p className="text-center text-xs text-muted-foreground/40 py-2">
