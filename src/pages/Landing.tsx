@@ -167,9 +167,9 @@ function BridgeContent({ onDone }: { onDone: () => void }) {
 
 // ── Stock chart data ──────────────────────────────────────────────────────────
 // viewBox 0 0 500 100  (y=100 bottom, y=0 top)
-// Designed with real market structure: three waves separated by two corrections.
-// Path ends at x≈382 (~76% of viewBox) so the live dot lands near "saving,"
-// in the bridge sentence (which is centred and ~75% through the text).
+// Real market structure: three waves + two corrections, then a parabolic
+// "moon" finale that reaches the top-right corner (x=500, y≈3).
+// Questions phase reveals x=0→382; bridge phase completes 382→500.
 const STOCK_PTS: [number, number][] = [
   // ── Wave 1: initial accumulation + first rally ───────────────────────────
   [ 0, 86], [10, 84], [20, 81], [30, 83], [40, 77],
@@ -188,18 +188,23 @@ const STOCK_PTS: [number, number][] = [
   [251, 52], [260, 57], [269, 62], [278, 58],
   [287, 64], [296, 68], [305, 63], [314, 57],
 
-  // ── Wave 3: strong breakout — ends near "saving," in bridge sentence ─────
+  // ── Wave 3: strong breakout ───────────────────────────────────────────────
   [323, 50], [331, 44], [340, 47], [349, 40],
   [358, 35], [367, 38], [376, 31], [382, 27],
+
+  // ── Moon phase: parabolic final rally — bridge sentence → top-right ───────
+  [390, 24], [398, 26], [406, 20], [414, 22],
+  [422, 14], [430, 17], [438, 10], [446, 13],
+  [454,  7], [462,  9], [470,  5], [478,  7],
+  [488,  4], [500,  3],
 ];
 
-// The clip rect reveals from x=0 to x=382 (last point)
-const STOCK_END_X      = 382;
-const STOCK_LINE_PTS   = STOCK_PTS.map(([x, y]) => `${x},${y}`).join(" ");
-const STOCK_AREA_PTS   = `0,100 ${STOCK_LINE_PTS} ${STOCK_END_X},100`;
-const STOCK_PATH_D     = `M ${STOCK_PTS.map(([x, y]) => `${x},${y}`).join(" L ")}`;
-// Duration — tuned to ~first-visit intro length so the line finishes at bridge
-const STOCK_DUR        = "46s";
+// Questions phase reveals up to x=382; bridge phase completes to x=500
+const STOCK_QUESTIONS_END = 382;
+const STOCK_END_X         = 500;
+const STOCK_LINE_PTS      = STOCK_PTS.map(([x, y]) => `${x},${y}`).join(" ");
+const STOCK_AREA_PTS      = `0,100 ${STOCK_LINE_PTS} ${STOCK_END_X},100`;
+// (chart uses React-state mask — no SVG <animate> needed)
 
 // ── Main intro section ────────────────────────────────────────────────────────
 
@@ -246,17 +251,18 @@ function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolea
   // Advance chart reveal with each sentence
   const totalSteps = isFirst ? QUESTIONS.length : REVISIT_MAX;
   useEffect(() => {
-    const target = Math.round(((qIdx + 1) / totalSteps) * STOCK_END_X);
+    const target = Math.round(((qIdx + 1) / totalSteps) * STOCK_QUESTIONS_END);
     setClipWidth(target);
   }, [qIdx, totalSteps]);
   useEffect(() => {
+    // Bridge kicks off the final moon rally to x=500
     if (stage === "bridge") setClipWidth(STOCK_END_X);
   }, [stage]);
 
-  // Leading dot position — absolute div tracks chart tip precisely
-  const CHART_H    = 150;  // px, matches SVG height
-  const dotPtIdx   = clipWidth <= 0 ? 0
-    : Math.min(Math.round((clipWidth / STOCK_END_X) * (STOCK_PTS.length - 1)), STOCK_PTS.length - 1);
+  // Leading dot position — find last chart point whose x ≤ clipWidth
+  const CHART_H  = 150;  // px, matches SVG height
+  const dotPtIdx = clipWidth <= 0 ? 0
+    : STOCK_PTS.reduce((best, [x], i) => (x <= clipWidth ? i : best), 0);
   const [dotSvgX, dotSvgY] = STOCK_PTS[dotPtIdx];
   const dotLeftPct  = (dotSvgX / 500) * 100;            // % of viewport width
   const dotFromBase = CHART_H * (1 - dotSvgY / 100);    // px above chart bottom
@@ -338,85 +344,52 @@ function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolea
         animation: "float-pct 9.5s ease-in-out infinite",
       }}>%</FloatingSymbol>
 
-      {/* ── ₿ BTC — upper area, amber/gold to differentiate ── */}
-      <FloatingSymbol style={{
-        top: "10%", right: "20%",
-        fontSize: "58px", fontWeight: 900,
-        color: "hsl(38,90%,56%)", opacity: 0.065, filter: "blur(0.8px)",
-        animation: "float 8s ease-in-out infinite",
-        animationDelay: "1.8s",
-      }}>₿</FloatingSymbol>
-
-      {/* ── National Martyr's Memorial (Jatiyo Smriti Soudho) — left mid ── */}
-      {/* 7 angular towers in fan arrangement — simplified silhouette */}
+      {/* ── Bitcoin coin — left side, mid-height ── */}
+      {/* Face-on coin: outer rim + inner field + ₿ */}
       <svg
         className="absolute pointer-events-none z-[1]"
-        style={{ top: "32%", left: "2%", width: 124, height: 96, opacity: 0.085 }}
-        viewBox="0 0 124 96" fill="none" aria-hidden="true"
+        style={{ top: "36%", left: "2.5%", width: 72, height: 72, opacity: 0.09 }}
+        viewBox="0 0 72 72" fill="none" aria-hidden="true"
       >
-        {/* Base platform */}
-        <line x1="0" y1="86" x2="124" y2="86" stroke={GREEN} strokeWidth="1.1"/>
-        {/* Outer-left shortest */}
-        <polygon points="10,70 2,86 18,86"  stroke={GREEN} strokeWidth="0.9" fill="none"/>
-        {/* 2nd left */}
-        <polygon points="27,54 18,86 36,86" stroke={GREEN} strokeWidth="1"   fill="none"/>
-        {/* 3rd left */}
-        <polygon points="44,35 34,86 54,86" stroke={GREEN} strokeWidth="1.1" fill="none"/>
-        {/* Centre — tallest */}
-        <polygon points="62,6  51,86 73,86" stroke={GREEN} strokeWidth="1.2" fill="none"/>
-        {/* 3rd right */}
-        <polygon points="80,35 70,86 90,86" stroke={GREEN} strokeWidth="1.1" fill="none"/>
-        {/* 2nd right */}
-        <polygon points="97,54 88,86 106,86" stroke={GREEN} strokeWidth="1"  fill="none"/>
-        {/* Outer-right shortest */}
-        <polygon points="114,70 106,86 122,86" stroke={GREEN} strokeWidth="0.9" fill="none"/>
-        {/* Reflection pool hint — horizontal lines */}
-        <line x1="10" y1="90" x2="114" y2="90" stroke={GREEN} strokeWidth="0.5" opacity="0.5"/>
-        <line x1="22" y1="93" x2="102" y2="93" stroke={GREEN} strokeWidth="0.4" opacity="0.3"/>
+        {/* Outer rim */}
+        <circle cx="36" cy="36" r="33" stroke="hsl(38,90%,55%)" strokeWidth="2.2"/>
+        {/* Inner field */}
+        <circle cx="36" cy="36" r="25" stroke="hsl(38,90%,55%)" strokeWidth="0.9" opacity="0.6"/>
+        {/* ₿ symbol */}
+        <text
+          x="36" y="44"
+          textAnchor="middle"
+          fontSize="24" fontWeight="900"
+          fontFamily="'Bricolage Grotesque', sans-serif"
+          fill="hsl(38,90%,55%)"
+        >₿</text>
       </svg>
 
-      {/* ── Water lily (Shapla — national flower) — left lower ── */}
+      {/* ── Gold bar — lower-right, proper ingot perspective ── */}
+      {/* Single London Good Delivery bar: front face + top face + right side */}
       <svg
         className="absolute pointer-events-none z-[1]"
-        style={{ top: "62%", left: "4%", width: 64, height: 56, opacity: 0.08 }}
-        viewBox="0 0 64 56" fill="none" aria-hidden="true"
+        style={{ bottom: "22%", right: "3.5%", width: 96, height: 76, opacity: 0.10 }}
+        viewBox="0 0 96 76" fill="none" aria-hidden="true"
       >
-        {/* Stem */}
-        <path d="M32,54 Q26,44 32,34 Q38,26 32,18" stroke={GREEN} strokeWidth="1.1" fill="none"/>
-        {/* 6 petals via bezier curves */}
-        <path d="M32,18 Q14,6  16,20 Q18,30 32,24"  stroke={GREEN} strokeWidth="1"   fill="none"/>
-        <path d="M32,18 Q22,0  30,16 Q33,22 32,18"  stroke={GREEN} strokeWidth="0.9" fill="none"/>
-        <path d="M32,18 Q42,0  34,16 Q31,22 32,18"  stroke={GREEN} strokeWidth="0.9" fill="none"/>
-        <path d="M32,18 Q50,6  48,20 Q46,30 32,24"  stroke={GREEN} strokeWidth="1"   fill="none"/>
-        <path d="M32,24 Q50,28 46,36 Q40,40 32,34"  stroke={GREEN} strokeWidth="1"   fill="none"/>
-        <path d="M32,24 Q14,28 18,36 Q24,40 32,34"  stroke={GREEN} strokeWidth="1"   fill="none"/>
-        {/* Centre */}
-        <circle cx="32" cy="20" r="5" stroke={GREEN} strokeWidth="1" fill="none"/>
-        <circle cx="32" cy="20" r="2" stroke={GREEN} strokeWidth="0.7" fill="none"/>
-        {/* Lily pad */}
-        <path d="M18,36 Q8,40 10,48 Q22,50 32,44 Q42,50 54,48 Q56,40 46,36"
-          stroke={GREEN} strokeWidth="0.9" fill="none"/>
-      </svg>
-
-      {/* ── Gold bars — lower-right ── */}
-      <svg
-        className="absolute pointer-events-none z-[1]"
-        style={{ bottom: "22%", right: "4%", width: 72, height: 68, opacity: 0.10 }}
-        viewBox="0 0 72 68" fill="none" aria-hidden="true"
-      >
-        {/* Bar 3 (bottom) */}
-        <rect x="9"  y="50" width="56" height="14" rx="2" stroke="hsl(38,90%,54%)" strokeWidth="1.2"/>
-        <line x1="15" y1="55" x2="57" y2="55" stroke="hsl(38,90%,54%)" strokeWidth="0.7" opacity="0.65"/>
-        {/* Bar 2 */}
-        <rect x="5"  y="32" width="56" height="14" rx="2" stroke="hsl(38,90%,54%)" strokeWidth="1.2"/>
-        <line x1="11" y1="37" x2="53" y2="37" stroke="hsl(38,90%,54%)" strokeWidth="0.7" opacity="0.65"/>
-        {/* Bar 1 (top) */}
-        <rect x="0"  y="14" width="56" height="14" rx="2" stroke="hsl(38,90%,54%)" strokeWidth="1.2"/>
-        <line x1="6"  y1="19" x2="48" y2="19" stroke="hsl(38,90%,54%)" strokeWidth="0.7" opacity="0.65"/>
-        {/* 3D side edge on top bar */}
-        <line x1="56" y1="14" x2="62" y2="18" stroke="hsl(38,90%,54%)" strokeWidth="0.9" opacity="0.5"/>
-        <line x1="56" y1="28" x2="62" y2="32" stroke="hsl(38,90%,54%)" strokeWidth="0.9" opacity="0.5"/>
-        <line x1="62" y1="18" x2="62" y2="32" stroke="hsl(38,90%,54%)" strokeWidth="0.9" opacity="0.5"/>
+        {/* Front face */}
+        <path d="M0,24 L72,24 L72,60 L0,60 Z" stroke="hsl(38,90%,55%)" strokeWidth="1.4" rx="2"/>
+        {/* Top trapezoid face */}
+        <path d="M0,24 L10,8 L82,8 L72,24 Z"  stroke="hsl(38,90%,55%)" strokeWidth="1.4"/>
+        {/* Right side face */}
+        <path d="M72,24 L82,8 L82,44 L72,60 Z" stroke="hsl(38,90%,55%)" strokeWidth="1.2"/>
+        {/* Chamfer inset on front face */}
+        <path d="M5,28 L67,28 L67,56 L5,56 Z"  stroke="hsl(38,90%,55%)" strokeWidth="0.7" opacity="0.55"/>
+        {/* Shine line across top face */}
+        <line x1="14" y1="13" x2="76" y2="13"  stroke="hsl(38,90%,55%)" strokeWidth="0.6" opacity="0.5"/>
+        {/* "999.9" stamp on front */}
+        <text
+          x="36" y="45"
+          textAnchor="middle"
+          fontSize="7.5" fontWeight="600" letterSpacing="1"
+          fontFamily="monospace"
+          fill="hsl(38,90%,55%)" opacity="0.7"
+        >999.9</text>
       </svg>
 
       {/* ── Full-width climbing stock chart — React-state-driven reveal ── */}
@@ -433,13 +406,16 @@ function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolea
             <stop offset="85%"  stopColor={GREEN} stopOpacity="0.02" />
             <stop offset="100%" stopColor={GREEN} stopOpacity="0" />
           </linearGradient>
-          {/* CSS-transition-driven mask — updates with each sentence change */}
+          {/* CSS-transition-driven mask — updates with each sentence change.
+              Questions: 1.9s per step. Bridge moon: 2.2s to land as words finish. */}
           <mask id="stock-mask">
             <rect
               x="0" y="0" height="110"
               style={{
                 width: clipWidth,
-                transition: "width 1.9s cubic-bezier(0.4, 0, 0.2, 1)",
+                transition: stage === "bridge"
+                  ? "width 2.2s cubic-bezier(0.25, 0, 0.15, 1)"
+                  : "width 1.9s cubic-bezier(0.4, 0, 0.2, 1)",
               }}
               fill="white"
             />
@@ -475,7 +451,9 @@ function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolea
             left: `${dotLeftPct}%`,
             bottom: `calc(9% + ${dotFromBase - 4.5}px)`,
             transform: "translateX(-50%)",
-            transition: "left 1.9s cubic-bezier(0.4,0,0.2,1), bottom 1.9s cubic-bezier(0.4,0,0.2,1)",
+            transition: stage === "bridge"
+              ? "left 2.2s cubic-bezier(0.25,0,0.15,1), bottom 2.2s cubic-bezier(0.25,0,0.15,1)"
+              : "left 1.9s cubic-bezier(0.4,0,0.2,1), bottom 1.9s cubic-bezier(0.4,0,0.2,1)",
             animation: "dot-pulse 1.5s ease-in-out infinite",
           }}
         />
