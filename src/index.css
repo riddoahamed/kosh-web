@@ -209,6 +209,53 @@
   .force-dark * {
     border-color: hsl(235, 35%, 20%);
   }
+
+  /* Brand hero CTA pill — lime → teal gradient with cobalt undershadow,
+     dark text, and a subtle shimmer pass. Used on primary actions like
+     "Check your money level". Identical look in both themes. */
+  .btn-brand {
+    position: relative;
+    overflow: hidden;
+    color: hsl(235, 60%, 8%);
+    background: linear-gradient(135deg, hsl(87, 100%, 68%) 0%, hsl(95, 90%, 58%) 50%, hsl(175, 100%, 45%) 100%);
+    box-shadow:
+      0 0 24px hsla(87, 100%, 68%, 0.45),
+      0 4px 16px hsla(240, 70%, 51%, 0.30),
+      inset 0 1px 0 hsla(225, 29%, 97%, 0.30);
+    transition: box-shadow 0.25s ease, transform 0.15s ease;
+  }
+  .btn-brand::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 30%, hsla(225, 29%, 97%, 0.30) 50%, transparent 70%);
+    background-size: 200% auto;
+    animation: shimmer 4s linear infinite;
+    pointer-events: none;
+  }
+  .btn-brand:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      0 0 36px hsla(87, 100%, 68%, 0.65),
+      0 6px 22px hsla(240, 70%, 51%, 0.40),
+      inset 0 1px 0 hsla(225, 29%, 97%, 0.40);
+  }
+  .btn-brand:active {
+    transform: translateY(0);
+    box-shadow:
+      0 0 18px hsla(87, 100%, 68%, 0.45),
+      0 2px 8px hsla(240, 70%, 51%, 0.25);
+  }
+
+  /* AI greeting bubble pop-in */
+  @keyframes ai-bubble-in {
+    from { opacity: 0; transform: translateY(8px) scale(0.92); }
+    to   { opacity: 1; transform: translateY(0)   scale(1);    }
+  }
+  @keyframes ai-bubble-out {
+    from { opacity: 1; transform: translateY(0)   scale(1);    }
+    to   { opacity: 0; transform: translateY(8px) scale(0.92); }
+  }
 }
 
 @layer utilities {

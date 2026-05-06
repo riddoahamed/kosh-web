@@ -19,9 +19,17 @@ const STARTERS = [
   "What is lifestyle inflation?",
 ];
 
+// First-visit greeting nudge — shown once per device after a delay so users
+// notice the AI exists. Persists with localStorage so it doesn't spam.
+const NUDGE_KEY      = "kosh:ai_nudge_seen";
+const NUDGE_DELAY_MS = 5500;   // wait this long before showing
+const NUDGE_LIFE_MS  = 8500;   // auto-dismiss after this long
+
 export default function KoshAssistant() {
   const { aiWidgetHidden } = useUIStore();
   const [open, setOpen] = useState(false);
+  const [nudgeOpen, setNudgeOpen]    = useState(false);
+  const [nudgeExiting, setNudgeExiting] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -38,6 +46,42 @@ export default function KoshAssistant() {
   useEffect(() => {
     if (open) setTimeout(() => inputRef.current?.focus(), 100);
   }, [open]);
+
+  // First-visit greeting nudge orchestration
+  useEffect(() => {
+    if (aiWidgetHidden) return;
+    if (typeof window === "undefined") return;
+    if (localStorage.getItem(NUDGE_KEY)) return; // already shown before
+
+    const showT = setTimeout(() => setNudgeOpen(true), NUDGE_DELAY_MS);
+    const exitT = setTimeout(() => setNudgeExiting(true), NUDGE_DELAY_MS + NUDGE_LIFE_MS);
+    const hideT = setTimeout(() => {
+      setNudgeOpen(false);
+      localStorage.setItem(NUDGE_KEY, "1");
+    }, NUDGE_DELAY_MS + NUDGE_LIFE_MS + 350);
+
+    return () => { clearTimeout(showT); clearTimeout(exitT); clearTimeout(hideT); };
+  }, [aiWidgetHidden]);
+
+  // Dismiss nudge as soon as the user opens the assistant
+  useEffect(() => {
+    if (open && nudgeOpen) {
+      setNudgeExiting(true);
+      const t = setTimeout(() => {
+        setNudgeOpen(false);
+        localStorage.setItem(NUDGE_KEY, "1");
+      }, 300);
+      return () => clearTimeout(t);
+    }
+  }, [open, nudgeOpen]);
+
+  function dismissNudge() {
+    setNudgeExiting(true);
+    setTimeout(() => {
+      setNudgeOpen(false);
+      localStorage.setItem(NUDGE_KEY, "1");
+    }, 300);
+  }
 
   async function sendMessage(text: string) {
     if (!text.trim() || loading) return;
@@ -102,6 +146,70 @@ export default function KoshAssistant() {
 
   return (
     <>
+      {/* First-visit greeting nudge — appears after a short delay so users
+          notice the AI exists. Click bubble = open assistant. ✕ = dismiss. */}
+      {nudgeOpen && (
+        <div
+          className="fixed bottom-20 right-5 z-40 max-w-[260px]"
+          style={{
+            animation: nudgeExiting
+              ? "ai-bubble-out 0.3s ease forwards"
+              : "ai-bubble-in 0.45s cubic-bezier(0.16,1,0.3,1) forwards",
+            transformOrigin: "bottom right",
+          }}
+        >
+          <button
+            onClick={() => { dismissNudge(); setOpen(true); }}
+            className="relative w-full text-left rounded-2xl px-3.5 py-3 pr-9 text-[13px] leading-snug font-medium transition-all hover:scale-[1.02] active:scale-[0.99]"
+            style={{
+              background: "linear-gradient(135deg, hsl(235, 50%, 12%) 0%, hsl(240, 60%, 14%) 100%)",
+              color: "hsl(225, 29%, 97%)",
+              border: "1px solid hsla(87, 100%, 68%, 0.35)",
+              boxShadow:
+                "0 0 24px hsla(87, 100%, 68%, 0.25), 0 8px 28px hsla(235, 60%, 4%, 0.5), inset 0 1px 0 hsla(225, 29%, 97%, 0.06)",
+            }}
+          >
+            <span style={{ color: "hsl(87,100%,68%)", fontWeight: 700, fontFamily: "Manrope, Inter, sans-serif" }}>
+              Hi! I'm Kosh AI{" "}
+              <span style={{ filter: "drop-shadow(0 0 4px hsla(87,100%,68%,0.6))" }}>✨</span>
+            </span>
+            <br />
+            <span style={{ opacity: 0.75 }}>
+              Stuck on a money question? Just ask.
+            </span>
+
+            {/* tail pointing to the AI button */}
+            <span
+              aria-hidden="true"
+              className="absolute"
+              style={{
+                bottom: -7,
+                right: 18,
+                width: 14,
+                height: 14,
+                background: "hsl(235, 50%, 12%)",
+                borderRight: "1px solid hsla(87, 100%, 68%, 0.35)",
+                borderBottom: "1px solid hsla(87, 100%, 68%, 0.35)",
+                transform: "rotate(45deg)",
+              }}
+            />
+          </button>
+          {/* dismiss × */}
+          <button
+            onClick={(e) => { e.stopPropagation(); dismissNudge(); }}
+            aria-label="Dismiss"
+            className="absolute top-2 right-2 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold transition-opacity hover:opacity-100"
+            style={{
+              background: "hsla(225, 29%, 97%, 0.08)",
+              color: "hsl(225, 29%, 97%)",
+              opacity: 0.6,
+            }}
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* Floating button — cobalt blue + neon lime */}
       <button
         onClick={() => setOpen((v) => !v)}
@@ -111,6 +219,8 @@ export default function KoshAssistant() {
           background: open ? "#1e293b" : "#1d4ed8",
           boxShadow: open
             ? "0 0 0 1.5px #a3e635, 0 4px 16px rgba(29,78,216,0.3)"
+            : nudgeOpen
+            ? "0 0 0 2px #a3e635, 0 0 22px rgba(163,230,53,0.55), 0 0 36px rgba(29,78,216,0.5), 0 4px 12px rgba(0,0,0,0.3)"
             : "0 0 16px rgba(29,78,216,0.5), 0 0 32px rgba(163,230,53,0.15), 0 4px 12px rgba(0,0,0,0.3)",
           border: "1.5px solid #a3e635",
         }}

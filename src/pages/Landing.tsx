@@ -768,7 +768,7 @@ export default function Landing() {
             <div className="flex flex-row flex-wrap gap-3 justify-center">
               <Link
                 to="/check"
-                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-bold hover:bg-primary/90 transition-all hover:shadow-[0_0_24px_hsla(87,100%,68%,0.5)] active:scale-95"
+                className="btn-brand inline-flex items-center gap-1.5 px-6 py-3 rounded-full text-sm font-bold tracking-tight active:scale-95"
               >
                 Check your money level
                 <ArrowRight className="h-3.5 w-3.5" />
@@ -809,7 +809,7 @@ export default function Landing() {
             <div className="flex justify-center gap-3 pt-2">
               <Link
                 to="/check"
-                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-bold hover:bg-primary/90 transition-all hover:shadow-[0_0_24px_hsla(87,100%,68%,0.5)] active:scale-95"
+                className="btn-brand inline-flex items-center gap-1.5 px-6 py-3 rounded-full text-sm font-bold tracking-tight active:scale-95"
               >
                 Take the check <ArrowRight className="h-3.5 w-3.5" />
               </Link>
@@ -967,7 +967,7 @@ export default function Landing() {
               <div className="pt-2">
                 <Link
                   to="/check"
-                  className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-bold hover:bg-primary/90 transition-all hover:shadow-[0_0_24px_hsla(87,100%,68%,0.5)] active:scale-95"
+                  className="btn-brand inline-flex items-center gap-1.5 px-6 py-3 rounded-full text-sm font-bold tracking-tight active:scale-95"
                 >
                   Start with the check <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
