@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, Loader2, Mail } from "lucide-react";
 import { auth, db } from "@/lib/supabase";
 import { useAuthStore } from "@/store/authStore";
-import { startDemoLite, isDemoMode, exitDemo } from "@/lib/demo";
+import { startDemo, startDemoLite, isDemoMode, exitDemo } from "@/lib/demo";
 
 const inputClass =
   "w-full px-4 py-3.5 rounded-xl border border-white/[0.08] bg-white/[0.04] text-foreground text-sm placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all";
@@ -176,6 +176,34 @@ export default function Auth() {
             <p className="text-xs text-muted-foreground/40 text-center">
               We'll email you a one-click link. No password needed.
             </p>
+
+            {/* Demo account quick-start — for users who don't want to sign up */}
+            <div className="pt-3 mt-3 border-t border-white/[0.06] space-y-2">
+              <p className="text-xs text-muted-foreground/55 text-center">
+                Just want to look around?
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  startDemo();
+                  useAuthStore.getState().loadProfile();
+                  navigate("/dashboard", { replace: true });
+                }}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-all hover:bg-white/[0.06] active:scale-[0.99]"
+                style={{
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid hsla(213,100%,70%,0.25)",
+                  color: "hsl(213,100%,72%)",
+                }}
+              >
+                <span>✨</span>
+                Try demo account (no signup)
+              </button>
+              <p className="text-[11px] text-muted-foreground/45 text-center leading-relaxed">
+                Pre-loaded progress · Zone 1 complete · 1,240 mangoes.<br/>
+                Demo data is local — sign up later to keep your real progress.
+              </p>
+            </div>
           </div>
         )}
 
@@ -280,19 +308,30 @@ export default function Auth() {
                 <input type="tel" autoComplete="tel" placeholder="01XXXXXXXXX" value={phone} onChange={(e) => setPhone(e.target.value)} className={inputClass} />
               </div>
 
-              <label className="flex items-start gap-3 cursor-pointer pt-1">
-                <div className="relative mt-0.5 shrink-0">
-                  <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="sr-only" />
-                  <div className={`h-4 w-4 rounded border transition-all ${consent ? "border-primary bg-primary" : "border-white/20 bg-white/[0.04]"}`}>
-                    {consent && (
-                      <svg className="h-4 w-4 text-white" viewBox="0 0 16 16" fill="none">
-                        <path d="M3 8l3.5 3.5L13 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    )}
-                  </div>
+              <label
+                className="flex items-start gap-3 cursor-pointer p-3 rounded-xl border transition-all"
+                style={{
+                  borderColor: consent ? "hsla(87,100%,68%,0.45)" : "hsla(225,29%,97%,0.12)",
+                  background: consent ? "hsla(87,100%,68%,0.06)" : "hsla(225,29%,97,0.03)",
+                }}
+              >
+                <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="sr-only" />
+                <div
+                  className="relative mt-0.5 shrink-0 h-5 w-5 rounded-md flex items-center justify-center transition-all"
+                  style={{
+                    background: consent ? "hsl(var(--primary))" : "rgba(255,255,255,0.04)",
+                    border: consent ? "1.5px solid hsl(var(--primary))" : "1.5px solid hsla(225,29%,97%,0.30)",
+                    boxShadow: consent ? "0 0 12px hsla(87,100%,68%,0.4)" : "none",
+                  }}
+                >
+                  {consent && (
+                    <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" style={{ color: "hsl(var(--primary-foreground))" }}>
+                      <path d="M3 8l3.5 3.5L13 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
                 </div>
-                <span className="text-xs text-muted-foreground leading-relaxed">
-                  I agree that Kosh may use my learning data to improve the platform. No financial products sold. No data sold to third parties.
+                <span className="text-xs text-foreground/85 leading-relaxed">
+                  <span className="font-semibold text-foreground">I agree</span> that Kosh may use my learning data to improve the platform. No financial products sold. No data sold to third parties.
                 </span>
               </label>
 
@@ -301,11 +340,17 @@ export default function Auth() {
               <button
                 type="submit"
                 disabled={loading || !name.trim() || !age || !consent}
-                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-40"
-                style={{ background: "linear-gradient(135deg, hsl(87,95%,62%) 0%, hsl(175,100%,42%) 100%)", color: "hsl(235,60%,8%)", boxShadow: name.trim() && age && consent ? "0 0 28px hsla(87,100%,68%,0.25)" : "none" }}
+                className="btn-brand w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold tracking-tight transition-all disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Go to my dashboard →"}
               </button>
+
+              {/* Helper hint when button is disabled — tells user exactly what's missing */}
+              {!loading && (!name.trim() || !age || !consent) && (
+                <p className="text-[11px] text-muted-foreground/55 text-center pt-1">
+                  {!name.trim() ? "Add your name." : !age ? "Add your age." : "Tick the consent box to continue."}
+                </p>
+              )}
             </div>
           </form>
         )}

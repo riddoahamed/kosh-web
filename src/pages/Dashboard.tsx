@@ -13,8 +13,28 @@ import { ZONE_MODULE_ORDER } from "@/data/modules";
 import {
   Lock, CheckCircle2, Circle, Zap, Flame,
   ChevronDown, ChevronUp, Trophy, ArrowRight, BookOpen,
+  Radar, Crosshair, PieChart, ArrowLeftRight, Landmark, Gauge, Wrench,
 } from "lucide-react";
 import type { LevelAssignment } from "@/types/diagnostic";
+
+// ── Tools list (mirrors landing page tools so signed-in users have access) ──
+const TOOLS = [
+  { href: "/scam-spotter",   icon: Radar,         label: "Scam Spotter",   tone: "red"     as const },
+  { href: "/sip-calculator", icon: Crosshair,     label: "Goal SIP",       tone: "lime"    as const },
+  { href: "/budget-planner", icon: PieChart,      label: "Budget",         tone: "teal"    as const },
+  { href: "/comparator",     icon: ArrowLeftRight,label: "Compare savings",tone: "blue"    as const },
+  { href: "/emi-calculator", icon: Landmark,      label: "EMI",            tone: "violet"  as const },
+  { href: "/car-calculator", icon: Gauge,         label: "Car cost",       tone: "amber"   as const },
+];
+
+const TOOL_TONE: Record<"red"|"lime"|"teal"|"blue"|"violet"|"amber", { fg: string; bg: string; bd: string }> = {
+  red:    { fg: "hsl(0,75%,65%)",    bg: "hsla(0,75%,55%,0.12)",    bd: "hsla(0,75%,55%,0.30)"   },
+  lime:   { fg: "hsl(87,90%,62%)",   bg: "hsla(87,100%,68%,0.10)",  bd: "hsla(87,100%,68%,0.30)" },
+  teal:   { fg: "hsl(175,100%,55%)", bg: "hsla(175,100%,42%,0.12)", bd: "hsla(175,100%,42%,0.30)"},
+  blue:   { fg: "hsl(213,100%,72%)", bg: "hsla(213,100%,60%,0.10)", bd: "hsla(213,100%,60%,0.28)"},
+  violet: { fg: "hsl(262,90%,72%)",  bg: "hsla(262,83%,60%,0.10)",  bd: "hsla(262,83%,60%,0.28)" },
+  amber:  { fg: "hsl(38,95%,65%)",   bg: "hsla(38,92%,55%,0.10)",   bd: "hsla(38,92%,55%,0.28)"  },
+};
 
 // ── Core track data ──────────────────────────────────────────────────────────
 
@@ -415,6 +435,13 @@ export default function Dashboard() {
               className="text-xs font-semibold text-foreground/60 hover:text-primary transition-colors">
               Zones
             </button>
+            <button onClick={() => {
+              const el = document.getElementById("dashboard-tools");
+              if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+            }}
+              className="text-xs font-semibold text-foreground/60 hover:text-primary transition-colors hidden sm:inline">
+              Tools
+            </button>
             <button onClick={() => navigate("/store")}
               className="text-xs font-semibold text-foreground/60 hover:text-primary transition-colors">
               Store
@@ -445,15 +472,15 @@ export default function Dashboard() {
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-5">
 
         {/* ── Hero card ──────────────────────────────────────────────────── */}
-        <div className="brand-hero rounded-2xl p-5 pb-20 relative overflow-hidden">
-          {/* Bangladesh skyline — subtle line-art band along the bottom edge */}
-          <div className="absolute inset-x-0 bottom-0 h-16 pointer-events-none text-cobalt">
-            <BangladeshSkyline className="absolute inset-0 w-full h-full" opacity={0.32} />
-            {/* Soft fade so it grounds into the card */}
-            <div
-              className="absolute inset-x-0 bottom-0 h-8"
-              style={{ background: "linear-gradient(to top, hsl(var(--card)) 0%, transparent 100%)" }}
-            />
+        <div className="brand-hero rounded-2xl p-5 pb-14 relative overflow-hidden">
+          {/* Bangladesh skyline — quiet line-art watermark, no harsh fade band.
+              Sits behind the journey steps as a brand cue rather than a band. */}
+          <div
+            className="absolute left-0 right-0 bottom-0 h-12 pointer-events-none"
+            style={{ color: "hsl(var(--kosh-cobalt))" }}
+            aria-hidden="true"
+          >
+            <BangladeshSkyline className="absolute inset-0 w-full h-full" opacity={0.18} />
           </div>
 
           <div className="relative z-10 flex items-start justify-between gap-4">
@@ -735,6 +762,45 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+
+        {/* ── Tools — same kit as the landing page, available post-login ── */}
+        <section id="dashboard-tools" className="space-y-3 pt-1">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Wrench className="h-4 w-4 text-primary" style={{ filter: "drop-shadow(0 0 4px hsla(87,100%,68%,0.7))" }} />
+              <h2 className="font-display font-extrabold text-foreground tracking-tight">Money Tools</h2>
+            </div>
+            <span className="text-[10px] uppercase tracking-[0.18em] font-bold text-muted-foreground/60">
+              Free · No login
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {TOOLS.map((tool) => {
+              const Icon = tool.icon;
+              const tone = TOOL_TONE[tool.tone];
+              return (
+                <button
+                  key={tool.href}
+                  onClick={() => navigate(tool.href)}
+                  className="group flex flex-col items-start gap-2 rounded-xl border p-3 text-left transition-all hover:-translate-y-0.5 active:scale-[0.98]"
+                  style={{
+                    background: "hsl(var(--card))",
+                    borderColor: "hsl(var(--border))",
+                  }}
+                >
+                  <div
+                    className="h-9 w-9 rounded-lg flex items-center justify-center"
+                    style={{ background: tone.bg, border: `1px solid ${tone.bd}` }}
+                  >
+                    <Icon className="h-4 w-4" style={{ color: tone.fg, filter: `drop-shadow(0 0 4px ${tone.fg})` }} />
+                  </div>
+                  <div className="text-xs font-semibold text-foreground leading-tight">{tool.label}</div>
+                </button>
+              );
+            })}
+          </div>
+        </section>
 
         {/* ── 30-Day Challenge ───────────────────────────────────────────── */}
         <button

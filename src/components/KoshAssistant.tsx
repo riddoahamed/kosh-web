@@ -21,9 +21,10 @@ const STARTERS = [
 
 // First-visit greeting nudge — shown once per device after a delay so users
 // notice the AI exists. Persists with localStorage so it doesn't spam.
-const NUDGE_KEY      = "kosh:ai_nudge_seen";
-const NUDGE_DELAY_MS = 5500;   // wait this long before showing
-const NUDGE_LIFE_MS  = 8500;   // auto-dismiss after this long
+// Bump the key version any time the copy/look changes meaningfully.
+const NUDGE_KEY      = "kosh:ai_nudge_seen_v3";
+const NUDGE_DELAY_MS = 4500;   // wait this long before showing (snappier)
+const NUDGE_LIFE_MS  = 9000;   // auto-dismiss after this long
 
 export default function KoshAssistant() {
   const { aiWidgetHidden } = useUIStore();

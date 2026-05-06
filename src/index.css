@@ -49,9 +49,9 @@
 
   .dark,
   [data-theme="dark"] {
-    --background: 235 60% 8%;          /* deeper than Indigo Navy for hero contrast */
+    --background: 235 50% 11%;          /* Indigo Navy — visibly cobalt-toned navy */
     --foreground: 225 29% 97%;
-    --card: 235 50% 12%;                /* Indigo Navy ~#0E1133 */
+    --card: 235 45% 14%;                /* Card slightly lifted from background */
     --card-foreground: 225 29% 97%;
     --popover: 235 50% 12%;
     --popover-foreground: 225 29% 97%;
@@ -95,9 +95,9 @@
 
   @media (prefers-color-scheme: dark) {
     :root {
-      --background: 235 60% 8%;
+      --background: 235 50% 11%;
       --foreground: 225 29% 97%;
-      --card: 235 50% 12%;
+      --card: 235 45% 14%;
       --card-foreground: 225 29% 97%;
       --popover: 235 50% 12%;
       --popover-foreground: 225 29% 97%;
@@ -171,22 +171,46 @@
   }
 
   /* Brand "stamp" — emphasized word treatment.
-     Navy chip + lime text + lime glow. Works in both light & dark themes
-     because both surface and text colors are hardcoded to brand tokens.
+     Dark theme: navy chip + lime text + lime glow.
+     Light theme: deeper navy chip + neon cobalt-blue text + blue glow
+                  (lime is too pale on white — blue reads as crisp neon).
      Use on a single key word in display headlines (e.g. "actually"). */
   .brand-stamp {
     display: inline-block;
-    background: hsl(235, 60%, 8%);
-    color: hsl(87, 100%, 68%);
     padding: 0 0.18em;
     margin: 0 0.05em;
     border-radius: 0.32em;
+    transform: rotate(-1.6deg);
+    /* Light-mode default — neon blue on navy chip */
+    background: hsl(235, 50%, 11%);
+    color: hsl(213, 100%, 70%);
+    box-shadow:
+      0 0 28px hsla(213, 100%, 60%, 0.55),
+      0 0 6px hsla(213, 100%, 70%, 0.35),
+      inset 0 1px 0 hsla(225, 29%, 97%, 0.10),
+      0 4px 14px hsla(235, 60%, 4%, 0.35);
+    text-shadow: 0 0 16px hsla(213, 100%, 65%, 0.7);
+  }
+  .dark .brand-stamp,
+  [data-theme="dark"] .brand-stamp {
+    background: hsl(235, 60%, 8%);
+    color: hsl(87, 100%, 68%);
     box-shadow:
       0 0 30px hsla(87, 100%, 68%, 0.40),
       inset 0 1px 0 hsla(225, 29%, 97%, 0.06),
       0 4px 14px hsla(235, 60%, 4%, 0.45);
-    transform: rotate(-1.6deg);
     text-shadow: 0 0 18px hsla(87, 100%, 68%, 0.55);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root .brand-stamp {
+      background: hsl(235, 60%, 8%);
+      color: hsl(87, 100%, 68%);
+      box-shadow:
+        0 0 30px hsla(87, 100%, 68%, 0.40),
+        inset 0 1px 0 hsla(225, 29%, 97%, 0.06),
+        0 4px 14px hsla(235, 60%, 4%, 0.45);
+      text-shadow: 0 0 18px hsla(87, 100%, 68%, 0.55);
+    }
   }
 
   /* Marker-highlight underline — alternative emphasis for body text or h2.

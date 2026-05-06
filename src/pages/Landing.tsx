@@ -731,6 +731,16 @@ export default function Landing() {
           <img src="/logo.png" alt="Kosh" className="h-8 w-auto" />
           <div className="flex items-center gap-4">
             <Link to="/about" className="text-sm font-medium text-foreground/50 hover:text-foreground/90 transition-colors">About</Link>
+            <a
+              href="#tools"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById("tools")?.scrollIntoView({ behavior: "smooth" });
+              }}
+              className="text-sm font-medium text-foreground/50 hover:text-foreground/90 transition-colors"
+            >
+              Tools
+            </a>
             <Link to="#for-organizations" className="text-sm font-medium text-foreground/50 hover:text-foreground/90 transition-colors hidden sm:block">For Organizations</Link>
             <Link to={profile ? "/dashboard" : "/auth"} className="text-sm font-medium text-foreground/50 hover:text-foreground/90 transition-colors">
               {profile ? "Dashboard" : "Sign in"}
