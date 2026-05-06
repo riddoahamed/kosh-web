@@ -19,6 +19,7 @@ import {
   PieChart,
   Lock,
   TrendingUp,
+  Wrench,
 } from "lucide-react";
 
 // ── Intro questions ────────────────────────────────────────────────────────
@@ -56,9 +57,11 @@ const OUT_MS       = 900;  // fade-out duration (ms)
 const REVISIT_MAX  = 6;    // max questions shown on revisit
 
 // Floating brand element wrapper
-function FloatingSymbol({ children, style }: { children: React.ReactNode; style: React.CSSProperties }) {
+function FloatingSymbol({
+  children, style, className,
+}: { children: React.ReactNode; style: React.CSSProperties; className?: string }) {
   return (
-    <div className="absolute pointer-events-none select-none" style={style}>
+    <div className={`absolute pointer-events-none select-none ${className ?? ""}`} style={style}>
       {children}
     </div>
   );
@@ -108,13 +111,11 @@ function BridgeContent({ onDone }: { onDone: () => void }) {
           return (
             <span key={i} className="inline-block" style={{ marginRight: "0.24em" }}>
               <span
-                className="inline-block"
+                className={`inline-block ${isHi ? "lime-glow-text" : ""}`}
                 style={{
                   opacity: 0,
                   animation: `word-type 0.08s ease forwards`,
                   animationDelay: `${i * WORD_MS}ms`,
-                  color:      isHi ? GREEN : undefined,
-                  textShadow: isHi ? `0 0 28px hsla(87,100%,68%,0.6), 0 0 60px hsla(87,100%,68%,0.2)` : undefined,
                 }}
               >
                 {word}
@@ -270,7 +271,7 @@ function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolea
   const GREEN = "hsl(87,100%,68%)"; // Kosh Lime
 
   return (
-    <section className="dark force-dark min-h-screen flex flex-col items-center justify-center relative select-none overflow-hidden">
+    <section className="min-h-screen flex flex-col items-center justify-center relative select-none overflow-hidden bg-background text-foreground">
 
       {/* ── Film grain overlay ── */}
       <svg
@@ -328,21 +329,29 @@ function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolea
         aria-hidden="true"
       />
 
-      {/* ── ৳ BDT — top-left, animated float ── */}
-      <FloatingSymbol style={{
-        top: "12%", left: "6%",
-        fontSize: "96px", fontWeight: 900,
-        color: GREEN, opacity: 0.07, filter: "blur(1px)",
-        animation: "float-taka 7.5s ease-in-out infinite",
-      }}>৳</FloatingSymbol>
+      {/* ── ৳ BDT — top-left, animated float (theme-adaptive: lime/dark, cobalt/light) ── */}
+      <FloatingSymbol
+        className="lime-glow-text"
+        style={{
+          top: "12%", left: "6%",
+          fontSize: "96px", fontWeight: 900,
+          opacity: 0.22,
+          filter: "blur(0.5px)",
+          animation: "float-taka 7.5s ease-in-out infinite",
+        }}
+      >৳</FloatingSymbol>
 
       {/* ── % — top-right ── */}
-      <FloatingSymbol style={{
-        top: "14%", right: "6%",
-        fontSize: "90px", fontWeight: 900,
-        color: GREEN, opacity: 0.055, filter: "blur(1.5px)",
-        animation: "float-pct 9.5s ease-in-out infinite",
-      }}>%</FloatingSymbol>
+      <FloatingSymbol
+        className="lime-glow-text"
+        style={{
+          top: "14%", right: "6%",
+          fontSize: "90px", fontWeight: 900,
+          opacity: 0.20,
+          filter: "blur(0.8px)",
+          animation: "float-pct 9.5s ease-in-out infinite",
+        }}
+      >%</FloatingSymbol>
 
       {/* ── Bitcoin coin — left side, mid-height ── */}
       {/* Face-on coin: outer rim + inner field + ₿ */}
@@ -423,23 +432,27 @@ function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolea
         </defs>
         {/* Area fill */}
         <polygon points={STOCK_AREA_PTS} fill="url(#stock-grad)" mask="url(#stock-mask)" />
-        {/* Glow copy */}
+        {/* Glow copy — wider, lower opacity, picks up theme halo */}
         <polyline
+          className="lime-glow-stroke"
           points={STOCK_LINE_PTS}
           stroke={GREEN} strokeWidth="10" fill="none"
-          strokeLinecap="round" strokeLinejoin="round" opacity="0.05"
+          strokeLinecap="round" strokeLinejoin="round" opacity="0.10"
           mask="url(#stock-mask)"
         />
-        {/* Main line */}
+        {/* Main line — class adds cobalt halo in light, lime halo in dark */}
         <polyline
+          className="lime-glow-stroke"
           points={STOCK_LINE_PTS}
           stroke={GREEN} strokeWidth="1.8" fill="none"
-          strokeLinecap="round" strokeLinejoin="round" opacity="0.78"
+          strokeLinecap="round" strokeLinejoin="round" opacity="0.95"
           mask="url(#stock-mask)"
         />
       </svg>
 
-      {/* ── Leading dot — absolute div so it's always a perfect circle ── */}
+      {/* ── Leading dot — absolute div so it's always a perfect circle.
+            box-shadow is theme-adaptive via the dot-pulse keyframe (cobalt
+            halo on light, lime halo on dark). ── */}
       {clipWidth > 0 && (
         <div
           className="absolute pointer-events-none z-[3]"
@@ -447,7 +460,6 @@ function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolea
             width: 9, height: 9,
             borderRadius: "50%",
             background: GREEN,
-            boxShadow: `0 0 8px ${GREEN}, 0 0 18px hsla(87,100%,68%,0.5)`,
             left: `${dotLeftPct}%`,
             bottom: `calc(9% + ${dotFromBase - 4.5}px)`,
             transform: "translateX(-50%)",
@@ -478,27 +490,21 @@ function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolea
               {words.map((word, i) => {
                 const isHi    = q.hi.includes(word);
                 const isLast  = i === words.length - 1;
-                const hiStyle = isHi ? {
-                  color: GREEN,
-                  textShadow: `0 0 32px hsla(87,100%,68%,0.55), 0 0 60px hsla(87,100%,68%,0.2)`,
-                } : {};
+                const hiClass = isHi ? "lime-glow-text" : "";
 
                 return (
                   <span key={`${qIdx}-${i}`} className="inline-block" style={{ marginRight: "0.26em" }}>
                     {/* Word itself — snaps in like typing */}
                     <span
-                      className="inline-block"
+                      className={`inline-block ${hiClass}`}
                       style={
                         phase === "in" ? {
-                          ...hiStyle,
                           opacity: 0,
                           animation: `word-type 0.08s ease forwards`,
                           animationDelay: `${i * WORD_MS}ms`,
                         } : phase === "hold" ? {
-                          ...hiStyle,
                           opacity: 1,
                         } : {
-                          ...hiStyle,
                           opacity: 0,
                           transition: `opacity ${OUT_MS * 0.6}ms ease ${i * 18}ms`,
                         }
@@ -831,21 +837,43 @@ export default function Landing() {
         <section id="tools" className="py-16 border-t border-border" ref={toolsRef}>
           <div className="max-w-4xl mx-auto space-y-8">
 
-            {/* Box reveal header */}
-            <div className="text-center space-y-3">
+            {/* Header — small kicker label + serious headline (no emoji) */}
+            <div className="text-center space-y-2">
               <div
-                className="inline-block text-5xl transition-all duration-700"
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.18em] transition-all duration-700"
                 style={{
-                  transform: toolsVisible ? "translateY(-6px) scale(1.1)" : "translateY(0) scale(1)",
-                  opacity: toolsVisible ? 1 : 0.3,
-                  filter: toolsVisible ? "drop-shadow(0 0 12px hsla(87,100%,68%,0.4))" : "none",
-                  transition: "all 0.6s cubic-bezier(0.16,1,0.3,1)",
+                  background: "hsla(87,100%,68%,0.08)",
+                  border: "1px solid hsla(87,100%,68%,0.25)",
+                  color: "hsl(87,90%,42%)",
+                  transform: toolsVisible ? "translateY(0)" : "translateY(8px)",
+                  opacity: toolsVisible ? 1 : 0,
                 }}
               >
-                🧺
+                <Wrench className="h-3 w-3" style={{ filter: "drop-shadow(0 0 4px hsla(87,100%,68%,0.7))" }} />
+                Free Tools
               </div>
-              <h2 className="text-2xl font-bold text-foreground tracking-tight">Free financial tools</h2>
-              <p className="text-muted-foreground text-sm">for you to try</p>
+              <h2
+                className="text-3xl md:text-4xl font-display font-extrabold text-foreground tracking-tight leading-[1.05]"
+                style={{
+                  fontFamily: "'Bricolage Grotesque', Manrope, sans-serif",
+                  transform: toolsVisible ? "translateY(0)" : "translateY(12px)",
+                  opacity: toolsVisible ? 1 : 0,
+                  transition: "all 0.6s cubic-bezier(0.16,1,0.3,1) 80ms",
+                }}
+              >
+                Calculators that actually understand{" "}
+                <span className="text-primary">Bangladesh</span>.
+              </h2>
+              <p
+                className="text-muted-foreground text-sm max-w-md mx-auto"
+                style={{
+                  transform: toolsVisible ? "translateY(0)" : "translateY(12px)",
+                  opacity: toolsVisible ? 1 : 0,
+                  transition: "all 0.6s cubic-bezier(0.16,1,0.3,1) 160ms",
+                }}
+              >
+                Built for FDR, Sanchaypatra, EMI, and savings decisions you actually face.
+              </p>
             </div>
 
             <div className="grid sm:grid-cols-2 gap-3">
