@@ -127,7 +127,7 @@ export default function ComprehensiveExam() {
 
           <button
             onClick={() => setPhase("quiz")}
-            className="w-full bg-primary text-white rounded-xl py-3.5 font-semibold hover:bg-primary/90 transition-all text-base"
+            className="w-full bg-primary text-primary-foreground rounded-xl py-3.5 font-semibold hover:bg-primary/90 transition-all text-base"
           >
             Start exam →
           </button>
@@ -180,7 +180,7 @@ export default function ComprehensiveExam() {
           <div className="space-y-2">
             <button
               onClick={() => navigate("/dashboard")}
-              className="w-full bg-primary text-white rounded-xl py-3 font-semibold hover:bg-primary/90 transition-all"
+              className="w-full bg-primary text-primary-foreground rounded-xl py-3 font-semibold hover:bg-primary/90 transition-all"
             >
               Go to dashboard →
             </button>
@@ -240,7 +240,7 @@ export default function ComprehensiveExam() {
           <div className="space-y-2">
             <button
               onClick={() => navigate("/module/1")}
-              className="w-full bg-primary text-white rounded-xl py-3 font-semibold hover:bg-primary/90 transition-all"
+              className="w-full bg-primary text-primary-foreground rounded-xl py-3 font-semibold hover:bg-primary/90 transition-all"
             >
               Start from Module 1 →
             </button>

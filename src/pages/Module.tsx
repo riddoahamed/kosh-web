@@ -70,7 +70,7 @@ export default function Module() {
       <DemoBanner />
       {/* Zone completion banner */}
       {zoneBanner && (
-        <div className="fixed top-0 inset-x-0 z-50 bg-primary text-white text-center px-4 py-3 text-sm font-semibold animate-in slide-in-from-top duration-300">
+        <div className="fixed top-0 inset-x-0 z-50 bg-primary text-primary-foreground text-center px-4 py-3 text-sm font-semibold animate-in slide-in-from-top duration-300">
           🎉 Zone complete! +{MANGOES.ZONE_COMPLETE} 🥭 mangoes earned
           <button onClick={() => setZoneBanner(null)} className="ml-3 opacity-70 hover:opacity-100">✕</button>
         </div>

@@ -41,7 +41,7 @@ export function ConfidenceQuestion({ question, onAnswer }: Props) {
                   className={cn(
                     "flex items-center justify-center w-6 h-6 rounded-full border-2 text-xs font-bold shrink-0 transition-all",
                     selected === i
-                      ? "border-primary bg-primary text-white"
+                      ? "border-primary bg-primary text-primary-foreground"
                       : "border-border text-foreground/50"
                   )}
                 >

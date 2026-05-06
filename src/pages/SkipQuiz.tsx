@@ -65,7 +65,7 @@ export default function SkipQuiz() {
           <p className="text-muted-foreground">Module unlocked. +{MANGOES.SKIP_QUIZ_PASS} 🥭 mangoes earned.</p>
           <button
             onClick={() => navigate("/dashboard")}
-            className="w-full bg-primary text-white rounded-xl py-3 font-semibold hover:bg-primary/90 transition-all"
+            className="w-full bg-primary text-primary-foreground rounded-xl py-3 font-semibold hover:bg-primary/90 transition-all"
           >
             Back to dashboard →
           </button>
@@ -90,7 +90,7 @@ export default function SkipQuiz() {
                   navigate("/dashboard");
                 }
               }}
-              className="w-full bg-primary text-white rounded-xl py-3 font-semibold hover:bg-primary/90 transition-all"
+              className="w-full bg-primary text-primary-foreground rounded-xl py-3 font-semibold hover:bg-primary/90 transition-all"
             >
               Read the module →
             </button>
@@ -126,7 +126,7 @@ export default function SkipQuiz() {
           </div>
           <button
             onClick={() => setPhase("quiz")}
-            className="w-full bg-primary text-white rounded-xl py-3 font-semibold hover:bg-primary/90 transition-all"
+            className="w-full bg-primary text-primary-foreground rounded-xl py-3 font-semibold hover:bg-primary/90 transition-all"
           >
             Take the quiz →
           </button>

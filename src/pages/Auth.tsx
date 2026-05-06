@@ -136,7 +136,7 @@ export default function Auth() {
                   onClick={() => { setTab(t); setError(""); if (t === "login") setEmail(cachedEmail); else setEmail(""); }}
                   className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${
                     tab === t
-                      ? "bg-primary text-white shadow-sm"
+                      ? "bg-primary text-primary-foreground shadow-sm"
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >

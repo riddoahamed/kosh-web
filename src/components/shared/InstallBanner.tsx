@@ -68,7 +68,7 @@ export function InstallBanner() {
           </div>
           <button
             onClick={install}
-            className="flex items-center gap-1.5 bg-primary text-white text-xs font-semibold px-3 py-2 rounded-xl shrink-0"
+            className="flex items-center gap-1.5 bg-primary text-primary-foreground text-xs font-semibold px-3 py-2 rounded-xl shrink-0"
           >
             <Download className="h-3.5 w-3.5" />
             Install
@@ -111,7 +111,7 @@ export function InstallBanner() {
           </div>
           <button
             onClick={() => setShowIOSHint(true)}
-            className="flex items-center gap-1.5 bg-primary text-white text-xs font-semibold px-3 py-2 rounded-xl shrink-0"
+            className="flex items-center gap-1.5 bg-primary text-primary-foreground text-xs font-semibold px-3 py-2 rounded-xl shrink-0"
           >
             <Share className="h-3.5 w-3.5" />
             How?

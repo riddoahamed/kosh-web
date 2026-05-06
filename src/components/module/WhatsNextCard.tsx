@@ -41,7 +41,7 @@ export function WhatsNextCard({ moduleId, preview, quizScore }: WhatsNextCardPro
 
       <button
         onClick={handleContinue}
-        className="w-full rounded-xl bg-primary text-white py-3 font-semibold text-sm hover:bg-primary/90 active:scale-95 transition-all flex items-center justify-center gap-2"
+        className="w-full rounded-xl bg-primary text-primary-foreground py-3 font-semibold text-sm hover:bg-primary/90 active:scale-95 transition-all flex items-center justify-center gap-2"
       >
         <span>
           {moduleId === "dashboard"

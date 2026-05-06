@@ -96,19 +96,19 @@ export default function Challenge() {
                       onClick={() => toggle(d.day)}
                       className={`w-full text-left rounded-xl border p-4 flex items-start gap-4 transition-all ${
                         done
-                          ? "border-green-500/30 bg-green-500/5"
+                          ? "border-primary/30 bg-primary/5"
                           : "border-border bg-card hover:border-primary/30"
                       }`}
                     >
                       <div className={`mt-0.5 w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
-                        done ? "border-green-500 bg-green-500" : "border-border"
+                        done ? "border-primary bg-primary" : "border-border"
                       }`}>
-                        {done && <span className="text-white text-xs font-bold">✓</span>}
+                        {done && <span className="text-primary-foreground text-xs font-bold">✓</span>}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
                           <span className="text-xs font-semibold text-muted-foreground">Day {d.day}</span>
-                          <span className={`text-xs font-semibold ${done ? "text-green-600" : "text-foreground"}`}>
+                          <span className={`text-xs font-semibold ${done ? "text-primary" : "text-foreground"}`}>
                             {d.title}
                           </span>
                         </div>
@@ -135,7 +135,7 @@ export default function Challenge() {
             <p className="text-sm text-muted-foreground">See how much you've improved since your baseline.</p>
             <Link
               to="/check"
-              className="block w-full bg-primary text-white rounded-xl py-3 font-semibold hover:bg-primary/90 transition-all"
+              className="block w-full bg-primary text-primary-foreground rounded-xl py-3 font-semibold hover:bg-primary/90 transition-all"
             >
               Take the retest →
             </Link>

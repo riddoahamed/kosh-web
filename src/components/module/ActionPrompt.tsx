@@ -35,7 +35,7 @@ export function ActionPrompt({ text, cta, onComplete, completed }: ActionPromptP
         className={`w-full flex items-center justify-center gap-2 rounded-xl py-3 px-4 font-semibold text-sm transition-all ${
           checked
             ? "bg-green-500/10 text-green-600 dark:text-green-400 border-2 border-green-500/30 cursor-default"
-            : "bg-primary text-white hover:bg-primary/90 active:scale-95"
+            : "bg-primary text-primary-foreground hover:bg-primary/90 active:scale-95"
         }`}
       >
         {checked ? (

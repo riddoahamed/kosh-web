@@ -270,7 +270,7 @@ function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolea
   const GREEN = "hsl(87,100%,68%)"; // Kosh Lime
 
   return (
-    <section className="min-h-screen flex flex-col items-center justify-center relative select-none overflow-hidden">
+    <section className="dark force-dark min-h-screen flex flex-col items-center justify-center relative select-none overflow-hidden">
 
       {/* ── Film grain overlay ── */}
       <svg
@@ -751,13 +751,11 @@ export default function Landing() {
           style={{ minHeight: "calc(100vh - 56px)", paddingTop: "clamp(3rem, 8vw, 6rem)", paddingBottom: "clamp(3rem, 8vw, 6rem)" }}
         >
           <h1
-            className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.1] tracking-tight"
+            className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.15] tracking-tight"
             style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             How well do you{" "}
-            <span className="text-primary" style={{ textShadow: "0 0 40px hsla(87,100%,68%,0.5), 0 0 80px hsla(87,100%,68%,0.2)" }}>
-              actually
-            </span>{" "}
+            <span className="brand-stamp">actually</span>{" "}
             understand money?
           </h1>
 
@@ -770,7 +768,7 @@ export default function Landing() {
             <div className="flex flex-row flex-wrap gap-3 justify-center">
               <Link
                 to="/check"
-                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-all hover:shadow-[0_0_20px_hsla(87,100%,68%,0.35)] active:scale-95"
+                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-bold hover:bg-primary/90 transition-all hover:shadow-[0_0_24px_hsla(87,100%,68%,0.5)] active:scale-95"
               >
                 Check your money level
                 <ArrowRight className="h-3.5 w-3.5" />
@@ -782,7 +780,7 @@ export default function Landing() {
                 Explore free tools
               </Link>
             </div>
-            <Link to="/about" className="text-xs text-muted-foreground/40 hover:text-muted-foreground transition-colors">
+            <Link to="/about" className="text-xs text-muted-foreground/60 hover:text-primary transition-colors">
               What is Kosh? →
             </Link>
           </div>
@@ -791,13 +789,19 @@ export default function Landing() {
         {/* ── What is Kosh ── */}
         <section className="py-24 border-t border-border">
           <div className="max-w-xl mx-auto text-center space-y-6">
-            <p className="text-xs font-bold tracking-widest uppercase text-primary/60">What is Kosh?</p>
+            <Link
+              to="/about"
+              className="inline-flex items-center gap-1 text-xs font-bold tracking-[0.22em] uppercase text-primary/80 hover:text-primary transition-all hover:gap-1.5"
+              style={{ textShadow: "0 0 12px hsla(87,100%,68%,0.35)" }}
+            >
+              What is Kosh? <ArrowRight className="h-3 w-3" />
+            </Link>
             <h2
-              className="text-3xl md:text-4xl font-bold text-foreground leading-tight tracking-tight"
+              className="text-3xl md:text-4xl font-bold text-foreground leading-[1.2] tracking-tight"
               style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
             >
               Bangladesh's first financial literacy platform that actually{" "}
-              <span className="text-primary">measures</span> where you stand.
+              <span className="brand-stamp">measures</span> where you stand.
             </h2>
             <p className="text-muted-foreground text-sm leading-relaxed">
               Not another YouTube channel. Not a broker. A structured system that measures, teaches, and tracks your money knowledge — from Level 0 to Level 100.
@@ -805,7 +809,7 @@ export default function Landing() {
             <div className="flex justify-center gap-3 pt-2">
               <Link
                 to="/check"
-                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-all active:scale-95"
+                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-bold hover:bg-primary/90 transition-all hover:shadow-[0_0_24px_hsla(87,100%,68%,0.5)] active:scale-95"
               >
                 Take the check <ArrowRight className="h-3.5 w-3.5" />
               </Link>
@@ -963,7 +967,7 @@ export default function Landing() {
               <div className="pt-2">
                 <Link
                   to="/check"
-                  className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-all active:scale-95"
+                  className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-bold hover:bg-primary/90 transition-all hover:shadow-[0_0_24px_hsla(87,100%,68%,0.5)] active:scale-95"
                 >
                   Start with the check <ArrowRight className="h-3.5 w-3.5" />
                 </Link>

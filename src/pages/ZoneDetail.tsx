@@ -119,7 +119,7 @@ export default function ZoneDetail() {
                     <div
                       className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0 border ${
                         isCompleted
-                          ? "bg-green-500 text-white border-transparent"
+                          ? "bg-primary text-primary-foreground border-transparent"
                           : isInProgress
                           ? "border-transparent"
                           : isModuleUnlocked
@@ -173,7 +173,7 @@ export default function ZoneDetail() {
           <div className="mt-6">
             <button
               onClick={() => navigate(`/module/${firstIncomplete}`)}
-              className="w-full rounded-xl bg-primary text-white py-3.5 font-semibold text-sm hover:bg-primary/90 active:scale-[0.99] transition-all"
+              className="w-full rounded-xl bg-primary text-primary-foreground py-3.5 font-semibold text-sm hover:bg-primary/90 active:scale-[0.99] transition-all"
             >
               Continue →
             </button>

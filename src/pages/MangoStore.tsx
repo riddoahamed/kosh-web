@@ -94,7 +94,7 @@ export default function MangoStore() {
         </div>
 
         {/* Balance card */}
-        <div className="bg-primary text-white rounded-2xl p-5 space-y-1">
+        <div className="bg-primary text-primary-foreground rounded-2xl p-5 space-y-1">
           <p className="text-sm font-semibold opacity-80">Your balance</p>
           <div className="flex items-end gap-2">
             <span className="text-5xl font-bold">{total.toLocaleString()}</span>
@@ -136,7 +136,7 @@ export default function MangoStore() {
           {canRedeem ? (
             <button
               onClick={() => setRedeemOpen(true)}
-              className="w-full bg-primary text-white rounded-xl py-3 font-semibold text-sm hover:bg-primary/90 transition-all"
+              className="w-full bg-primary text-primary-foreground rounded-xl py-3 font-semibold text-sm hover:bg-primary/90 transition-all"
             >
               Redeem mangoes →
             </button>
@@ -247,7 +247,7 @@ export default function MangoStore() {
                 </div>
                 <button
                   onClick={() => { setRedeemOpen(false); setSubmitted(false); }}
-                  className="w-full bg-primary text-white rounded-xl py-3 font-semibold"
+                  className="w-full bg-primary text-primary-foreground rounded-xl py-3 font-semibold"
                 >
                   Done
                 </button>
@@ -302,7 +302,7 @@ export default function MangoStore() {
                   <button
                     onClick={handleRedeemSubmit}
                     disabled={!phone || !redeemAmount || parseInt(redeemAmount) < REDEMPTION.MIN_REDEEM_AMOUNT || parseInt(redeemAmount) > total}
-                    className="flex-1 bg-primary text-white rounded-xl py-3 text-sm font-semibold hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                    className="flex-1 bg-primary text-primary-foreground rounded-xl py-3 text-sm font-semibold hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                   >
                     Submit
                   </button>
