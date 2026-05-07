@@ -134,6 +134,43 @@ function writeCachedProfile(profile: KoshProfile): void {
   localStorage.setItem(profileCacheKey(profile.id), JSON.stringify(profile));
 }
 
+// ── Per-account snapshot helper ──────────────────────────────────────────────
+// On every mutation (profile / progress / diagnostic / mangoes), copy the
+// current active-state localStorage keys into the localAuth account record.
+// This keeps each user's data isolated even when multiple accounts share a
+// device — when account A logs out, A's data is preserved in their account
+// record so the next time they log in, it's restored.
+//
+// We INLINE the snapshot logic here (instead of importing localAuth) to
+// avoid a circular import (localAuth.ts imports types from this file).
+function snapshotToActiveAccount(): void {
+  try {
+    const email = localStorage.getItem("kosh:active_email_v1");
+    if (!email) return;
+    const raw = localStorage.getItem("kosh:accounts_v1");
+    if (!raw) return;
+    const accs = JSON.parse(raw);
+    if (!accs[email]) return;
+
+    const safeJSON = <T,>(key: string): T | undefined => {
+      const v = localStorage.getItem(key);
+      if (!v) return undefined;
+      try { return JSON.parse(v) as T; } catch { return undefined; }
+    };
+
+    accs[email].snapshot = {
+      progress:   safeJSON("kosh:module_progress"),
+      mangoes:    safeJSON("kosh:mangoes"),
+      diagnostic: safeJSON("kosh:diagnostic_result"),
+    };
+    const p = safeJSON<KoshProfile>("kosh:profile");
+    if (p) accs[email].profile = p;
+    localStorage.setItem("kosh:accounts_v1", JSON.stringify(accs));
+  } catch (_) {
+    /* best-effort — never throw during a save */
+  }
+}
+
 // ── Types ─────────────────────────────────────────────────────────────────
 
 export interface KoshProfile {
@@ -193,6 +230,7 @@ export const db = {
   // ── Diagnostic ─────────────────────────────────────────────────────────
   saveDiagnosticResult(result: DiagnosticResult): void {
     localStorage.setItem(KEYS.DIAGNOSTIC, JSON.stringify(result));
+    snapshotToActiveAccount();
     if (!supabase) return;
     getAuthUserId().then((userId) => {
       if (!userId) return;
@@ -223,6 +261,7 @@ export const db = {
     // Active pointer + per-user cache (cache survives logout for fast re-auth)
     localStorage.setItem(KEYS.PROFILE, JSON.stringify(profile));
     writeCachedProfile(profile);
+    snapshotToActiveAccount();
 
     if (!supabase) return;
     supabase
@@ -315,6 +354,7 @@ export const db = {
     const all = this.getAllProgress();
     all[record.moduleId] = record;
     localStorage.setItem(KEYS.MODULE_PROGRESS, JSON.stringify(all));
+    snapshotToActiveAccount();
     if (!supabase) return;
     getAuthUserId().then((userId) => {
       if (!userId) return;
@@ -370,13 +410,20 @@ export const db = {
     // Note: kosh:profile_cache:<userId> entries are intentionally preserved.
   },
 
+  /** Public snapshot helper — pointsStore and other non-db code can call
+      this after writing to localStorage so the active account stays in sync. */
+  syncToActiveAccount(): void {
+    snapshotToActiveAccount();
+  },
+
   /** Hard reset — wipes everything including profile caches. Use only when
       the user explicitly says "forget me on this device." */
   hardClearAll(): void {
     Object.values(KEYS).forEach((k) => localStorage.removeItem(k));
     localStorage.removeItem("kosh:demo_mode");
     localStorage.removeItem("kosh:mangoes");
-    localStorage.removeItem(LOCAL_USERS_KEY);
+    localStorage.removeItem("kosh:accounts_v1");
+    localStorage.removeItem("kosh:active_email_v1");
     // Sweep all per-user profile caches
     for (let i = localStorage.length - 1; i >= 0; i--) {
       const k = localStorage.key(i);
@@ -385,45 +432,6 @@ export const db = {
   },
 };
 
-// ── Local-first auth fallback ────────────────────────────────────────────────
-// Used when Supabase auth is misconfigured (email signups disabled, email
-// delivery failing, RLS blocking, etc). The user can still sign up / log in
-// locally — their data persists in the browser. When Supabase is available,
-// the app also syncs to it as a best-effort layer for cross-device support.
-//
-// Trade-off: passwords stored in localStorage as plain text. For an MVP
-// educational app this is acceptable — the threat model is "another person
-// using the same browser session" which is already covered by browser auth.
-// Don't ship this as-is to a fintech.
-
-const LOCAL_USERS_KEY = "kosh:local_users_v1";
-
-interface LocalUserRecord {
-  password: string;
-  profile: KoshProfile;
-}
-
-export const localAuth = {
-  upsert(email: string, password: string, profile: KoshProfile): void {
-    const all = this.getAll();
-    all[email.trim().toLowerCase()] = { password, profile };
-    localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(all));
-  },
-
-  /** Returns profile if email + password match a local record; null otherwise. */
-  verify(email: string, password: string): KoshProfile | null {
-    const rec = this.getAll()[email.trim().toLowerCase()];
-    if (!rec || rec.password !== password) return null;
-    return rec.profile;
-  },
-
-  exists(email: string): boolean {
-    return !!this.getAll()[email.trim().toLowerCase()];
-  },
-
-  getAll(): Record<string, LocalUserRecord> {
-    const raw = localStorage.getItem(LOCAL_USERS_KEY);
-    if (!raw) return {};
-    try { return JSON.parse(raw) as Record<string, LocalUserRecord>; } catch { return {}; }
-  },
-};
+// (localAuth has moved to src/lib/localAuth.ts — see that file for the
+// canonical local-first auth implementation. supabase.ts now only handles
+// remote sync and the localStorage helpers used by the running app.)

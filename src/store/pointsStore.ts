@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { db } from "@/lib/supabase";
 
 const STORE_KEY = "kosh:mangoes";
 const REENGAGEMENT_KEY = "kosh:reengagement";
@@ -43,6 +44,8 @@ function loadFromStorage() {
 
 function saveToStorage(state: Pick<PointsState, "total" | "streak" | "lastVisitDate" | "history">) {
   localStorage.setItem(STORE_KEY, JSON.stringify(state));
+  // Mirror to per-account snapshot so mangoes persist across logout/login
+  db.syncToActiveAccount();
 }
 
 /** Tiered streak bonus: higher streak = more mangoes per day */

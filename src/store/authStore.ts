@@ -1,85 +1,61 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// Auth store — local-first, NO Supabase auth listener.
+//
+// All sign-in / sign-up / sign-out logic lives in src/lib/localAuth.ts. This
+// store is the React-facing facade so components can read the current profile
+// reactively. We deliberately do NOT subscribe to supabase.auth.onAuthStateChange
+// because (a) we're not using Supabase auth, and (b) it caused recurring
+// "Lock broken by another request" errors when StrictMode double-mounted.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { create } from "zustand";
-import { auth, db, type KoshProfile } from "@/lib/supabase";
-import type { User } from "@supabase/supabase-js";
+import { db, type KoshProfile } from "@/lib/supabase";
+import { localAuth } from "@/lib/localAuth";
 
 interface AuthStore {
-  // Supabase auth user (set after OTP verification)
-  user: User | null;
-  // App profile (name, phone, etc — set after profile completion)
-  profile: KoshProfile | null;
+  profile:  KoshProfile | null;
   isLoaded: boolean;
 
-  // Called once at app start — listens to Supabase session changes
-  initAuth: () => () => void;
-  // After profile form is filled
-  setProfile: (profile: KoshProfile) => void;
-  // Logout: clear session + local data
-  logout: () => Promise<void>;
-  // Legacy — keep for components that call loadProfile()
+  /** Called once at app start. Returns a no-op cleanup so existing callers work. */
+  initAuth:    () => () => void;
+  /** Update the active user's profile (Profile page edits). */
+  setProfile:  (profile: KoshProfile) => void;
+  /** Snapshot active progress to account, clear active session, navigate home. */
+  logout:      () => Promise<void>;
+  /** Re-read profile from localStorage (used after demo / external mutations). */
   loadProfile: () => void;
 }
 
 export const useAuthStore = create<AuthStore>((set) => ({
-  user: null,
-  profile: null,
+  profile:  null,
   isLoaded: false,
 
   initAuth: () => {
-    // Restore profile from localStorage immediately (synchronous)
-    const localProfile = db.getProfile();
-    if (localProfile) set({ profile: localProfile });
-
-    // Listen to Supabase auth state changes
-    const { data: { subscription } } = auth.onAuthStateChange(async (_event, session) => {
-      const user = session?.user ?? null;
-      set({ user, isLoaded: true });
-
-      if (user) {
-        // Try to fetch profile from Supabase (cross-device sync)
-        const remoteProfile = await db.fetchProfile(user.id);
-        if (remoteProfile) {
-          set({ profile: remoteProfile });
-        } else {
-          // No remote profile yet — keep local if it matches this user
-          const local = db.getProfile();
-          if (local && local.id === user.id) set({ profile: local });
-          else set({ profile: null }); // new user, needs profile completion
-        }
-      } else {
-        // No Supabase session — fall back to whatever is in localStorage.
-        // This covers: local-only users, demo users, and offline use.
-        // Truly signed-out users are handled by logout() which calls
-        // db.clearAll() first, so db.getProfile() returns null there too.
-        const localProfile = db.getProfile();
-        set({ user: null, profile: localProfile, isLoaded: true });
-      }
-    });
-
-    return () => subscription.unsubscribe();
+    // Synchronous boot — no Supabase round-trip, so no race conditions.
+    const profile = localAuth.getActiveProfile() ?? db.getProfile();
+    set({ profile, isLoaded: true });
+    return () => {};
   },
 
   setProfile: (profile: KoshProfile) => {
+    // Mirror the update everywhere: active key, per-user cache, and the
+    // localAuth account record. Also fire the existing Supabase upsert as a
+    // best-effort background sync (errors are logged, not blocking).
     db.saveProfile(profile);
+    localAuth.updateActiveProfile(profile);
     set({ profile });
   },
 
   logout: async () => {
-    // Always clear local state first so the UI updates immediately, even if
-    // the network call to Supabase fails or hangs. Supabase signOut is best-
-    // effort: a network error shouldn't trap the user in a "still signed in"
-    // state on the client.
+    // Always succeed — local-first means logout is a synchronous local op.
+    // Snapshot active state to the account first so re-login restores progress.
+    localAuth.logOut();
     db.clearAll();
-    set({ user: null, profile: null, isLoaded: true });
-    try {
-      await auth.signOut();
-    } catch (err) {
-      console.warn("[kosh] supabase signOut error (local state already cleared):", err);
-    }
+    set({ profile: null, isLoaded: true });
   },
 
-  // Legacy compat — loads from localStorage synchronously
   loadProfile: () => {
-    const profile = db.getProfile();
+    const profile = localAuth.getActiveProfile() ?? db.getProfile();
     set({ profile, isLoaded: true });
   },
 }));
