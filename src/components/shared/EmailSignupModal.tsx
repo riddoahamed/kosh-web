@@ -54,7 +54,7 @@ export default function EmailSignupModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     sessionStorage.setItem(SESSION_KEY, "1");
-    navigate("/auth", { state: { prefill: email.trim() } });
+    navigate(`/auth?email=${encodeURIComponent(email.trim())}`);
   };
 
   if (!visible) return null;

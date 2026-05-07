@@ -12,12 +12,51 @@ export const supabase = supabaseReady
   : null;
 
 // ── Auth helpers ──────────────────────────────────────────────────────────
+// Primary path is email + password (no magic-link redirect URL config needed).
+// Magic-link OTP is kept as a fallback for users who prefer it.
 
 export const auth = {
+  /** Create an account with email + password. Returns { user, session, error }.
+      If email confirmation is enabled in Supabase, session will be null until
+      the user confirms via email — surface this case to the UI. */
+  async signUpWithPassword(email: string, password: string) {
+    if (!supabase) throw new Error("Supabase not configured");
+    return supabase.auth.signUp({
+      email: email.trim().toLowerCase(),
+      password,
+    });
+  },
+
+  /** Log in with email + password. */
+  async signInWithPassword(email: string, password: string) {
+    if (!supabase) throw new Error("Supabase not configured");
+    return supabase.auth.signInWithPassword({
+      email: email.trim().toLowerCase(),
+      password,
+    });
+  },
+
+  /** Send a password-reset email. The user gets a link that returns to
+      /auth?reset=1 where they can set a new password. */
+  async resetPassword(email: string) {
+    if (!supabase) throw new Error("Supabase not configured");
+    return supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
+      redirectTo: window.location.origin + "/auth?reset=1",
+    });
+  },
+
+  /** Update the password for the currently-signed-in user. Used after the
+      password-reset email lands the user back in the app. */
+  async updatePassword(newPassword: string) {
+    if (!supabase) throw new Error("Supabase not configured");
+    return supabase.auth.updateUser({ password: newPassword });
+  },
+
+  // ── Magic link / OTP (kept as a fallback) ────────────────────────────
   async sendOtp(email: string) {
     if (!supabase) throw new Error("Supabase not configured");
     return supabase.auth.signInWithOtp({
-      email,
+      email: email.trim().toLowerCase(),
       options: {
         shouldCreateUser: true,
         emailRedirectTo: window.location.origin + "/auth",
@@ -27,7 +66,7 @@ export const auth = {
 
   async verifyOtp(email: string, token: string) {
     if (!supabase) throw new Error("Supabase not configured");
-    return supabase.auth.verifyOtp({ email, token, type: "email" });
+    return supabase.auth.verifyOtp({ email: email.trim().toLowerCase(), token, type: "email" });
   },
 
   async getSession() {
