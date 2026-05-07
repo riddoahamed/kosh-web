@@ -22,11 +22,13 @@ export function applyTheme(theme: Theme) {
 }
 
 export const useUIStore = create<UIStore>((set) => ({
-  theme: "system",
+  theme: "dark",
   aiWidgetHidden: false,
 
   loadUI: () => {
-    const savedTheme = (localStorage.getItem(THEME_KEY) as Theme) ?? "system";
+    // Default to dark — the brand is dark-first. System theme is opt-in via
+    // the Profile page settings, not the auto-default for new users.
+    const savedTheme = (localStorage.getItem(THEME_KEY) as Theme) ?? "dark";
     const widgetHidden = localStorage.getItem(WIDGET_KEY) === "true";
     applyTheme(savedTheme);
     set({ theme: savedTheme, aiWidgetHidden: widgetHidden });

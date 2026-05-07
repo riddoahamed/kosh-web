@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowRight, Loader2, Eye, EyeOff, CheckCircle2 } from "lucide-react";
-import { auth, db } from "@/lib/supabase";
+import { auth, db, localAuth } from "@/lib/supabase";
 import { useAuthStore } from "@/store/authStore";
 import { startDemo, isDemoMode, exitDemo } from "@/lib/demo";
 
@@ -81,55 +81,93 @@ export default function Auth() {
     if (!consent)             { setError("Please agree to the terms to continue.");   return; }
 
     setLoading(true);
+
+    // Build the profile up-front (we'll fill in user.id once we have one)
+    const savedResult = db.getDiagnosticResult();
+    const baseProfile = {
+      email: email.trim().toLowerCase(),
+      name: name.trim(),
+      age: parseInt(age),
+      phone: phone.trim() || undefined,
+      consent_given: true,
+      level_assigned: savedResult?.level,
+      grey_zone_flagged: savedResult?.greyZone?.flagged,
+      grey_zone_exposure: savedResult?.greyZone?.exposures,
+      created_at: new Date().toISOString(),
+      kyc_status: "not_submitted" as const,
+    };
+
+    // Reject duplicate signups against the local cache
+    if (localAuth.exists(email)) {
+      setError("An account with this email already exists on this device. Try logging in instead.");
+      setTab("login");
+      setLoading(false);
+      return;
+    }
+
     try {
       const { data, error: err } = await auth.signUpWithPassword(email, password);
-      if (err) throw err;
 
-      const user = data.user;
-      if (!user) throw new Error("Sign-up failed. Please try again.");
+      if (data?.user && !err) {
+        const profile = { ...baseProfile, id: data.user.id, email: data.user.email ?? baseProfile.email };
+        // Always cache password + profile locally so the user can log back in
+        // even if Supabase email confirmation / delivery is failing.
+        localAuth.upsert(email, password, profile);
 
-      // Build the profile (saved to localStorage + per-user cache + Supabase)
-      const savedResult = db.getDiagnosticResult();
-      const profile = {
-        id: user.id,
-        email: user.email ?? email.trim().toLowerCase(),
-        name: name.trim(),
-        age: parseInt(age),
-        phone: phone.trim() || undefined,
-        consent_given: true,
-        level_assigned: savedResult?.level,
-        grey_zone_flagged: savedResult?.greyZone?.flagged,
-        grey_zone_exposure: savedResult?.greyZone?.exposures,
-        created_at: new Date().toISOString(),
-        kyc_status: "not_submitted" as const,
-      };
-
-      if (data.session) {
-        // Email confirmation OFF in Supabase → instant session. Save profile
-        // (this also writes to Supabase since session is live) and ship them
-        // to the dashboard.
-        setProfile(profile);
-        navigate("/dashboard", { replace: true });
-      } else {
-        // Email confirmation IS on. The Supabase RLS policies will block the
-        // profile write because there's no live session. Cache the profile
-        // locally so it's ready the moment they log in (after confirming).
-        // Then route them to the "check your email" step.
-        db.saveLocalOnlyProfile(profile);
-        setNeedsConfirmEmail(true);
-        setStep("confirm-email");
+        if (data.session) {
+          // Email confirmation OFF — instant session, full sync to Supabase
+          setProfile(profile);
+          navigate("/dashboard", { replace: true });
+        } else {
+          // Email confirmation ON — local profile is cached, route to the
+          // confirmation screen. They can also log in locally any time.
+          db.saveLocalOnlyProfile(profile);
+          setNeedsConfirmEmail(true);
+          setStep("confirm-email");
+        }
+        return;
       }
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Something went wrong. Try again.";
+
+      // Supabase rejected — fall back to local-only signup so the user isn't
+      // blocked by misconfiguration on the Supabase side.
+      const msg = err?.message ?? "Sign-up failed";
       const lower = msg.toLowerCase();
+
       if (lower.includes("already registered") || lower.includes("already exists") || lower.includes("user already")) {
         setError("An account with this email already exists. Try logging in instead.");
         setTab("login");
-      } else if (lower.includes("rate limit") || lower.includes("too many requests")) {
-        setError("Too many attempts. Wait a minute and try again.");
-      } else {
-        setError(msg);
+        return;
       }
+
+      if (lower.includes("rate limit") || lower.includes("too many requests")) {
+        // Continue with local-only signup — user shouldn't be stuck
+        console.warn("[kosh] supabase rate-limited, using local signup:", msg);
+      } else if (lower.includes("disabled") || lower.includes("not allowed") || lower.includes("provider")) {
+        console.warn("[kosh] supabase email signup disabled, using local-only:", msg);
+      } else {
+        console.warn("[kosh] supabase signup failed, using local-only:", msg);
+      }
+
+      // Local-only signup with a generated id
+      const localId = "local-" + (typeof crypto !== "undefined" && crypto.randomUUID
+        ? crypto.randomUUID()
+        : Date.now().toString(36) + Math.random().toString(36).slice(2));
+      const localProfile = { ...baseProfile, id: localId };
+      localAuth.upsert(email, password, localProfile);
+      db.saveLocalOnlyProfile(localProfile);
+      setProfile(localProfile);
+      navigate("/dashboard", { replace: true });
+    } catch (err: unknown) {
+      // Network error / Supabase unreachable — same local-only fallback
+      console.warn("[kosh] supabase signup threw, using local-only:", err);
+      const localId = "local-" + (typeof crypto !== "undefined" && crypto.randomUUID
+        ? crypto.randomUUID()
+        : Date.now().toString(36) + Math.random().toString(36).slice(2));
+      const localProfile = { ...baseProfile, id: localId };
+      localAuth.upsert(email, password, localProfile);
+      db.saveLocalOnlyProfile(localProfile);
+      setProfile(localProfile);
+      navigate("/dashboard", { replace: true });
     } finally {
       setLoading(false);
     }
@@ -159,31 +197,52 @@ export default function Auth() {
       return;
     }
     setLoading(true);
+
+    // Try local cache first — instant + works offline + bypasses any
+    // Supabase email-confirmation / rate-limit / config issues.
+    const localProfile = localAuth.verify(email, password);
+    if (localProfile) {
+      setProfile(localProfile);
+      navigate("/dashboard", { replace: true });
+      // Best-effort background sync: try Supabase signin to refresh the
+      // remote profile. If it fails, no-op (user is already in).
+      auth.signInWithPassword(email, password)
+        .then(({ data }) => {
+          if (data?.user) {
+            db.fetchProfile(data.user.id).then((p) => { if (p) setProfile(p); });
+          }
+        })
+        .catch(() => { /* silent — local login already succeeded */ });
+      setLoading(false);
+      return;
+    }
+
+    // No local match — try Supabase
     try {
       const { data, error: err } = await auth.signInWithPassword(email, password);
       if (err) throw err;
       if (!data.user) throw new Error("Login failed. Please try again.");
 
-      // Pull profile (Supabase first, then per-user cache fallback)
       const existing = await db.fetchProfile(data.user.id);
       if (existing) {
+        // Cache locally so next login is instant
+        localAuth.upsert(email, password, existing);
         setProfile(existing);
         navigate("/dashboard", { replace: true });
       } else {
-        // Authenticated but no profile yet — complete it
         setStep("profile");
       }
     } catch (err: unknown) {
       const raw = err instanceof Error ? err.message : String(err);
       const lower = raw.toLowerCase();
       if (lower.includes("invalid login") || lower.includes("invalid credentials")) {
-        setError("Wrong email or password. Try again, or reset your password below.");
+        setError("Wrong email or password. (If you signed up on a different device, try resetting your password.)");
       } else if (lower.includes("email not confirmed") || lower.includes("not confirmed")) {
-        // The account exists but email isn't confirmed yet. Send them to the
-        // confirmation screen with a Resend button so they can recover.
         setNeedsConfirmEmail(true);
         setStep("confirm-email");
         setError("");
+      } else if (lower.includes("disabled") || lower.includes("not allowed") || lower.includes("provider")) {
+        setError("Email login isn't enabled on the server. Contact support, or use the Demo account below for now.");
       } else {
         setError(raw);
       }

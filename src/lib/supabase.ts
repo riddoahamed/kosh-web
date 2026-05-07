@@ -376,10 +376,54 @@ export const db = {
     Object.values(KEYS).forEach((k) => localStorage.removeItem(k));
     localStorage.removeItem("kosh:demo_mode");
     localStorage.removeItem("kosh:mangoes");
+    localStorage.removeItem(LOCAL_USERS_KEY);
     // Sweep all per-user profile caches
     for (let i = localStorage.length - 1; i >= 0; i--) {
       const k = localStorage.key(i);
       if (k && k.startsWith(PROFILE_CACHE_PREFIX)) localStorage.removeItem(k);
     }
+  },
+};
+
+// ── Local-first auth fallback ────────────────────────────────────────────────
+// Used when Supabase auth is misconfigured (email signups disabled, email
+// delivery failing, RLS blocking, etc). The user can still sign up / log in
+// locally — their data persists in the browser. When Supabase is available,
+// the app also syncs to it as a best-effort layer for cross-device support.
+//
+// Trade-off: passwords stored in localStorage as plain text. For an MVP
+// educational app this is acceptable — the threat model is "another person
+// using the same browser session" which is already covered by browser auth.
+// Don't ship this as-is to a fintech.
+
+const LOCAL_USERS_KEY = "kosh:local_users_v1";
+
+interface LocalUserRecord {
+  password: string;
+  profile: KoshProfile;
+}
+
+export const localAuth = {
+  upsert(email: string, password: string, profile: KoshProfile): void {
+    const all = this.getAll();
+    all[email.trim().toLowerCase()] = { password, profile };
+    localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(all));
+  },
+
+  /** Returns profile if email + password match a local record; null otherwise. */
+  verify(email: string, password: string): KoshProfile | null {
+    const rec = this.getAll()[email.trim().toLowerCase()];
+    if (!rec || rec.password !== password) return null;
+    return rec.profile;
+  },
+
+  exists(email: string): boolean {
+    return !!this.getAll()[email.trim().toLowerCase()];
+  },
+
+  getAll(): Record<string, LocalUserRecord> {
+    const raw = localStorage.getItem(LOCAL_USERS_KEY);
+    if (!raw) return {};
+    try { return JSON.parse(raw) as Record<string, LocalUserRecord>; } catch { return {}; }
   },
 };

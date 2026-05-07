@@ -28,6 +28,23 @@
     <title>Kosh — Your Money Level Check</title>
   </head>
   <body>
+    <!-- Apply theme + bg color before React mounts so users never see a
+         flash of light mode (or pure-white screen between paint and JS). -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem("kosh:theme") || "dark";
+          var html = document.documentElement;
+          html.classList.remove("dark", "light");
+          if (t === "dark") html.classList.add("dark");
+          else if (t === "light") html.classList.add("light");
+          var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+          if (t === "dark" || (t === "system" && prefersDark)) {
+            html.style.background = "hsl(235, 50%, 11%)";
+          }
+        } catch (_) { /* localStorage unavailable; fall through */ }
+      })();
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { InstallBanner } from "@/components/shared/InstallBanner";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Landing from "@/pages/Landing";
 import Diagnostic from "@/pages/Diagnostic";
 import Results from "@/pages/Results";
@@ -29,6 +30,7 @@ import KoshAssistant from "@/components/KoshAssistant";
 
 export default function App() {
   return (
+    <ErrorBoundary>
     <BrowserRouter>
       <InstallBanner />
       <Routes>
@@ -60,5 +62,6 @@ export default function App() {
       </Routes>
       <KoshAssistant />
     </BrowserRouter>
+    </ErrorBoundary>
   );
 }
