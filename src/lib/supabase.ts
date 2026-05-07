@@ -18,12 +18,17 @@ export const supabase = supabaseReady
 export const auth = {
   /** Create an account with email + password. Returns { user, session, error }.
       If email confirmation is enabled in Supabase, session will be null until
-      the user confirms via email — surface this case to the UI. */
+      the user confirms via email — surface this case to the UI.
+      The emailRedirectTo brings them back to /auth after they click the link
+      so the auto-detected session lands them straight on the dashboard. */
   async signUpWithPassword(email: string, password: string) {
     if (!supabase) throw new Error("Supabase not configured");
     return supabase.auth.signUp({
       email: email.trim().toLowerCase(),
       password,
+      options: {
+        emailRedirectTo: window.location.origin + "/auth",
+      },
     });
   },
 
@@ -50,6 +55,16 @@ export const auth = {
   async updatePassword(newPassword: string) {
     if (!supabase) throw new Error("Supabase not configured");
     return supabase.auth.updateUser({ password: newPassword });
+  },
+
+  /** Re-send the email-confirmation link if the user lost their first email. */
+  async resendConfirmation(email: string) {
+    if (!supabase) throw new Error("Supabase not configured");
+    return supabase.auth.resend({
+      type: "signup",
+      email: email.trim().toLowerCase(),
+      options: { emailRedirectTo: window.location.origin + "/auth" },
+    });
   },
 
   // ── Magic link / OTP (kept as a fallback) ────────────────────────────
@@ -251,6 +266,16 @@ export const db = {
     const raw = localStorage.getItem(KEYS.PROFILE);
     if (!raw) return null;
     try { return JSON.parse(raw) as KoshProfile; } catch { return null; }
+  },
+
+  /** Save a profile locally only — no Supabase write attempt. Used during
+      sign-up when email confirmation is required and the user has no live
+      session yet. The profile is cached so it's ready for the moment they
+      come back after confirming, and a saveProfile() call later will sync
+      it to Supabase. */
+  saveLocalOnlyProfile(profile: KoshProfile): void {
+    localStorage.setItem(KEYS.PROFILE, JSON.stringify(profile));
+    writeCachedProfile(profile);
   },
 
   /** Profile lookup priority: Supabase → per-user cache → null.

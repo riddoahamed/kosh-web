@@ -9,7 +9,7 @@ const inputClass =
   "w-full px-4 py-3.5 rounded-xl border border-white/[0.08] bg-white/[0.04] text-foreground text-sm placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all";
 
 type Tab = "signup" | "login";
-type Step = "form" | "profile" | "reset" | "reset-sent" | "set-new-password";
+type Step = "form" | "profile" | "reset" | "reset-sent" | "set-new-password" | "confirm-email";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -34,8 +34,11 @@ export default function Auth() {
   const [consent, setConsent]   = useState(false);
   const [newPw, setNewPw]       = useState("");
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState("");
+  const [loading, setLoading]   = useState(false);
+  const [error, setError]       = useState("");
+  const [resending, setResending] = useState(false);
+  const [resendOk, setResendOk]   = useState(false);
+  const [needsConfirmEmail, setNeedsConfirmEmail] = useState(false);
 
   // On mount: if already signed in, redirect to dashboard.
   useEffect(() => {
@@ -85,8 +88,7 @@ export default function Auth() {
       const user = data.user;
       if (!user) throw new Error("Sign-up failed. Please try again.");
 
-      // Save profile (works whether or not email confirmation is on — the
-      // profile is cached locally and synced to Supabase when session is live)
+      // Build the profile (saved to localStorage + per-user cache + Supabase)
       const savedResult = db.getDiagnosticResult();
       const profile = {
         id: user.id,
@@ -101,33 +103,50 @@ export default function Auth() {
         created_at: new Date().toISOString(),
         kyc_status: "not_submitted" as const,
       };
-      setProfile(profile);
 
-      // If session is active (email confirmation off), go straight to dashboard
       if (data.session) {
+        // Email confirmation OFF in Supabase → instant session. Save profile
+        // (this also writes to Supabase since session is live) and ship them
+        // to the dashboard.
+        setProfile(profile);
         navigate("/dashboard", { replace: true });
       } else {
-        // Email confirmation required — try to log them in immediately.
-        // Most Supabase projects in MVP mode have confirmation off.
-        const { data: loginData, error: loginErr } = await auth.signInWithPassword(email, password);
-        if (!loginErr && loginData.session) {
-          navigate("/dashboard", { replace: true });
-        } else {
-          // Profile is saved locally; let them in even without remote session
-          navigate("/dashboard", { replace: true });
-        }
+        // Email confirmation IS on. The Supabase RLS policies will block the
+        // profile write because there's no live session. Cache the profile
+        // locally so it's ready the moment they log in (after confirming).
+        // Then route them to the "check your email" step.
+        db.saveLocalOnlyProfile(profile);
+        setNeedsConfirmEmail(true);
+        setStep("confirm-email");
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Something went wrong. Try again.";
-      // Friendlier copy for common errors
-      if (msg.toLowerCase().includes("already registered") || msg.toLowerCase().includes("already exists")) {
+      const lower = msg.toLowerCase();
+      if (lower.includes("already registered") || lower.includes("already exists") || lower.includes("user already")) {
         setError("An account with this email already exists. Try logging in instead.");
         setTab("login");
+      } else if (lower.includes("rate limit") || lower.includes("too many requests")) {
+        setError("Too many attempts. Wait a minute and try again.");
       } else {
         setError(msg);
       }
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleResend() {
+    setResending(true);
+    setResendOk(false);
+    setError("");
+    try {
+      const { error: err } = await auth.resendConfirmation(email);
+      if (err) throw err;
+      setResendOk(true);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Couldn't resend confirmation.");
+    } finally {
+      setResending(false);
     }
   }
 
@@ -159,8 +178,12 @@ export default function Auth() {
       const lower = raw.toLowerCase();
       if (lower.includes("invalid login") || lower.includes("invalid credentials")) {
         setError("Wrong email or password. Try again, or reset your password below.");
-      } else if (lower.includes("email not confirmed")) {
-        setError("Please confirm your email first (check your inbox).");
+      } else if (lower.includes("email not confirmed") || lower.includes("not confirmed")) {
+        // The account exists but email isn't confirmed yet. Send them to the
+        // confirmation screen with a Resend button so they can recover.
+        setNeedsConfirmEmail(true);
+        setStep("confirm-email");
+        setError("");
       } else {
         setError(raw);
       }
@@ -490,6 +513,66 @@ export default function Auth() {
             >
               ← Back to log in
             </button>
+          </div>
+        )}
+
+        {/* ── Confirm email (signup with email-confirmation enabled, OR
+              login attempt before user confirmed) ── */}
+        {step === "confirm-email" && (
+          <div className="space-y-5 text-center">
+            <div className="flex justify-center">
+              <div
+                className="h-16 w-16 rounded-2xl flex items-center justify-center"
+                style={{ background: "hsla(213,100%,70%,0.12)", border: "1px solid hsla(213,100%,70%,0.30)" }}
+              >
+                <CheckCircle2 className="h-7 w-7" style={{ color: "hsl(213,100%,72%)" }} />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <h1 className="text-2xl font-display font-extrabold text-foreground tracking-tight">
+                Check your email
+              </h1>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {needsConfirmEmail
+                  ? <>We sent a confirmation link to <span className="text-foreground/85 font-medium">{email}</span>. Click it to activate your account, then log in.</>
+                  : <>Almost there.</>
+                }
+              </p>
+              <p className="text-xs text-muted-foreground/55 leading-relaxed">
+                Didn't get it? Check spam, then resend below.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <button
+                onClick={handleResend}
+                disabled={resending || resendOk}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-all disabled:opacity-60"
+                style={{
+                  background: "hsla(213,100%,70%,0.10)",
+                  border: "1px solid hsla(213,100%,70%,0.30)",
+                  color: "hsl(213,100%,72%)",
+                }}
+              >
+                {resending ? <Loader2 className="h-4 w-4 animate-spin" />
+                  : resendOk ? "Resent — check your inbox"
+                  : "Resend confirmation email"}
+              </button>
+              {error && <p className="text-xs text-red-400">{error}</p>}
+            </div>
+
+            <div className="pt-2 space-y-2">
+              <button
+                onClick={() => { setStep("form"); setTab("login"); setError(""); setResendOk(false); }}
+                className="text-xs text-muted-foreground/70 hover:text-primary transition-colors"
+              >
+                Already confirmed? Log in →
+              </button>
+              <p className="text-[11px] text-muted-foreground/40 leading-relaxed pt-2 border-t border-white/[0.06]">
+                Your name & progress are saved locally. The moment you confirm
+                your email and log in, everything will sync.
+              </p>
+            </div>
           </div>
         )}
 
