@@ -64,9 +64,17 @@ export const useAuthStore = create<AuthStore>((set) => ({
   },
 
   logout: async () => {
-    await auth.signOut();
+    // Always clear local state first so the UI updates immediately, even if
+    // the network call to Supabase fails or hangs. Supabase signOut is best-
+    // effort: a network error shouldn't trap the user in a "still signed in"
+    // state on the client.
     db.clearAll();
-    set({ user: null, profile: null });
+    set({ user: null, profile: null, isLoaded: true });
+    try {
+      await auth.signOut();
+    } catch (err) {
+      console.warn("[kosh] supabase signOut error (local state already cleared):", err);
+    }
   },
 
   // Legacy compat — loads from localStorage synchronously

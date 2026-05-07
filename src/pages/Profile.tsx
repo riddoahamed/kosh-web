@@ -93,6 +93,7 @@ export default function Profile() {
   const [saved, setSaved] = useState(false);
   const [kycSaved, setKycSaved] = useState(false);
   const [showLogout, setShowLogout] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   const [name, setName] = useState(profile?.name ?? "");
   const [age, setAge] = useState(String(profile?.age ?? ""));
@@ -489,29 +490,48 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* Logout confirm modal */}
+      {/* Logout confirm modal — centered on screen so it's actually visible.
+          Backdrop click also dismisses; Sign out button shows loading state. */}
       {showLogout && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 px-4 pb-8">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4"
+          onClick={(e) => { if (e.target === e.currentTarget) setShowLogout(false); }}
+        >
           <div
-            className="w-full max-w-sm rounded-2xl p-6 space-y-4"
-            style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}
+            className="w-full max-w-sm rounded-2xl p-6 space-y-4 shadow-2xl"
+            style={{
+              background: "hsl(var(--card))",
+              border: "1px solid hsl(var(--border))",
+              boxShadow: "0 24px 60px rgba(0,0,0,0.5)",
+            }}
           >
-            <h3 className="font-black text-foreground text-lg">Sign out?</h3>
-            <p className="text-sm text-foreground/50">
-              Your progress and mangoes are saved. Sign back in any time with your email.
+            <h3 className="font-display font-black text-foreground text-lg tracking-tight">Sign out?</h3>
+            <p className="text-sm text-foreground/60 leading-relaxed">
+              Your progress and mangoes are saved. Sign back in any time with the same email — no need to re-enter your name.
             </p>
-            <div className="flex gap-3">
+            <div className="flex gap-3 pt-1">
               <button
                 onClick={() => setShowLogout(false)}
-                className="flex-1 border border-border rounded-xl py-3 text-sm font-semibold text-foreground/50 hover:text-foreground transition-all"
+                disabled={loggingOut}
+                className="flex-1 border border-border rounded-xl py-3 text-sm font-semibold text-foreground/60 hover:text-foreground transition-all disabled:opacity-40"
               >
                 Cancel
               </button>
               <button
-                onClick={async () => { await logout(); navigate("/", { replace: true }); }}
-                className="flex-1 bg-red-500 text-white rounded-xl py-3 text-sm font-bold hover:bg-red-600 transition-all"
+                onClick={async () => {
+                  setLoggingOut(true);
+                  try {
+                    await logout();
+                  } catch (err) {
+                    console.warn("[kosh] logout error (continuing):", err);
+                  }
+                  // Always navigate, even if Supabase signOut had a network blip
+                  navigate("/", { replace: true });
+                }}
+                disabled={loggingOut}
+                className="flex-1 bg-red-500 text-white rounded-xl py-3 text-sm font-bold hover:bg-red-600 transition-all disabled:opacity-60"
               >
-                Sign out
+                {loggingOut ? "Signing out…" : "Sign out"}
               </button>
             </div>
           </div>

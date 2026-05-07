@@ -63,6 +63,23 @@ const KEYS = {
   MODULE_PROGRESS: "kosh:module_progress",
 } as const;
 
+// Per-user-id profile cache — survives logout so users don't have to re-enter
+// their profile on every login if Supabase is unreachable or RLS blocks the
+// remote write (which fails silently otherwise).
+const PROFILE_CACHE_PREFIX = "kosh:profile_cache:";
+const profileCacheKey = (userId: string) => `${PROFILE_CACHE_PREFIX}${userId}`;
+
+function readCachedProfile(userId: string): KoshProfile | null {
+  const raw = localStorage.getItem(profileCacheKey(userId));
+  if (!raw) return null;
+  try { return JSON.parse(raw) as KoshProfile; } catch { return null; }
+}
+
+function writeCachedProfile(profile: KoshProfile): void {
+  if (!profile.id) return;
+  localStorage.setItem(profileCacheKey(profile.id), JSON.stringify(profile));
+}
+
 // ── Types ─────────────────────────────────────────────────────────────────
 
 export interface KoshProfile {
@@ -149,7 +166,10 @@ export const db = {
 
   // ── Profile ────────────────────────────────────────────────────────────
   saveProfile(profile: KoshProfile): void {
+    // Active pointer + per-user cache (cache survives logout for fast re-auth)
     localStorage.setItem(KEYS.PROFILE, JSON.stringify(profile));
+    writeCachedProfile(profile);
+
     if (!supabase) return;
     supabase
       .from("profiles")
@@ -179,7 +199,13 @@ export const db = {
         nid_last4: profile.nid_last4 ?? null,
         kyc_submitted_at: profile.kyc_submitted_at ?? null,
       })
-      .then(() => {});
+      .then(({ error }) => {
+        if (error) {
+          // Surface RLS / network failures so we can diagnose. Cache still
+          // holds the profile, so the user experience isn't blocked.
+          console.warn("[kosh] profile upsert failed:", error.message);
+        }
+      });
   },
 
   getProfile(): KoshProfile | null {
@@ -188,17 +214,36 @@ export const db = {
     try { return JSON.parse(raw) as KoshProfile; } catch { return null; }
   },
 
+  /** Profile lookup priority: Supabase → per-user cache → null.
+      Per-user cache lets returning users skip the profile form even if the
+      remote write previously failed (RLS, env var miss, network drop, etc). */
   async fetchProfile(userId: string): Promise<KoshProfile | null> {
-    if (!supabase) return null;
-    const { data } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .single();
-    if (!data) return null;
-    const profile = data as KoshProfile;
-    localStorage.setItem(KEYS.PROFILE, JSON.stringify(profile));
-    return profile;
+    // Try Supabase first
+    if (supabase) {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .maybeSingle();
+      if (error) {
+        console.warn("[kosh] profile fetch error:", error.message);
+      }
+      if (data) {
+        const profile = data as KoshProfile;
+        localStorage.setItem(KEYS.PROFILE, JSON.stringify(profile));
+        writeCachedProfile(profile); // refresh cache
+        return profile;
+      }
+    }
+    // Fall back to per-user cache (survives logout)
+    const cached = readCachedProfile(userId);
+    if (cached) {
+      // Promote cached profile to active and try syncing it to Supabase.
+      localStorage.setItem(KEYS.PROFILE, JSON.stringify(cached));
+      this.saveProfile(cached); // best-effort retry
+      return cached;
+    }
+    return null;
   },
 
   // ── Module progress ────────────────────────────────────────────────────
@@ -250,7 +295,27 @@ export const db = {
   },
 
   // ── Clear ──────────────────────────────────────────────────────────────
+  /** Logout: clear ACTIVE session data + demo flag + mangoes, but KEEP the
+      per-user profile cache so the same user can sign back in without
+      re-filling the profile form. UI/theme prefs are also kept. */
   clearAll(): void {
     Object.values(KEYS).forEach((k) => localStorage.removeItem(k));
+    // Also clear demo flag, points, and any session-tied state
+    localStorage.removeItem("kosh:demo_mode");
+    localStorage.removeItem("kosh:mangoes");
+    // Note: kosh:profile_cache:<userId> entries are intentionally preserved.
+  },
+
+  /** Hard reset — wipes everything including profile caches. Use only when
+      the user explicitly says "forget me on this device." */
+  hardClearAll(): void {
+    Object.values(KEYS).forEach((k) => localStorage.removeItem(k));
+    localStorage.removeItem("kosh:demo_mode");
+    localStorage.removeItem("kosh:mangoes");
+    // Sweep all per-user profile caches
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(PROFILE_CACHE_PREFIX)) localStorage.removeItem(k);
+    }
   },
 };
