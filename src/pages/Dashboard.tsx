@@ -4,7 +4,6 @@ import { useAuthStore } from "@/store/authStore";
 import { useProgressStore } from "@/store/progressStore";
 import { usePointsStore } from "@/store/pointsStore";
 import { db } from "@/lib/supabase";
-import { LevelBadge } from "@/components/shared/LevelBadge";
 import { DemoBanner } from "@/components/shared/DemoBanner";
 import { getModuleIcon } from "@/data/moduleIcons";
 import { ZoneIcon, ZONE_ACCENT } from "@/components/shared/ZoneIcon";
@@ -15,7 +14,6 @@ import {
   ChevronDown, ChevronUp, Trophy, ArrowRight, BookOpen,
   Radar, Crosshair, PieChart, ArrowLeftRight, Landmark, Gauge, Wrench,
 } from "lucide-react";
-import type { LevelAssignment } from "@/types/diagnostic";
 
 // ── Tools list (mirrors landing page tools so signed-in users have access) ──
 const TOOLS = [
@@ -544,33 +542,26 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Right: level ring */}
-            {result ? (
-              <div className="flex flex-col items-center gap-1.5 shrink-0">
-                <CircularProgress
-                  pct={trackPct}
-                  size={88}
-                  strokeWidth={7}
-                  accent="87 100% 68%"
-                  label={`${trackPct}%`}
-                  sublabel="complete"
-                />
-                <LevelBadge level={result.level as LevelAssignment} size="sm" />
-              </div>
-            ) : (
-              <button
-                onClick={() => navigate("/check")}
-                className="shrink-0 flex flex-col items-center gap-1.5 rounded-xl px-3 py-3 text-center transition-all hover:scale-[1.02] active:scale-95"
-                style={{
-                  background: "hsla(87,100%,68%,0.10)",
-                  border: "1px solid hsla(87,100%,68%,0.35)",
-                  boxShadow: "0 0 18px hsla(87,100%,68%,0.18)",
-                }}
-              >
-                <span className="text-2xl">📊</span>
-                <span className="text-[10px] font-bold text-primary leading-tight font-display">Check your<br />level</span>
-              </button>
-            )}
+            {/* Right: progress ring with level inside — always visible.
+                Clicking the ring opens /results when there's a diagnostic,
+                /check when there isn't. */}
+            <button
+              onClick={() => navigate(result ? "/results" : "/check")}
+              className="shrink-0 flex flex-col items-center gap-2 transition-transform hover:scale-[1.03] active:scale-95"
+              aria-label={result ? `Level ${result.level} — view results` : "Take the money check"}
+            >
+              <CircularProgress
+                pct={result ? trackPct : 0}
+                size={92}
+                strokeWidth={7}
+                accent="87 100% 68%"
+                label={result ? String(result.level) : "?"}
+                sublabel="LEVEL"
+              />
+              <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary leading-none">
+                {result ? `${trackPct}% complete` : "Take check →"}
+              </span>
+            </button>
           </div>
         </div>
 

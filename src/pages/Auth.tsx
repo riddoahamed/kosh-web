@@ -94,9 +94,8 @@ export default function Auth() {
       return;
     }
 
-    // Success — also write through db.saveProfile so any background Supabase
-    // sync gets a chance (silent; failures are logged but don't block).
-    db.saveProfile(result.profile);
+    // setProfile() also calls db.saveProfile (which fires any background
+    // Supabase upsert when configured) — single source of truth.
     setProfile(result.profile);
     navigate("/dashboard", { replace: true });
   }
