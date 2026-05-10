@@ -3,6 +3,7 @@ import { InstallBanner } from "@/components/shared/InstallBanner";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Landing from "@/pages/Landing";
 import Diagnostic from "@/pages/Diagnostic";
+import AgeSelection from "@/pages/AgeSelection";
 import Results from "@/pages/Results";
 import Auth from "@/pages/Auth";
 import Dashboard from "@/pages/Dashboard";
@@ -18,12 +19,14 @@ import EMICalculator from "@/pages/EMICalculator";
 import BudgetPlanner from "@/pages/BudgetPlanner";
 import SIPCalculator from "@/pages/SIPCalculator";
 import CarCalculator from "@/pages/CarCalculator";
+import PortfolioBuilder from "@/pages/PortfolioBuilder";
 import ZoneLibrary from "@/pages/ZoneLibrary";
 import ZoneDetail from "@/pages/ZoneDetail";
 import MangoStore from "@/pages/MangoStore";
 import Profile from "@/pages/Profile";
 import Welcome from "@/pages/Welcome";
 import About from "@/pages/About";
+import ForInstitutions from "@/pages/ForInstitutions";
 import DevLogin from "@/pages/DevLogin";
 import NotFound from "@/pages/NotFound";
 import KoshAssistant from "@/components/KoshAssistant";
@@ -35,6 +38,7 @@ export default function App() {
       <InstallBanner />
       <Routes>
         <Route path="/" element={<Landing />} />
+        <Route path="/age-select" element={<AgeSelection />} />
         <Route path="/check" element={<Diagnostic />} />
         <Route path="/results" element={<Results />} />
         <Route path="/auth" element={<Auth />} />
@@ -51,12 +55,14 @@ export default function App() {
         <Route path="/budget-planner" element={<BudgetPlanner />} />
         <Route path="/sip-calculator" element={<SIPCalculator />} />
         <Route path="/car-calculator" element={<CarCalculator />} />
+        <Route path="/portfolio-builder" element={<PortfolioBuilder />} />
         <Route path="/zones" element={<ZoneLibrary />} />
         <Route path="/zones/:zoneId" element={<ZoneDetail />} />
         <Route path="/store" element={<MangoStore />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/welcome" element={<Welcome />} />
         <Route path="/about" element={<About />} />
+        <Route path="/for-institutions" element={<ForInstitutions />} />
         <Route path="/x" element={<DevLogin />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

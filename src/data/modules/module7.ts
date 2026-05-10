@@ -46,6 +46,26 @@ Group-এ 2,000 members। 10-15 জন loudly profit share করে। 1,985 �
   },
   quiz: [
     {
+      id: "m7q-scenario",
+      type: "scenario_decision",
+      scenario: "A close friend invites you to invest Tk 20,000 in a 'guaranteed 3x in 6 months' crypto opportunity through a Telegram group. He swears it's working for him.",
+      question: "What's the best response?",
+      options: [
+        "Invest a small amount — friends look out for friends.",
+        "Politely decline and ask him to send you Bangladesh Bank's official position on this type of platform.",
+        "Invest fully — he has insider info.",
+        "Invest half just to be safe.",
+      ],
+      correctIndex: 1,
+      optionExplanations: [
+        "'Small amounts' from friends are how most people start losing — the real cost is your judgement, not just money.",
+        "Correct — sourcing the official position protects both you and your friend, and shifts the conversation to facts.",
+        "'Insider info' on retail crypto from a Telegram group is almost always a sales pitch, not insight.",
+        "Half is still meaningful exposure with the same red flags. Hedging into a bad bet doesn't make it less bad.",
+      ],
+      explanation: "Bangladesh Bank does not authorise crypto trading platforms for retail use. Personal endorsements don't change legal or platform risk.",
+    },
+    {
       id: "m7q1",
       text: "Cryptocurrency trading for retail users in Bangladesh is currently:",
       options: [

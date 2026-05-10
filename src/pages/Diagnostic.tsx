@@ -1,7 +1,8 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDiagnosticStore } from "@/store/diagnosticStore";
-import { allDiagnosticQuestions, knowledgeQuestions } from "@/data/diagnosticQuestions";
+import { allDiagnosticQuestions, knowledgeQuestions as defaultKnowledgeQuestions } from "@/data/diagnosticQuestions";
+import { getDiagnosticQuestions } from "@/data/age_group_diagnostic_questions";
 import { QuestionCard } from "@/components/diagnostic/QuestionCard";
 import { GreyZoneQuestion } from "@/components/diagnostic/GreyZoneQuestion";
 import { DiagnosticProgress } from "@/components/diagnostic/DiagnosticProgress";
@@ -14,6 +15,7 @@ import { ChevronLeft } from "lucide-react";
 export default function Diagnostic() {
   const navigate = useNavigate();
   const {
+    ageGroup,
     currentIndex,
     responses,
     showGreyZone,
@@ -25,33 +27,39 @@ export default function Diagnostic() {
     reset,
   } = useDiagnosticStore();
 
+  // Redirect to age selection if not set
+  useEffect(() => {
+    if (!ageGroup) navigate("/age-select", { replace: true });
+  }, [ageGroup, navigate]);
+
   useEffect(() => {
     reset();
   }, [reset]);
 
   useEffect(() => {
-    if (isComplete) {
-      navigate("/results");
-    }
+    if (isComplete) navigate("/results");
   }, [isComplete, navigate]);
 
-  const currentQuestion = allDiagnosticQuestions[currentIndex];
-  const currentResponse = responses.find(
-    (r) => r.questionId === currentQuestion?.id
-  );
+  // Resolve question set — use age-group questions when available, fall back to defaults
+  const questionSet = ageGroup ? getDiagnosticQuestions(ageGroup) : null;
+  const diagnosticQuestions = questionSet
+    ? [...questionSet.knowledge, ...questionSet.behavior, ...questionSet.confidence]
+    : allDiagnosticQuestions;
+  const knowledgeQuestions = questionSet?.knowledge ?? defaultKnowledgeQuestions;
+
+  const currentQuestion = diagnosticQuestions[currentIndex];
+  const currentResponse = responses.find((r) => r.questionId === currentQuestion?.id);
   const hasAnsweredCurrent = !!currentResponse;
 
   const handleAnswer = (response: DiagnosticResponse) => {
     setResponse(response);
     const isKnowledge = currentQuestion?.type === "knowledge";
     const delay = isKnowledge ? 1200 : 400;
-    setTimeout(() => {
-      nextQuestion();
-    }, delay);
+    setTimeout(() => nextQuestion(), delay);
   };
 
   const handleGreyZoneSubmit = (selections: string[]) => {
-    const result = buildDiagnosticResult(responses, selections, knowledgeQuestions);
+    const result = buildDiagnosticResult(responses, selections, knowledgeQuestions, ageGroup ?? undefined);
     db.saveDiagnosticResult(result);
     completeGreyZone();
   };
@@ -101,9 +109,7 @@ export default function Diagnostic() {
 
         {hasAnsweredCurrent && currentQuestion.type !== "knowledge" && (
           <Button onClick={nextQuestion} className="w-full" size="lg">
-            {currentIndex < allDiagnosticQuestions.length - 1
-              ? "Next →"
-              : "Almost done →"}
+            {currentIndex < diagnosticQuestions.length - 1 ? "Next →" : "Almost done →"}
           </Button>
         )}
       </div>

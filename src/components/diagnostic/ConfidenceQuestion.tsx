@@ -8,14 +8,22 @@ interface Props {
   onAnswer: (value: number, rawValue: number) => void;
 }
 
+const MCQ_SCORE_VALUES = [100, 67, 33, 0];
+
 export function ConfidenceQuestion({ question, onAnswer }: Props) {
   const [selected, setSelected] = useState<number | null>(null);
 
+  const isMCQ = !!question.options;
+  const labels = isMCQ ? question.options! : question.likertLabels!;
+
   const handleSelect = (index: number) => {
     setSelected(index);
-    const rawValue = index + 1;
-    const value = normalizeLikert(rawValue);
-    onAnswer(value, rawValue);
+    if (isMCQ) {
+      onAnswer(MCQ_SCORE_VALUES[index] ?? 0, index);
+    } else {
+      const rawValue = index + 1;
+      onAnswer(normalizeLikert(rawValue), rawValue);
+    }
   };
 
   return (
@@ -25,7 +33,7 @@ export function ConfidenceQuestion({ question, onAnswer }: Props) {
       </p>
       <div className="space-y-3">
         <div className="grid gap-3">
-          {question.likertLabels.map((label, i) => (
+          {labels.map((label, i) => (
             <button
               key={i}
               onClick={() => handleSelect(i)}
@@ -52,10 +60,12 @@ export function ConfidenceQuestion({ question, onAnswer }: Props) {
             </button>
           ))}
         </div>
-        <div className="flex justify-between text-xs text-foreground/40 px-1">
-          <span>Strongly disagree</span>
-          <span>Strongly agree</span>
-        </div>
+        {!isMCQ && (
+          <div className="flex justify-between text-xs text-foreground/40 px-1">
+            <span>Strongly disagree</span>
+            <span>Strongly agree</span>
+          </div>
+        )}
       </div>
     </div>
   );

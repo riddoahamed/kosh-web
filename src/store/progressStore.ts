@@ -2,6 +2,30 @@ import { create } from "zustand";
 import { db, type ModuleProgressRecord } from "@/lib/supabase";
 import { ZONE_MODULE_ORDER } from "@/data/modules";
 
+const NUDGE_KEY = "kosh:nudge_records";
+
+export interface ActionNudgeRecord {
+  moduleId: string;
+  committed: boolean;
+  committedAt: string | null;
+  completed: boolean;
+  completedAt: string | null;
+  skipped: boolean;
+  followUpShown: boolean;
+}
+
+function defaultNudgeRecord(moduleId: string): ActionNudgeRecord {
+  return { moduleId, committed: false, committedAt: null, completed: false, completedAt: null, skipped: false, followUpShown: false };
+}
+
+function loadNudgeRecords(): Record<string, ActionNudgeRecord> {
+  try { return JSON.parse(localStorage.getItem(NUDGE_KEY) ?? "{}"); } catch { return {}; }
+}
+
+function saveNudgeRecords(records: Record<string, ActionNudgeRecord>) {
+  try { localStorage.setItem(NUDGE_KEY, JSON.stringify(records)); } catch { /* ignore */ }
+}
+
 const ORDERED_MODULES = ["1", "2", "3", "4", "recovery-a", "recovery-b", "5", "6", "7", "8"];
 export const CORE_MODULES = ["1", "2", "3", "4", "5", "6", "7", "8"];
 
@@ -21,6 +45,12 @@ function getZoneForModule(moduleId: string): string | null {
 
 interface ProgressStore {
   progress: Record<string, ModuleProgressRecord>;
+  nudgeRecords: Record<string, ActionNudgeRecord>;
+  commitNudge: (moduleId: string) => void;
+  completeNudge: (moduleId: string) => void;
+  skipNudge: (moduleId: string) => void;
+  markNudgeFollowUpShown: (moduleId: string) => void;
+  getNudgeRecord: (moduleId: string) => ActionNudgeRecord;
   load: () => void;
   startModule: (moduleId: string) => void;
   completeQuiz: (moduleId: string, score: number, responses: Record<string, number>) => void;
@@ -47,11 +77,42 @@ function defaultRecord(moduleId: string): ModuleProgressRecord {
 
 export const useProgressStore = create<ProgressStore>((set, get) => ({
   progress: {},
+  nudgeRecords: loadNudgeRecords(),
 
   load: () => {
     const all = db.getAllProgress();
-    set({ progress: all });
+    set({ progress: all, nudgeRecords: loadNudgeRecords() });
   },
+
+  commitNudge: (moduleId) => {
+    const records = { ...get().nudgeRecords };
+    records[moduleId] = { ...(records[moduleId] ?? defaultNudgeRecord(moduleId)), committed: true, committedAt: new Date().toISOString() };
+    saveNudgeRecords(records);
+    set({ nudgeRecords: records });
+  },
+
+  completeNudge: (moduleId) => {
+    const records = { ...get().nudgeRecords };
+    records[moduleId] = { ...(records[moduleId] ?? defaultNudgeRecord(moduleId)), completed: true, completedAt: new Date().toISOString(), followUpShown: true };
+    saveNudgeRecords(records);
+    set({ nudgeRecords: records });
+  },
+
+  skipNudge: (moduleId) => {
+    const records = { ...get().nudgeRecords };
+    records[moduleId] = { ...(records[moduleId] ?? defaultNudgeRecord(moduleId)), skipped: true, followUpShown: true };
+    saveNudgeRecords(records);
+    set({ nudgeRecords: records });
+  },
+
+  markNudgeFollowUpShown: (moduleId) => {
+    const records = { ...get().nudgeRecords };
+    records[moduleId] = { ...(records[moduleId] ?? defaultNudgeRecord(moduleId)), followUpShown: true };
+    saveNudgeRecords(records);
+    set({ nudgeRecords: records });
+  },
+
+  getNudgeRecord: (moduleId) => get().nudgeRecords[moduleId] ?? defaultNudgeRecord(moduleId),
 
   startModule: (moduleId) => {
     const existing = get().progress[moduleId];

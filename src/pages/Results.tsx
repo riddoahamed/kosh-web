@@ -7,6 +7,7 @@ import { ShareButton } from "@/components/shared/ShareButton";
 import { Button } from "@/components/ui/button";
 import SignUpNudge from "@/components/shared/SignUpNudge";
 import { RotateCcw } from "lucide-react";
+import { getRecommendedPath } from "@/lib/scoring";
 
 export default function Results() {
   const navigate = useNavigate();
@@ -51,6 +52,17 @@ export default function Results() {
             Retake the check
           </button>
         </div>
+
+        {(() => {
+          const path = getRecommendedPath(result.scores.total, result.ageGroup);
+          return (
+            <div className="bg-primary/5 border border-primary/25 rounded-2xl p-5 space-y-2">
+              <p className="text-xs font-semibold text-primary/60 uppercase tracking-widest">Recommended for you</p>
+              <p className="font-bold text-foreground">{path.headline}</p>
+              <p className="text-sm text-foreground/70 leading-relaxed">{path.detail}</p>
+            </div>
+          );
+        })()}
 
         <div className="bg-card rounded-2xl border border-border p-5 space-y-3">
           <h3 className="font-semibold text-foreground">What happens next?</h3>

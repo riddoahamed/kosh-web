@@ -10,6 +10,7 @@ import { useAuthStore } from "@/store/authStore";
 export function DemoBanner() {
   const navigate = useNavigate();
 
+  if (import.meta.env.VITE_HIDE_DEMO_BANNER === "true") return null;
   if (!isDemoMode()) return null;
 
   function handleSignUp() {

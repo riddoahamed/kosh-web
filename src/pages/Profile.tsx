@@ -475,6 +475,21 @@ export default function Profile() {
           )}
         </SectionCard>
 
+        {/* ── Coming soon: Kosh learning profile ── */}
+        <div className="rounded-2xl border border-dashed border-primary/40 bg-primary/5 p-5 space-y-3">
+          <span className="text-xs font-semibold text-primary/60 uppercase tracking-widest">
+            Coming soon
+          </span>
+          <h3 className="font-semibold text-foreground text-base">
+            Your Kosh learning profile
+          </h3>
+          <p className="text-sm text-foreground/70 leading-relaxed">
+            With your permission, share your completed zones and diagnostic insights with financial
+            institutions to receive product suggestions tailored to what you've actually learned.
+            You stay in control — share only what you choose, with whom you choose.
+          </p>
+        </div>
+
         {/* ── Danger zone ── */}
         <div className="rounded-2xl border border-red-500/20 bg-red-500/5 p-5 space-y-3">
           <h2 className="font-bold text-foreground text-sm">Sign out</h2>

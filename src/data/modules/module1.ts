@@ -17,19 +17,47 @@ export const module1: Module = {
 
 **৪. Hype (হাইপ)** — Social pressure, FOMO, guru tips, WhatsApp forwarded messages। এটা কোনো financial activity না — এটা psychological। সবচেয়ে বিপজ্জনক কারণ এটা real লাগে।
 
+{{check:1}}
+
 **Bangladesh-এ এগুলো কেন mix হয়:**
 - কোনো formal education নেই
 - English-Bangla terminology confusion
 - Brokers এবং scammers aggressive marketing করে
 - "আমার বন্ধু এতে profit করেছে" — survivor bias
 
-বেশিরভাগ young Bangladeshis শুধু bucket 1 (savings) আর এক ধরনের hype-এ থাকে। বাকি দুটো বোঝে না।`,
+বেশিরভাগ young Bangladeshis শুধু bucket 1 (savings) আর এক ধরনের hype-এ থাকে। বাকি দুটো বোঝে না।
+
+{{check:2}}`,
+  inlineChecks: [
+    {
+      id: "m1c1",
+      question: "A friend forwards a WhatsApp message: \"Buy this coin now, 10x in a week!\" You decide to put in Tk 5,000. Which bucket is this?",
+      options: ["Investing", "Trading", "Hype"],
+      correctIndex: 2,
+      explanation: "No analysis, social pressure, urgency, promised quick gains — that's hype, not investing or trading.",
+    },
+    {
+      id: "m1c2",
+      question: "Most young Bangladeshis tend to live mostly in which two buckets?",
+      options: ["Investing + Trading", "Saving + Hype", "Trading + Hype"],
+      correctIndex: 1,
+      explanation: "The common pattern is some savings (DPS, account balance) plus exposure to hype (tips, FOMO buys). The investing and trading buckets get skipped.",
+    },
+  ],
   bdExample: `রাহিম ভাই বেতন পেয়ে Tk 20,000 একটা DPS-এ রাখে এবং Tk 5,000 একটা crypto WhatsApp group-এ দেয়। সে নিজেকে বলে "I'm investing।" আসলে সে একটা কাজে investing করছে, আরেকটায় gambling করছে। দুটো একসাথে করলেও — এগুলো same জিনিস না। পার্থক্য বোঝাটাই প্রথম কাজ।`,
   actionPrompt: {
     text: "List করুন আপনার টাকা এই মুহূর্তে কোথায় কোথায় আছে। প্রতিটার পাশে লিখুন: saving, investing, trading, or hype। Honestly।",
     cta: "Done — I made my list",
   },
   quiz: [
+    {
+      id: "m1q-blank",
+      type: "fill_blank",
+      question: "Real return = nominal return − ___",
+      acceptedAnswers: ["inflation"],
+      hint: "It's a single word — the thing that erodes purchasing power.",
+      explanation: "Real return = nominal return − inflation. If your savings pays 5% but inflation is 9%, your real return is −4%.",
+    },
     {
       id: "m1q1",
       text: "'I bought DSE stock last week based on a Facebook group tip and sold 2 days later.' This is closest to:",

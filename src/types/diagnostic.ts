@@ -18,6 +18,8 @@ export interface GreyZoneFlagResult {
   exposures: Array<"crypto" | "forex" | "betting" | "schemes">;
 }
 
+export type AgeGroup = "under_25" | "25_to_35" | "over_35";
+
 export interface DiagnosticResult {
   scores: DomainScores;
   level: LevelAssignment;
@@ -25,6 +27,7 @@ export interface DiagnosticResult {
   greyZone: GreyZoneFlagResult;
   responses: DiagnosticResponse[];
   completedAt: string;
+  ageGroup?: AgeGroup;
 }
 
 export const LEVEL_THRESHOLDS = {

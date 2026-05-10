@@ -3,6 +3,7 @@ import type { BehaviorQuestion as BehaviorQuestionType } from "@/types/curriculu
 import { cn } from "@/lib/utils";
 
 const SCORE_VALUES = [0, 25, 50, 75, 100];
+const MCQ_SCORE_VALUES = [100, 67, 33, 0];
 
 interface Props {
   question: BehaviorQuestionType;
@@ -12,9 +13,13 @@ interface Props {
 export function BehaviorQuestion({ question, onAnswer }: Props) {
   const [selected, setSelected] = useState<number | null>(null);
 
+  const isMCQ = !!question.options;
+  const labels = isMCQ ? question.options! : question.frequencyLabels!;
+
   const handleSelect = (index: number) => {
     setSelected(index);
-    onAnswer(SCORE_VALUES[index], index);
+    const score = isMCQ ? MCQ_SCORE_VALUES[index] ?? 0 : SCORE_VALUES[index];
+    onAnswer(score, index);
   };
 
   return (
@@ -23,7 +28,7 @@ export function BehaviorQuestion({ question, onAnswer }: Props) {
         {question.text}
       </p>
       <div className="grid gap-3">
-        {question.frequencyLabels.map((label, i) => (
+        {labels.map((label, i) => (
           <button
             key={i}
             onClick={() => handleSelect(i)}

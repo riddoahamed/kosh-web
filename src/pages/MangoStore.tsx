@@ -190,6 +190,28 @@ export default function MangoStore() {
           ))}
         </div>
 
+        {/* Coming soon: real financial products */}
+        <div className="rounded-2xl border border-dashed border-primary/40 bg-primary/5 p-5 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-primary/60 uppercase tracking-widest">
+              Coming soon
+            </span>
+            <span className="text-xs text-muted-foreground">In development</span>
+          </div>
+          <h3 className="font-semibold text-foreground text-base">
+            Use mangoes for real financial products 🥭
+          </h3>
+          <p className="text-sm text-foreground/70 leading-relaxed">
+            As Kosh grows, we're working with banks, brokerages, and financial institutions to make
+            your knowledge — and your mangoes — count toward real product access. Your completed
+            zones and diagnostic results will help match you with products that actually fit your
+            situation.
+          </p>
+          <p className="text-xs text-muted-foreground italic">
+            Not building this yet. Just signaling where this is headed.
+          </p>
+        </div>
+
         {/* Earn rates */}
         <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
           <h2 className="font-semibold text-foreground">How to earn 🥭</h2>

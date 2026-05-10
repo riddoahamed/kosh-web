@@ -1,9 +1,12 @@
-import React, { useState } from "react";
-import type { Module } from "@/types/curriculum";
+import React, { useEffect, useState } from "react";
+import type { Module, InlineCheck as InlineCheckType } from "@/types/curriculum";
 import { ActionPrompt } from "./ActionPrompt";
 import { ModuleQuiz } from "./ModuleQuiz";
 import { WhatsNextCard } from "./WhatsNextCard";
 import { ModuleGame } from "./ModuleGame";
+import { InlineCheck } from "./InlineCheck";
+import { ActionNudge } from "./ActionNudge";
+import { actionNudges } from "@/data/action_nudges";
 import { usePointsStore } from "@/store/pointsStore";
 
 interface ModuleLayoutProps {
@@ -57,6 +60,22 @@ function renderMarkdown(text: string) {
   return elements;
 }
 
+function renderTeachingWithChecks(teaching: string, checks?: InlineCheckType[]) {
+  if (!checks || checks.length === 0) return renderMarkdown(teaching);
+
+  const parts = teaching.split(/\{\{check:(\d+)\}\}/);
+  const out: React.ReactElement[] = [];
+  parts.forEach((part, idx) => {
+    if (idx % 2 === 0) {
+      if (part) out.push(<React.Fragment key={`md-${idx}`}>{renderMarkdown(part)}</React.Fragment>);
+    } else {
+      const check = checks[parseInt(part, 10) - 1];
+      if (check) out.push(<InlineCheck key={`chk-${idx}`} check={check} />);
+    }
+  });
+  return out;
+}
+
 export function ModuleLayout({
   module,
   initialActionCompleted,
@@ -67,6 +86,23 @@ export function ModuleLayout({
   const { addPoints } = usePointsStore();
   const [quizScore, setQuizScore] = useState<number | null>(null);
   const [quizDone, setQuizDone] = useState(false);
+  const [readProgress, setReadProgress] = useState(0);
+
+  useEffect(() => {
+    function handleScroll() {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+      setReadProgress(Math.min(100, Math.max(0, progress)));
+    }
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+    };
+  }, []);
 
   function handleQuizComplete(score: number, responses: Record<string, number>) {
     setQuizScore(score);
@@ -77,6 +113,15 @@ export function ModuleLayout({
 
   return (
     <div className="space-y-8">
+      {/* Reading progress bar */}
+      <div className="fixed top-0 inset-x-0 z-40 h-1 bg-transparent pointer-events-none">
+        <div
+          className="h-full bg-primary transition-[width] duration-150"
+          style={{ width: `${readProgress}%` }}
+          aria-hidden="true"
+        />
+      </div>
+
       {/* Hook */}
       <div className="rounded-2xl bg-primary/10 border border-primary/20 p-5">
         <p className="text-foreground/90 italic leading-relaxed text-[15px]">{module.hook}</p>
@@ -93,7 +138,7 @@ export function ModuleLayout({
         <p className="text-xs font-semibold text-foreground/35 uppercase tracking-widest">
           What you need to know
         </p>
-        <div className="space-y-2">{renderMarkdown(module.teaching)}</div>
+        <div className="space-y-2">{renderTeachingWithChecks(module.teaching, module.inlineChecks)}</div>
       </div>
 
       {/* Rate Note (for modules with rate-sensitive info) */}
@@ -131,6 +176,15 @@ export function ModuleLayout({
         completed={initialActionCompleted}
         onComplete={onActionComplete}
       />
+
+      {/* Action Nudge — real-world next step */}
+      {(actionNudges[module.id] ?? module.actionNudge) && (
+        <ActionNudge
+          nudge={actionNudges[module.id] ?? module.actionNudge!}
+          moduleId={module.id}
+          onBonus={(amt, reason) => addPoints(amt, reason)}
+        />
+      )}
 
       {/* Quiz */}
       <div className="space-y-4">

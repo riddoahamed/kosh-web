@@ -15,7 +15,12 @@ export interface BehaviorQuestion {
   type: "behavior";
   domain: "behavior";
   text: string;
-  frequencyLabels: [string, string, string, string, string];
+  // Legacy format: 5 frequency labels (existing modules)
+  frequencyLabels?: [string, string, string, string, string];
+  // MCQ format: options + correctIndex (age-group diagnostic questions)
+  options?: string[];
+  correctIndex?: number;
+  explanation?: string;
 }
 
 export interface ConfidenceQuestion {
@@ -23,7 +28,12 @@ export interface ConfidenceQuestion {
   type: "confidence";
   domain: "confidence";
   text: string;
-  likertLabels: [string, string, string, string, string];
+  // Legacy format: 5 likert labels (existing modules)
+  likertLabels?: [string, string, string, string, string];
+  // MCQ format: options + correctIndex (age-group diagnostic questions)
+  options?: string[];
+  correctIndex?: number;
+  explanation?: string;
 }
 
 export type DiagnosticQuestion =
@@ -42,13 +52,72 @@ export interface GreyZoneQuestion {
   options: GreyZoneOption[];
 }
 
-export interface ModuleQuizQuestion {
+export type QuizQuestionType =
+  | "multiple_choice"
+  | "fill_blank"
+  | "scenario_decision"
+  | "match_pairs";
+
+export interface MultipleChoiceQuestion {
+  type?: "multiple_choice";
   id?: string;
   text?: string;        // legacy field name
   question?: string;    // new field name
   options: string[];
   correctIndex: number;
   explanation: string;
+}
+
+export interface FillBlankQuestion {
+  type: "fill_blank";
+  id?: string;
+  question: string;             // use ___ to indicate blank
+  acceptedAnswers: string[];    // case-insensitive match
+  hint?: string;
+  explanation: string;
+  unit?: string;                // e.g. "%" or "Tk"
+}
+
+export interface ScenarioDecisionQuestion {
+  type: "scenario_decision";
+  id?: string;
+  scenario: string;             // styled callout setting up the situation
+  question: string;
+  options: string[];
+  correctIndex: number;
+  optionExplanations: string[]; // explanation for each option
+  explanation?: string;
+}
+
+export interface MatchPairsQuestion {
+  type: "match_pairs";
+  id?: string;
+  question: string;
+  leftItems: string[];
+  rightItems: string[];
+  correctMapping: number[];     // correctMapping[i] = index in rightItems matching leftItems[i]
+  explanation: string;
+}
+
+export type ModuleQuizQuestion =
+  | MultipleChoiceQuestion
+  | FillBlankQuestion
+  | ScenarioDecisionQuestion
+  | MatchPairsQuestion;
+
+export interface InlineCheck {
+  id: string;
+  question: string;
+  options: string[];
+  correctIndex: number;
+  explanation: string;
+}
+
+export interface ActionNudge {
+  text: string;
+  ctaText: string;
+  estimatedTime?: string;
+  category: "research" | "setup" | "small_action" | "review";
 }
 
 export interface Module {
@@ -62,6 +131,8 @@ export interface Module {
   context: string;
   rateNote?: string;
   teaching: string;
+  inlineChecks?: InlineCheck[];
+  actionNudge?: ActionNudge;
   bdExample?: string;
   actionPrompt: {
     text: string;

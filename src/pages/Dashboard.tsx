@@ -12,7 +12,7 @@ import { ZONE_MODULE_ORDER } from "@/data/modules";
 import {
   Lock, CheckCircle2, Circle, Zap, Flame,
   ChevronDown, ChevronUp, Trophy, ArrowRight, BookOpen,
-  Radar, Crosshair, PieChart, ArrowLeftRight, Landmark, Gauge, Wrench,
+  Radar, Crosshair, PieChart, ArrowLeftRight, Landmark, Gauge, Wrench, Briefcase,
 } from "lucide-react";
 
 // ── Tools list (mirrors landing page tools so signed-in users have access) ──
@@ -23,6 +23,7 @@ const TOOLS = [
   { href: "/comparator",     icon: ArrowLeftRight,label: "Compare savings",tone: "blue"    as const },
   { href: "/emi-calculator", icon: Landmark,      label: "EMI",            tone: "violet"  as const },
   { href: "/car-calculator", icon: Gauge,         label: "Car cost",       tone: "amber"   as const },
+  { href: "/portfolio-builder", icon: Briefcase,  label: "Portfolio Builder", tone: "lime" as const },
 ];
 
 const TOOL_TONE: Record<"red"|"lime"|"teal"|"blue"|"violet"|"amber", { fg: string; bg: string; bd: string }> = {

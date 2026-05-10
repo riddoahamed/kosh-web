@@ -1,16 +1,18 @@
 import { create } from "zustand";
-import type { DiagnosticResponse } from "@/types/diagnostic";
+import type { DiagnosticResponse, AgeGroup } from "@/types/diagnostic";
 import { allDiagnosticQuestions } from "@/data/diagnosticQuestions";
 
 const TOTAL_QUESTIONS = allDiagnosticQuestions.length; // 15
 
 interface DiagnosticStore {
+  ageGroup: AgeGroup | null;
   currentIndex: number;
   responses: DiagnosticResponse[];
   greyZoneSelections: string[];
   showGreyZone: boolean;
   isComplete: boolean;
 
+  setAgeGroup: (group: AgeGroup) => void;
   setResponse: (response: DiagnosticResponse) => void;
   setGreyZoneSelections: (selections: string[]) => void;
   nextQuestion: () => void;
@@ -21,11 +23,14 @@ interface DiagnosticStore {
 }
 
 export const useDiagnosticStore = create<DiagnosticStore>((set, get) => ({
+  ageGroup: null,
   currentIndex: 0,
   responses: [],
   greyZoneSelections: [],
   showGreyZone: false,
   isComplete: false,
+
+  setAgeGroup: (group) => set({ ageGroup: group }),
 
   setResponse: (response) => {
     set((state) => {
@@ -68,13 +73,14 @@ export const useDiagnosticStore = create<DiagnosticStore>((set, get) => ({
   },
 
   reset: () => {
-    set({
+    set((s) => ({
+      ageGroup: s.ageGroup, // preserve across retakes
       currentIndex: 0,
       responses: [],
       greyZoneSelections: [],
       showGreyZone: false,
       isComplete: false,
-    });
+    }));
   },
 
   progress: () => {

@@ -4,6 +4,11 @@ import { getModule } from "@/data/modules";
 import { useProgressStore } from "@/store/progressStore";
 import { usePointsStore, MANGOES } from "@/store/pointsStore";
 import { db } from "@/lib/supabase";
+import type { MultipleChoiceQuestion, ModuleQuizQuestion } from "@/types/curriculum";
+
+function isMCQ(q: ModuleQuizQuestion): q is MultipleChoiceQuestion {
+  return !q.type || q.type === "multiple_choice";
+}
 
 type Phase = "intro" | "quiz" | "pass" | "fail";
 
@@ -23,8 +28,11 @@ export default function SkipQuiz() {
 
   if (!module || !id) return null;
 
-  const questions = module.quiz;
+  // Skip quiz only supports MCQ questions; non-MCQ types are filtered out.
+  const questions = module.quiz.filter(isMCQ);
   const question = questions[currentQ];
+
+  if (!question) return null;
 
   function handleSelect(optionIndex: number) {
     if (revealed) return;

@@ -783,7 +783,7 @@ export default function Landing() {
           <div className="flex flex-col items-center gap-4 pt-2">
             <div className="flex flex-row flex-wrap gap-3 justify-center">
               <Link
-                to="/check"
+                to="/age-select"
                 className="btn-brand inline-flex items-center gap-1.5 px-6 py-3 rounded-full text-sm font-bold tracking-tight active:scale-95"
               >
                 Check your money level
@@ -824,7 +824,7 @@ export default function Landing() {
             </p>
             <div className="flex justify-center gap-3 pt-2">
               <Link
-                to="/check"
+                to="/age-select"
                 className="btn-brand inline-flex items-center gap-1.5 px-6 py-3 rounded-full text-sm font-bold tracking-tight active:scale-95"
               >
                 Take the check <ArrowRight className="h-3.5 w-3.5" />
@@ -1109,7 +1109,9 @@ export default function Landing() {
             <Link to="/budget-planner" className="hover:text-foreground/60 transition-colors">Budget</Link>
             <Link to="/fdr-calculator" className="hover:text-foreground/60 transition-colors">FDR</Link>
             <Link to="/savings-goal"   className="hover:text-foreground/60 transition-colors">Goal Planner</Link>
+            <Link to="/portfolio-builder" className="hover:text-foreground/60 transition-colors">Portfolio Builder</Link>
             <Link to="/check"          className="hover:text-foreground/60 transition-colors">Money Check</Link>
+            <Link to="/for-institutions" className="hover:text-foreground/60 transition-colors">For Institutions</Link>
           </div>
         </div>
       </footer>

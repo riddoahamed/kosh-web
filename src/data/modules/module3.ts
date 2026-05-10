@@ -47,6 +47,19 @@ Same income। কিন্তু এখন প্রতিটা taka-র এ�
   },
   quiz: [
     {
+      id: "m3q-match",
+      type: "match_pairs",
+      question: "Match each bucket to its main job:",
+      leftItems: ["Safety (সঞ্চয়)", "Growth (বিনিয়োগ)", "Speculation"],
+      rightItems: [
+        "Beat inflation, grow wealth over 3+ years",
+        "Protect you when something unexpected happens",
+        "Scratch the itch — high risk, money you can fully lose",
+      ],
+      correctMapping: [1, 0, 2],
+      explanation: "Safety covers emergencies. Growth beats inflation over time. Speculation is optional and capped at 5–10% of savings.",
+    },
+    {
       id: "m3q1",
       text: "An emergency fund belongs in which bucket?",
       options: ["Bucket 3 — Speculation", "Bucket 2 — Growth", "Bucket 1 — Safety", "None — keep it in cash"],
