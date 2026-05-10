@@ -116,6 +116,26 @@ Not ideal for: emergency funds (not liquid enough), money you might need within 
 
   quiz: [
     {
+      id: "z5-1-scenario",
+      type: "scenario_decision",
+      scenario: "Nadia, 32, has Tk 8 lakh she won't need for 5 years. She wants government-guaranteed income. Her husband suggests buying Tk 8 lakh of Bangladesh Sanchaypatra in his name 'because the limit is per person.'",
+      question: "What's the right response?",
+      options: [
+        "Agree — limits are limits, his name is fine.",
+        "Buy in Nadia's own name (since she earns/has the funds), keeping the paper trail clean for inheritance, tax filing, and her own legal claim. Spread across her account up to her own limit.",
+        "Skip Sanchaypatra entirely — too restrictive.",
+        "Buy half each in random family members' names to dodge the limit.",
+      ],
+      correctIndex: 1,
+      optionExplanations: [
+        "Holding investments under another person's name creates legal and inheritance ambiguity. Nominee ≠ owner.",
+        "Correct — ownership should track the actual source of funds. Limits are per NID for a reason; respecting them keeps the asset legally and tax-wise yours.",
+        "Sanchaypatra at ~10.5% gov-guaranteed is hard to beat for a 5-year horizon — skipping it is leaving real money behind.",
+        "This is benami holding territory and creates serious legal/inheritance risk down the road.",
+      ],
+      explanation: "A core rule of personal finance: assets should be held in the name of the person whose money it is. Hidden ownership solves a small problem and creates a much larger one.",
+    },
+    {
       question: "Which Sanchaypatra type requires the buyer to be a retired government employee?",
       options: ["Bangladesh Sanchaypatra (5-year)", "3-month Profit-bearing", "Family Sanchaypatra", "Pensioner Sanchaypatra"],
       correctIndex: 3,

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDiagnosticStore } from "@/store/diagnosticStore";
 import { allDiagnosticQuestions, knowledgeQuestions as defaultKnowledgeQuestions } from "@/data/diagnosticQuestions";
@@ -9,11 +9,14 @@ import { DiagnosticProgress } from "@/components/diagnostic/DiagnosticProgress";
 import { Button } from "@/components/ui/button";
 import { buildDiagnosticResult } from "@/lib/scoring";
 import { db } from "@/lib/supabase";
+import { useAuthStore } from "@/store/authStore";
 import type { DiagnosticResponse } from "@/types/diagnostic";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, X } from "lucide-react";
 
 export default function Diagnostic() {
   const navigate = useNavigate();
+  const profile = useAuthStore((s) => s.profile);
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
   const {
     ageGroup,
     currentIndex,
@@ -26,6 +29,21 @@ export default function Diagnostic() {
     completeGreyZone,
     reset,
   } = useDiagnosticStore();
+
+  const exitTo = profile ? "/dashboard" : "/";
+
+  function handleExit() {
+    if (responses.length === 0) {
+      navigate(exitTo);
+    } else {
+      setShowExitConfirm(true);
+    }
+  }
+
+  function confirmExit() {
+    reset();
+    navigate(exitTo);
+  }
 
   // Redirect to age selection if not set
   useEffect(() => {
@@ -68,11 +86,22 @@ export default function Diagnostic() {
     return (
       <div className="min-h-screen bg-background flex flex-col">
         <div className="max-w-lg w-full mx-auto px-4 py-6 flex-1 flex flex-col justify-center space-y-6">
+          <div className="flex items-center justify-end">
+            <button
+              onClick={handleExit}
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Exit diagnostic"
+            >
+              <X className="h-3.5 w-3.5" />
+              Exit
+            </button>
+          </div>
           <DiagnosticProgress />
           <div className="bg-card rounded-2xl border border-border p-6 shadow-sm">
             <GreyZoneQuestion onSubmit={handleGreyZoneSubmit} />
           </div>
         </div>
+        {showExitConfirm && <ExitConfirm onCancel={() => setShowExitConfirm(false)} onConfirm={confirmExit} />}
       </div>
     );
   }
@@ -91,9 +120,19 @@ export default function Diagnostic() {
             <ChevronLeft className="h-4 w-4" />
             Back
           </button>
-          <span className="text-xs font-medium text-foreground/40">
-            এটা test না — এটা একটা check-in
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-medium text-foreground/40 hidden sm:inline">
+              এটা test না — এটা একটা check-in
+            </span>
+            <button
+              onClick={handleExit}
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Exit diagnostic"
+            >
+              <X className="h-3.5 w-3.5" />
+              Exit
+            </button>
+          </div>
         </div>
 
         <DiagnosticProgress />
@@ -112,6 +151,37 @@ export default function Diagnostic() {
             {currentIndex < diagnosticQuestions.length - 1 ? "Next →" : "Almost done →"}
           </Button>
         )}
+      </div>
+      {showExitConfirm && <ExitConfirm onCancel={() => setShowExitConfirm(false)} onConfirm={confirmExit} />}
+    </div>
+  );
+}
+
+function ExitConfirm({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: () => void }) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4"
+      onClick={(e) => { if (e.target === e.currentTarget) onCancel(); }}
+    >
+      <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-6 space-y-4 shadow-2xl">
+        <h3 className="font-display font-black text-foreground text-lg tracking-tight">Exit the check?</h3>
+        <p className="text-sm text-foreground/60 leading-relaxed">
+          Your answers so far won't be saved. You can start over anytime.
+        </p>
+        <div className="flex gap-3 pt-1">
+          <button
+            onClick={onCancel}
+            className="flex-1 border border-border rounded-xl py-2.5 text-sm font-semibold text-foreground/60 hover:text-foreground transition-all"
+          >
+            Keep going
+          </button>
+          <button
+            onClick={onConfirm}
+            className="flex-1 bg-red-500 text-white rounded-xl py-2.5 text-sm font-bold hover:bg-red-600 transition-all"
+          >
+            Exit
+          </button>
+        </div>
       </div>
     </div>
   );

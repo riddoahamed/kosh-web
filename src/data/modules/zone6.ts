@@ -280,6 +280,20 @@ These reforms take time to translate into market performance, but the direction 
 
   quiz: [
     {
+      id: "z6-2-match",
+      type: "match_pairs",
+      question: "Match each DSE category to what it generally indicates:",
+      leftItems: ["A category", "B category", "N category", "Z category"],
+      rightItems: [
+        "Newly listed companies (limited track record)",
+        "Companies that haven't held an AGM or paid dividends — high risk",
+        "Pays regular dividends, holds AGMs, generally fundamentally healthier",
+        "Lower-tier compliance — smaller / younger / weaker dividend record",
+      ],
+      correctMapping: [2, 3, 0, 1],
+      explanation: "A is the safest tier; B is mid; N is recently listed (you don't have history yet); Z is the warning category — many cheap-looking Z stocks are cheap for legitimate reasons.",
+    },
+    {
       question: "What is a Z-category stock on the DSE?",
       options: [
         "A high-performing stock with the highest returns",
@@ -567,6 +581,14 @@ No single number tells the full story. All four together start to form a picture
   game: z6Game2,
 
   quiz: [
+    {
+      id: "z6-4-blank",
+      type: "fill_blank",
+      question: "A stock trades at Tk 80. Its EPS is Tk 8. The P/E ratio is ___",
+      acceptedAnswers: ["10"],
+      hint: "P/E = Price ÷ EPS",
+      explanation: "P/E = Tk 80 ÷ Tk 8 = 10. You're paying Tk 10 for every Tk 1 of annual earnings — roughly in line with the DSE average.",
+    },
     {
       question: "A company has net profit of Tk 200 million and 5 million shares. What is its EPS?",
       options: ["Tk 4", "Tk 20", "Tk 40", "Tk 200"],

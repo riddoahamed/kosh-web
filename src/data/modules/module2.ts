@@ -38,6 +38,35 @@ Cash, savings account, regular FDR — এগুলো safe কিন্তু r
   },
   quiz: [
     {
+      id: "m2q-blank",
+      type: "fill_blank",
+      question: "If FDR pays 9% and inflation is 10%, your real return is ___ %",
+      acceptedAnswers: ["-1", "−1", "minus 1", "negative 1"],
+      hint: "Real return = nominal − inflation. The answer can be negative.",
+      explanation: "Real return = 9% − 10% = −1%. The number in your account grows, but its purchasing power shrinks slightly each year.",
+      unit: "%",
+    },
+    {
+      id: "m2q-scenario",
+      type: "scenario_decision",
+      scenario: "Your aunt has Tk 5 lakh in a savings account paying 4.5%. She says, 'It's safe. I'm getting Tk 22,500 a year — that's good enough.' Inflation is around 9%.",
+      question: "What's the most useful thing you could share with her?",
+      options: [
+        "She's right — Tk 22,500 a year is solid for retirement income.",
+        "Show her the real return is roughly −4.5%, so her purchasing power is shrinking by about Tk 22,500 a year despite the 'gain.'",
+        "Tell her to move it all to crypto so she beats inflation.",
+        "Suggest she withdraw it and keep cash at home.",
+      ],
+      correctIndex: 1,
+      optionExplanations: [
+        "Nominal gain feels real but ignores inflation — the most common money illusion.",
+        "Correct — the framing 'real return' is the unlock. She can decide what to do once she sees the actual picture.",
+        "Crypto is not 'safe inflation hedge' for retail in BD; the volatility risk far exceeds the inflation problem.",
+        "Cash at home loses to inflation just as much, plus adds theft and physical risk.",
+      ],
+      explanation: "The point isn't to push a product — it's to surface the hidden cost so she can choose with full information.",
+    },
+    {
       id: "m2q1",
       text: "Inflation 10%, FDR interest 8%. What is the real return?",
       options: ["+18%", "+2%", "−2%", "0%"],

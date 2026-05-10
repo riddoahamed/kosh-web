@@ -152,8 +152,17 @@ export default function SkipQuiz() {
       <div className="max-w-lg w-full mx-auto px-4 py-8 flex-1 flex flex-col space-y-6">
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <span>⚡ Skip quiz — {module.title}</span>
-            <span>{currentQ + 1} / {questions.length}</span>
+            <span className="truncate">⚡ Skip quiz — {module.title}</span>
+            <div className="flex items-center gap-3 shrink-0">
+              <span>{currentQ + 1} / {questions.length}</span>
+              <button
+                onClick={() => navigate("/dashboard")}
+                className="text-xs hover:text-foreground"
+                aria-label="Exit skip quiz"
+              >
+                Exit ✕
+              </button>
+            </div>
           </div>
           <div className="h-1.5 bg-border rounded-full overflow-hidden">
             <div className="h-full bg-primary rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />

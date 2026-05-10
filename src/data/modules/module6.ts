@@ -58,6 +58,20 @@ Same advice সবার জন্য কাজ করে না।`,
   },
   quiz: [
     {
+      id: "m6q-match",
+      type: "match_pairs",
+      question: "Match each Bangladesh instrument to its defining characteristic:",
+      leftItems: ["Sanchaypatra", "FDR", "DPS", "Savings account"],
+      rightItems: [
+        "Lump-sum bank deposit, fixed rate, fixed term",
+        "Government certificate, highest 'safe' rate, 3–5 yr lock",
+        "Instant access, lowest rate",
+        "Monthly recurring deposit, forced savings discipline",
+      ],
+      correctMapping: [1, 0, 3, 2],
+      explanation: "Sanchaypatra: government, highest safe rate, locked. FDR: lump-sum at a bank. DPS: monthly installments. Savings account: liquid but lowest yield.",
+    },
+    {
       id: "m6q1",
       text: "Among the 'safe' options (not stocks), which currently offers the highest typical return in Bangladesh?",
       options: ["FDR", "DPS", "Sanchaypatra", "Savings account"],

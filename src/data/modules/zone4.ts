@@ -219,6 +219,26 @@ Regular bank savings accounts and FDRs do not qualify for the investment rebate.
   },
   quiz: [
     {
+      id: "z4-2-scenario",
+      type: "scenario_decision",
+      scenario: "Tariq earns Tk 12 lakh/year. He owes about Tk 90,000 in income tax. He has Tk 2 lakh sitting in a low-interest savings account he doesn't need to touch this year.",
+      question: "What's the highest-leverage move?",
+      options: [
+        "Leave the Tk 2 lakh in savings — investing always means risk.",
+        "Move the Tk 2 lakh into Sanchaypatra (qualifying for the 15% rebate). He claims a Tk 30,000 tax reduction AND earns ~10.5% interest.",
+        "Spend it on a new phone — he's earned it.",
+        "Hand it to a stockbroker friend to pick stocks.",
+      ],
+      correctIndex: 1,
+      optionExplanations: [
+        "Sanchaypatra is government-backed — the 'risk' framing doesn't apply here, and the tax rebate is essentially free money.",
+        "Correct — Tk 30,000 tax saved + Tk 21,000 interest = Tk 51,000 effective return on Tk 2 lakh in year one. Hard to beat.",
+        "An emotional purchase that costs him both the rebate and the future returns.",
+        "Tip-based stock picking has a poor track record. Even good stock returns rarely beat a guaranteed 25%+ first-year combined yield.",
+      ],
+      explanation: "The tax rebate is one of the few risk-free, government-guaranteed returns available. Most earners who don't claim it simply haven't done the math.",
+    },
+    {
       question: "If you invest Tk 2 lakh in qualifying instruments, your income tax reduces by approximately:",
       options: ["Tk 2 lakh", "Tk 50,000", "Tk 30,000 (15% of Tk 2 lakh)", "Tk 10,000"],
       correctIndex: 2,

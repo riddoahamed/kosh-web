@@ -274,7 +274,20 @@ export default function ComprehensiveExam() {
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <span className="font-medium">🎓 Comprehensive Exam</span>
-            <span>{currentQ + 1} / {TOTAL}</span>
+            <div className="flex items-center gap-3">
+              <span>{currentQ + 1} / {TOTAL}</span>
+              <button
+                onClick={() => {
+                  if (window.confirm("Exit the exam? Your answers will be lost.")) {
+                    navigate("/dashboard");
+                  }
+                }}
+                className="text-xs text-muted-foreground hover:text-foreground"
+                aria-label="Exit exam"
+              >
+                Exit ✕
+              </button>
+            </div>
           </div>
           <div className="h-1.5 bg-border rounded-full overflow-hidden">
             <div

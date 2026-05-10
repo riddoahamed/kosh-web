@@ -536,6 +536,15 @@ Technical knowledge of investment instruments matters less than these five behav
 
   quiz: [
     {
+      id: "z9-4-blank",
+      type: "fill_blank",
+      question: "25x rule: to retire on Tk 6 lakh per year, you need roughly Tk ___ crore invested",
+      acceptedAnswers: ["1.5", "1.50"],
+      hint: "Multiply the annual spend by 25 (Tk 6 lakh × 25, expressed in crore).",
+      explanation: "Tk 6 lakh × 25 = Tk 1.5 crore. The 25x rule (4% safe withdrawal) is a starting estimate, not a precise plan — but it gives you a target to work toward.",
+      unit: "crore",
+    },
+    {
       question: "Why is a financial plan limited to one page more effective than a detailed spreadsheet for most people?",
       options: [
         "One-page plans contain less information and are therefore less accurate",
@@ -662,6 +671,20 @@ Practical approach: maintain a physical record (not on a phone or computer) of c
   },
 
   quiz: [
+    {
+      id: "z9-5-match",
+      type: "match_pairs",
+      question: "Match each estate-planning concept to its purpose:",
+      leftItems: ["Nominee", "Legal heir", "Will", "TIN + filed returns"],
+      rightItems: [
+        "Provides a public, traceable financial history that smooths inheritance",
+        "Receives or holds an asset on behalf of the rightful owner — not necessarily the legal owner",
+        "Determined by inheritance law (Islamic, Hindu, etc.) — the actual legal owner",
+        "Lets you specify how your assets should be distributed beyond what default law dictates",
+      ],
+      correctMapping: [1, 2, 3, 0],
+      explanation: "Nominees are receivers, not owners. Legal heirs are owners by law. A will is how you override defaults. A clean tax record is how heirs prove the asset belongs to your estate.",
+    },
     {
       question: "What is the legal difference between a 'nominee' and a 'legal heir' in Bangladesh?",
       options: [

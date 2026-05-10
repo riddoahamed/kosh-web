@@ -236,6 +236,26 @@ If you cannot pay the full balance this month: stop using the card for new purch
 
   quiz: [
     {
+      id: "z3-2-scenario",
+      type: "scenario_decision",
+      scenario: "Sara has a Tk 80,000 credit card balance at 22% APR. She also has Tk 60,000 in a savings account earning 4.5%. A bank offer arrives for a personal loan at 14%.",
+      question: "What's the most rational move?",
+      options: [
+        "Keep the savings untouched — emergency funds are sacred.",
+        "Use the Tk 60,000 from savings to pay down most of the credit card immediately. The 'interest avoided' (22%) far exceeds the 'interest earned' (4.5%).",
+        "Take the 14% personal loan to pay the card, then keep paying the minimum on the loan.",
+        "Make minimum payments on the card and start a DPS for retirement.",
+      ],
+      correctIndex: 1,
+      optionExplanations: [
+        "An emergency fund matters, but holding 4.5% savings against 22% debt is a 17.5% net loss every year.",
+        "Correct — paying down 22% debt is mathematically equivalent to a guaranteed 22% return. Keep a small cash buffer (Tk 10–15k) and crush the card.",
+        "14% is better than 22%, but moving the debt sideways still costs ~Tk 11k/year. Pay it down, don't refinance it.",
+        "Adding new long-term commitments while carrying 22% debt is wealth destruction — the card grows faster than the DPS.",
+      ],
+      explanation: "Order of operations: high-interest debt first, then build savings/investing on top. Financial 'optimization' that ignores this order is just rearranging losses.",
+    },
+    {
       question: "You receive a credit card statement with a balance of Tk 40,000. You pay the minimum (Tk 1,200). Next month, interest is charged on approximately how much?",
       options: [
         "Tk 1,200 (what you paid)",

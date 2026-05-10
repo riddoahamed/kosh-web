@@ -1,6 +1,7 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useDiagnosticStore } from "@/store/diagnosticStore";
 import type { AgeGroup } from "@/types/diagnostic";
+import { useAuthStore } from "@/store/authStore";
 
 const AGE_GROUPS: { id: AgeGroup; title: string; subtitle: string; description: string; icon: string }[] = [
   {
@@ -29,15 +30,28 @@ const AGE_GROUPS: { id: AgeGroup; title: string; subtitle: string; description: 
 export default function AgeSelection() {
   const navigate = useNavigate();
   const { setAgeGroup } = useDiagnosticStore();
+  const profile = useAuthStore((s) => s.profile);
 
   function handleSelect(id: AgeGroup) {
     setAgeGroup(id);
     navigate("/check");
   }
 
+  const exitTo = profile ? "/dashboard" : "/";
+  const exitLabel = profile ? "← Back to dashboard" : "← Back to home";
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <div className="max-w-lg w-full mx-auto px-4 py-10 flex flex-col flex-1">
+
+        <div className="mb-6">
+          <Link
+            to={exitTo}
+            className="text-sm font-medium text-foreground/60 hover:text-foreground transition-colors"
+          >
+            {exitLabel}
+          </Link>
+        </div>
 
         <div className="mb-8 space-y-1.5">
           <p className="text-xs font-semibold text-foreground/35 uppercase tracking-widest">

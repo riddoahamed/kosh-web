@@ -138,6 +138,14 @@ BSEC's 2025 draft regulations propose no new closed-end funds and mandate conver
 
   quiz: [
     {
+      id: "z8-1-blank",
+      type: "fill_blank",
+      question: "Rule of 72: at 9% annual return, your money roughly doubles in ___ years",
+      acceptedAnswers: ["8"],
+      hint: "72 ÷ rate-as-percent",
+      explanation: "Rule of 72: years to double ≈ 72 ÷ rate. At 9%, that's 72 ÷ 9 = 8 years. A useful mental shortcut for estimating long-term growth.",
+    },
+    {
       question: "What is NAV (Net Asset Value) and why does it matter for mutual fund investors?",
       options: [
         "NAV is the stock exchange price of the fund unit",
@@ -266,6 +274,20 @@ Annual rebalancing for most investors is sufficient. Quarterly is appropriate fo
   game: z8Game1,
 
   quiz: [
+    {
+      id: "z8-2-match",
+      type: "match_pairs",
+      question: "Match each asset class to its primary role in a portfolio:",
+      leftItems: ["Cash / savings", "Bonds (or Sanchaypatra)", "Equities (stocks)", "Gold"],
+      rightItems: [
+        "Long-term real growth — beats inflation over decades but volatile short-term",
+        "Inflation hedge / crisis hedge — uncorrelated to local equities",
+        "Liquidity & emergency buffer — protects against forced selling",
+        "Stable income, lower volatility — anchors the portfolio",
+      ],
+      correctMapping: [2, 3, 0, 1],
+      explanation: "Each asset class plays a different role. Diversification works because their roles complement each other, not because they all aim for the same thing.",
+    },
     {
       question: "What does 'correlation' mean in the context of a portfolio?",
       options: [

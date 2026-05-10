@@ -139,6 +139,26 @@ This is the system design that outlasts motivation.
   },
   quiz: [
     {
+      id: "z2-1-scenario",
+      type: "scenario_decision",
+      scenario: "Karim earns Tk 60,000/month. He's never tracked spending. He just got a notification that his bKash balance is Tk 0 with 8 days left in the month. He's confused — he doesn't feel like he 'spent that much.'",
+      question: "What's the most useful first step?",
+      options: [
+        "Set a strict Tk-per-category budget for next month immediately.",
+        "Open his bank and bKash apps, scroll the last 30–60 days of transactions, and just observe — no judgment, no categories yet.",
+        "Cut all 'non-essential' spending starting tomorrow.",
+        "Borrow Tk 5,000 from a friend to cover the gap and move on.",
+      ],
+      correctIndex: 1,
+      optionExplanations: [
+        "Strict budgets without observation tend to fail because you don't yet know your actual baseline.",
+        "Correct — awareness comes before structure. You can't budget categories you haven't seen.",
+        "Cutting 'non-essential' is meaningless when you don't yet know what you're spending on.",
+        "A loan papers over the gap without solving the visibility problem that caused it.",
+      ],
+      explanation: "Observation precedes optimization. The first 30 days of just seeing your spending teaches more than any budget app's categories.",
+    },
+    {
       question: "Research on behavior change and budgeting suggests which approach is more effective?",
       options: [
         "Strict category budgets with weekly review meetings",
