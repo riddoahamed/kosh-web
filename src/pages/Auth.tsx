@@ -1,17 +1,11 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Auth — sign up / log in only. No magic links, no email confirmation,
-// no password reset emails. Pure local-first; everything stored on the
-// device via src/lib/localAuth.ts.
-//
-// If you need cross-device sync later, that's a layer on top — this page
-// doesn't need to change.
+// Auth — Supabase email + password for public beta.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, Eye, EyeOff, Loader2 } from "lucide-react";
-import { db } from "@/lib/supabase";
-import { localAuth } from "@/lib/localAuth";
+import { auth, db, supabaseReady, type KoshProfile } from "@/lib/supabase";
 import { useAuthStore } from "@/store/authStore";
 import { startDemo, isDemoMode, exitDemo } from "@/lib/demo";
 
@@ -22,7 +16,7 @@ type Tab = "signup" | "login";
 
 export default function Auth() {
   const navigate = useNavigate();
-  const { setProfile } = useAuthStore();
+  const { profile, isLoaded, setProfile } = useAuthStore();
 
   // If user lands here while already logged in, send them to dashboard
   useEffect(() => {
@@ -30,11 +24,10 @@ export default function Auth() {
       exitDemo();
       useAuthStore.getState().loadProfile();
     }
-    const active = localAuth.getActiveProfile();
-    if (active && !isDemoMode()) {
+    if (isLoaded && profile && !isDemoMode()) {
       navigate("/dashboard", { replace: true });
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isLoaded, navigate, profile]);
 
   // Pre-fill email from query string (when user arrives via EmailSignupModal)
   const urlEmail =
@@ -42,10 +35,8 @@ export default function Auth() {
       ? new URLSearchParams(window.location.search).get("email") ?? ""
       : "";
 
-  // Pre-pick tab based on whether they've signed up before on this device
-  const knownEmails = localAuth.listEmails();
-  const initialTab: Tab = knownEmails.length > 0 && !urlEmail ? "login" : "signup";
-  const initialEmail = urlEmail || (knownEmails[0] ?? "");
+  const initialTab: Tab = urlEmail ? "signup" : "login";
+  const initialEmail = urlEmail;
 
   const [tab, setTab]           = useState<Tab>(initialTab);
   const [email, setEmail]       = useState(initialEmail);
@@ -57,11 +48,14 @@ export default function Auth() {
   const [consent, setConsent]   = useState(false);
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState("");
+  const [notice, setNotice]     = useState("");
 
-  function handleSignUp(e: React.FormEvent) {
+  async function handleSignUp(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+    setNotice("");
 
+    if (!supabaseReady)         return setError("Supabase is not configured yet.");
     if (!email.trim())          return setError("Please enter your email.");
     if (password.length < 6)    return setError("Password must be at least 6 characters.");
     if (!name.trim())           return setError("Please enter your name.");
@@ -73,7 +67,7 @@ export default function Auth() {
     // Bring along any anonymous diagnostic the user already completed
     const savedResult = db.getDiagnosticResult();
 
-    const result = localAuth.signUp(email, password, {
+    const profileData = {
       name: name.trim(),
       age: parseInt(age),
       phone: phone.trim() || undefined,
@@ -82,11 +76,13 @@ export default function Auth() {
       grey_zone_flagged: savedResult?.greyZone?.flagged,
       grey_zone_exposure: savedResult?.greyZone?.exposures,
       kyc_status: "not_submitted",
-    });
+    } satisfies Omit<KoshProfile, "id" | "email" | "created_at">;
 
-    if (!result.success) {
-      setError(result.error);
-      if (result.error.toLowerCase().includes("already exists")) {
+    const { data, error: signUpError } = await auth.signUpWithPassword(email, password, profileData);
+
+    if (signUpError) {
+      setError(signUpError.message);
+      if (signUpError.message.toLowerCase().includes("already")) {
         setTab("login");
         setPassword("");
       }
@@ -94,26 +90,69 @@ export default function Auth() {
       return;
     }
 
-    // setProfile() also calls db.saveProfile (which fires any background
-    // Supabase upsert when configured) — single source of truth.
-    setProfile(result.profile);
-    navigate("/dashboard", { replace: true });
-  }
-
-  function handleLogIn(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-
-    if (!email.trim() || !password) return setError("Email and password are required.");
-
-    setLoading(true);
-    const result = localAuth.logIn(email, password);
-    if (!result.success) {
-      setError(result.error);
+    const user = data.user;
+    if (!user) {
+      setError("Could not create the account. Please try again.");
       setLoading(false);
       return;
     }
-    setProfile(result.profile);
+
+    const profile: KoshProfile = {
+      ...profileData,
+      id: user.id,
+      email: user.email ?? email.trim().toLowerCase(),
+      created_at: new Date().toISOString(),
+    };
+
+    if (!data.session) {
+      db.saveLocalOnlyProfile(profile);
+      setNotice("Check your email to confirm your account, then log in.");
+      setTab("login");
+      setPassword("");
+      setLoading(false);
+      return;
+    }
+
+    setProfile(profile);
+    navigate("/dashboard", { replace: true });
+  }
+
+  async function handleLogIn(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setNotice("");
+
+    if (!supabaseReady) return setError("Supabase is not configured yet.");
+    if (!email.trim() || !password) return setError("Email and password are required.");
+
+    setLoading(true);
+    const { data, error: loginError } = await auth.signInWithPassword(email, password);
+    if (loginError) {
+      setError(loginError.message);
+      setLoading(false);
+      return;
+    }
+    const user = data.user;
+    if (!user) {
+      setError("Could not log in. Please try again.");
+      setLoading(false);
+      return;
+    }
+    const remoteProfile = await db.fetchProfile(user.id);
+    const nextProfile = remoteProfile ?? db.getProfile() ?? {
+      id: user.id,
+      email: user.email ?? email.trim().toLowerCase(),
+      name: typeof user.user_metadata?.name === "string" ? user.user_metadata.name : "Kosh learner",
+      age: typeof user.user_metadata?.age === "number" ? user.user_metadata.age : undefined,
+      phone: typeof user.user_metadata?.phone === "string" ? user.user_metadata.phone : undefined,
+      consent_given: user.user_metadata?.consent_given === true,
+      level_assigned: typeof user.user_metadata?.level_assigned === "number" ? user.user_metadata.level_assigned : undefined,
+      grey_zone_flagged: user.user_metadata?.grey_zone_flagged === true,
+      grey_zone_exposure: Array.isArray(user.user_metadata?.grey_zone_exposure) ? user.user_metadata.grey_zone_exposure : undefined,
+      created_at: user.created_at ?? new Date().toISOString(),
+      kyc_status: "not_submitted",
+    };
+    setProfile(nextProfile);
     navigate("/dashboard", { replace: true });
   }
 
@@ -245,6 +284,7 @@ export default function Auth() {
           )}
 
           {error && <p className="text-xs text-red-400 leading-relaxed">{error}</p>}
+          {notice && <p className="text-xs text-primary leading-relaxed">{notice}</p>}
 
           <button
             type="submit"
@@ -260,7 +300,7 @@ export default function Auth() {
 
         <p className="text-xs text-muted-foreground/40 text-center">
           {tab === "signup"
-            ? "Your account is saved on this device. No verification email needed."
+            ? "Use an email you can access. We may ask you to confirm it."
             : "Don't have an account? Use the Sign up tab above."}
         </p>
 

@@ -5,7 +5,7 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined;
 
 // App runs in localStorage-only mode if env vars are missing
-const supabaseReady = !!supabaseUrl && !!supabaseKey;
+export const supabaseReady = !!supabaseUrl && !!supabaseKey;
 
 export const supabase = supabaseReady
   ? createClient(supabaseUrl!, supabaseKey!)
@@ -21,13 +21,14 @@ export const auth = {
       the user confirms via email — surface this case to the UI.
       The emailRedirectTo brings them back to /auth after they click the link
       so the auto-detected session lands them straight on the dashboard. */
-  async signUpWithPassword(email: string, password: string) {
+  async signUpWithPassword(email: string, password: string, data?: Record<string, unknown>) {
     if (!supabase) throw new Error("Supabase not configured");
     return supabase.auth.signUp({
       email: email.trim().toLowerCase(),
       password,
       options: {
         emailRedirectTo: window.location.origin + "/auth",
+        data,
       },
     });
   },
