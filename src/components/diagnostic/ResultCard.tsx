@@ -69,7 +69,6 @@ export function ResultCard({ result }: Props) {
           You're at Level {result.level}
         </h2>
         <p className="text-muted-foreground text-lg">
-          {result.personalityLabel} —{" "}
           {PERSONALITY_DESCRIPTIONS[result.level]}
         </p>
       </div>

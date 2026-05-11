@@ -1,11 +1,8 @@
 import { create } from "zustand";
 import type { DiagnosticResponse, AgeGroup } from "@/types/diagnostic";
-import { allDiagnosticQuestions } from "@/data/diagnosticQuestions";
-
-const TOTAL_QUESTIONS = allDiagnosticQuestions.length; // 15
-
 interface DiagnosticStore {
   ageGroup: AgeGroup | null;
+  totalQuestions: number;
   currentIndex: number;
   responses: DiagnosticResponse[];
   greyZoneSelections: string[];
@@ -13,6 +10,7 @@ interface DiagnosticStore {
   isComplete: boolean;
 
   setAgeGroup: (group: AgeGroup) => void;
+  setQuestionCount: (count: number) => void;
   setResponse: (response: DiagnosticResponse) => void;
   setGreyZoneSelections: (selections: string[]) => void;
   nextQuestion: () => void;
@@ -24,6 +22,7 @@ interface DiagnosticStore {
 
 export const useDiagnosticStore = create<DiagnosticStore>((set, get) => ({
   ageGroup: null,
+  totalQuestions: 15,
   currentIndex: 0,
   responses: [],
   greyZoneSelections: [],
@@ -31,6 +30,8 @@ export const useDiagnosticStore = create<DiagnosticStore>((set, get) => ({
   isComplete: false,
 
   setAgeGroup: (group) => set({ ageGroup: group }),
+
+  setQuestionCount: (count) => set({ totalQuestions: count }),
 
   setResponse: (response) => {
     set((state) => {
@@ -51,10 +52,10 @@ export const useDiagnosticStore = create<DiagnosticStore>((set, get) => ({
   },
 
   nextQuestion: () => {
-    const { currentIndex } = get();
-    if (currentIndex < TOTAL_QUESTIONS - 1) {
+    const { currentIndex, totalQuestions } = get();
+    if (currentIndex < totalQuestions - 1) {
       set({ currentIndex: currentIndex + 1 });
-    } else if (currentIndex === TOTAL_QUESTIONS - 1) {
+    } else if (currentIndex === totalQuestions - 1) {
       set({ showGreyZone: true });
     }
   },
@@ -84,8 +85,8 @@ export const useDiagnosticStore = create<DiagnosticStore>((set, get) => ({
   },
 
   progress: () => {
-    const { currentIndex, showGreyZone } = get();
+    const { currentIndex, showGreyZone, totalQuestions } = get();
     if (showGreyZone) return 100;
-    return Math.round((currentIndex / TOTAL_QUESTIONS) * 100);
+    return Math.round((currentIndex / totalQuestions) * 100);
   },
 }));

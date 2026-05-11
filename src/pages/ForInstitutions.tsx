@@ -45,6 +45,7 @@ const TRACK_RECORD = [
 
 interface InquiryForm {
   name: string;
+  email: string;
   organization: string;
   role: string;
   model: string;
@@ -53,6 +54,7 @@ interface InquiryForm {
 
 const INITIAL: InquiryForm = {
   name: "",
+  email: "",
   organization: "",
   role: "",
   model: "white_label",
@@ -65,15 +67,21 @@ export default function ForInstitutions() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.name.trim() || !form.organization.trim() || !form.message.trim()) return;
-    try {
-      const existing = JSON.parse(localStorage.getItem("kosh:b2b_inquiries") ?? "[]");
-      const record = { ...form, submittedAt: new Date().toISOString() };
-      localStorage.setItem("kosh:b2b_inquiries", JSON.stringify([record, ...existing]));
-    } catch {
-      // localStorage may be disabled — submission still succeeds visually
-    }
+    if (!form.name.trim() || !form.email.trim() || !form.organization.trim() || !form.message.trim()) return;
+    const subject = encodeURIComponent(`Kosh pilot inquiry — ${form.organization.trim()}`);
+    const body = encodeURIComponent(
+      [
+        `Name: ${form.name.trim()}`,
+        `Email: ${form.email.trim()}`,
+        `Organisation: ${form.organization.trim()}`,
+        `Role: ${form.role.trim() || "Not specified"}`,
+        `Interest: ${form.model}`,
+        "",
+        form.message.trim(),
+      ].join("\n")
+    );
     setSubmitted(true);
+    window.location.href = `mailto:koshinitiative@gmail.com?subject=${subject}&body=${body}`;
   }
 
   return (
@@ -168,10 +176,10 @@ export default function ForInstitutions() {
           {submitted ? (
             <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/25 p-4">
               <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-                Thanks — we got your note.
+                Your email app should open now.
               </p>
               <p className="text-xs text-foreground/60 mt-1 leading-relaxed">
-                We'll be in touch within 48 hours at the email or organisation you listed.
+                Send the prepared email to koshinitiative@gmail.com and we'll reply within 48 hours.
               </p>
             </div>
           ) : (
@@ -186,6 +194,16 @@ export default function ForInstitutions() {
                   className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
                 />
                 <input
+                  type="email"
+                  required
+                  placeholder="Email"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                />
+              </div>
+              <div className="grid gap-3 md:grid-cols-2">
+                <input
                   type="text"
                   required
                   placeholder="Organisation"
@@ -193,14 +211,14 @@ export default function ForInstitutions() {
                   onChange={(e) => setForm({ ...form, organization: e.target.value })}
                   className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
                 />
+                <input
+                  type="text"
+                  placeholder="Role (optional)"
+                  value={form.role}
+                  onChange={(e) => setForm({ ...form, role: e.target.value })}
+                  className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                />
               </div>
-              <input
-                type="text"
-                placeholder="Role (optional)"
-                value={form.role}
-                onChange={(e) => setForm({ ...form, role: e.target.value })}
-                className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-              />
               <select
                 value={form.model}
                 onChange={(e) => setForm({ ...form, model: e.target.value })}

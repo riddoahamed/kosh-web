@@ -7,7 +7,7 @@ import { ShareButton } from "@/components/shared/ShareButton";
 import { Button } from "@/components/ui/button";
 import SignUpNudge from "@/components/shared/SignUpNudge";
 import { RotateCcw } from "lucide-react";
-import { getRecommendedPath } from "@/lib/scoring";
+import { getRecommendedPath, getWeakestDomain } from "@/lib/scoring";
 
 export default function Results() {
   const navigate = useNavigate();
@@ -23,6 +23,19 @@ export default function Results() {
   }, [navigate]);
 
   if (!result) return null;
+  const path = getRecommendedPath(result.scores.total, result.ageGroup);
+  const weakest = getWeakestDomain(result.scores);
+  const educationLayer =
+    result.level === 0
+      ? "Foundation"
+      : result.level === 1
+      ? "Core system"
+      : "Advanced track";
+  const startLabel = path.startModuleId.startsWith("z")
+    ? `Zone ${path.startModuleId.slice(1, 2)}`
+    : path.startModuleId === "1"
+    ? "Zone 1"
+    : `Module ${path.startModuleId}`;
 
   return (
     <div className="min-h-screen bg-background">
@@ -53,16 +66,32 @@ export default function Results() {
           </button>
         </div>
 
-        {(() => {
-          const path = getRecommendedPath(result.scores.total, result.ageGroup);
-          return (
-            <div className="bg-primary/5 border border-primary/25 rounded-2xl p-5 space-y-2">
-              <p className="text-xs font-semibold text-primary/60 uppercase tracking-widest">Recommended for you</p>
-              <p className="font-bold text-foreground">{path.headline}</p>
-              <p className="text-sm text-foreground/70 leading-relaxed">{path.detail}</p>
-            </div>
-          );
-        })()}
+        <div className="bg-primary/5 border border-primary/25 rounded-2xl p-5 space-y-4">
+          <div className="space-y-1.5">
+            <p className="text-xs font-semibold text-primary/60 uppercase tracking-widest">Your education layer</p>
+            <p className="font-bold text-foreground">{educationLayer}</p>
+            <p className="text-sm text-foreground/70 leading-relaxed">
+              Recommended start: {path.headline}. Your biggest gap is {weakest.toLowerCase()}, so Kosh will prioritize that first.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2 text-center">
+            {[
+              ["Now", startLabel],
+              ["Next", result.greyZone.flagged ? "Recovery" : "Tools"],
+              ["Soon", "More content"],
+            ].map(([label, value]) => (
+              <div key={label} className="rounded-xl border border-border bg-background/50 px-2 py-3">
+                <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{label}</p>
+                <p className="text-xs font-bold text-foreground mt-1">{value}</p>
+              </div>
+            ))}
+          </div>
+
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Some deeper lessons are still being added during beta. If a topic is missing, tell us — your feedback shapes the next modules.
+          </p>
+        </div>
 
         <div className="bg-card rounded-2xl border border-border p-5 space-y-3">
           <h3 className="font-semibold text-foreground">What happens next?</h3>

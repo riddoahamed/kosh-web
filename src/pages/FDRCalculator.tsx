@@ -105,7 +105,7 @@ export default function FDRCalculator() {
       return calcDPS(monthlyInstallment, rate, term, cfg.taxRate);
     }
     return calcFDR(principal, rate, term, cfg.compound, cfg.taxRate);
-  }, [scheme, principal, monthlyInstallment, rate, term, cfg]);
+  }, [principal, monthlyInstallment, rate, term, cfg]);
 
   const totalInvested = cfg.isDPS
     ? (result as ReturnType<typeof calcDPS>).totalDeposited

@@ -29,9 +29,17 @@ function renderMarkdown(text: string) {
     }
 
     const boldLine = line.replace(/\*\*(.*?)\*\*/g, "<strong class='font-semibold text-foreground'>$1</strong>");
+    const heading = line.match(/^(#{2,3})\s+(.+)$/);
 
-    // Pure heading: entire line is **...**
-    if (/^\*\*[^*]+\*\*$/.test(line.trim())) {
+    if (heading) {
+      elements.push(
+        <p
+          key={key++}
+          className="font-semibold text-foreground text-sm mt-5 mb-0.5"
+          dangerouslySetInnerHTML={{ __html: heading[2].replace(/\*\*(.*?)\*\*/g, "<strong class='font-semibold text-foreground'>$1</strong>") }}
+        />
+      );
+    } else if (/^\*\*[^*]+\*\*$/.test(line.trim())) {
       elements.push(
         <p
           key={key++}

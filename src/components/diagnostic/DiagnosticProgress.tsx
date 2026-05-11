@@ -1,10 +1,9 @@
 import { Progress } from "@/components/ui/progress";
 import { useDiagnosticStore } from "@/store/diagnosticStore";
-import { allDiagnosticQuestions } from "@/data/diagnosticQuestions";
 
 export function DiagnosticProgress() {
-  const { currentIndex, showGreyZone } = useDiagnosticStore();
-  const total = allDiagnosticQuestions.length + 1;
+  const { currentIndex, showGreyZone, totalQuestions } = useDiagnosticStore();
+  const total = totalQuestions + 1;
   const current = showGreyZone ? total : currentIndex + 1;
   const percent = Math.round((current / total) * 100);
 

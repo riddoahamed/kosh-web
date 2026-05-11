@@ -16,7 +16,7 @@ export function KnowledgeQuestion({ question, onAnswer }: Props) {
     if (revealed) return;
     setSelected(index);
     setRevealed(true);
-    const value = index === question.correctIndex ? 20 : 0;
+    const value = index === question.correctIndex ? 100 : 0;
     setTimeout(() => onAnswer(value, index), 800);
   };
 

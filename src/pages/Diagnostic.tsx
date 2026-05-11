@@ -27,6 +27,7 @@ export default function Diagnostic() {
     nextQuestion,
     prevQuestion,
     completeGreyZone,
+    setQuestionCount,
     reset,
   } = useDiagnosticStore();
 
@@ -64,6 +65,10 @@ export default function Diagnostic() {
     ? [...questionSet.knowledge, ...questionSet.behavior, ...questionSet.confidence]
     : allDiagnosticQuestions;
   const knowledgeQuestions = questionSet?.knowledge ?? defaultKnowledgeQuestions;
+
+  useEffect(() => {
+    setQuestionCount(diagnosticQuestions.length);
+  }, [diagnosticQuestions.length, setQuestionCount]);
 
   const currentQuestion = diagnosticQuestions[currentIndex];
   const currentResponse = responses.find((r) => r.questionId === currentQuestion?.id);

@@ -1,73 +1,87 @@
-# React + TypeScript + Vite
+# Kosh
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Kosh is a Bangladesh-focused financial literacy app for beta learners. It includes a money level check, personalized learning track, modules, tools, gamification, and an optional AI assistant.
 
-Currently, two official plugins are available:
+## Run Locally
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+1. Install dependencies:
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+2. Create local environment variables:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+cp .env.example .env.local
 ```
+
+3. Fill in:
+
+```bash
+VITE_SUPABASE_URL=
+VITE_SUPABASE_PUBLISHABLE_KEY=
+```
+
+4. Start the app:
+
+```bash
+npm run dev
+```
+
+## Checks
+
+```bash
+npm run build
+npm run lint
+```
+
+`npm run build` is the launch gate. `npm run lint` currently catches stricter React 19 cleanup work and should be made green before a wider launch.
+
+## Supabase For Beta
+
+The app currently has local-first auth code for pilot testing, but a public beta with real users should use Supabase Auth before launch.
+
+Supabase's built-in email sender is only for testing and is limited. For beta users:
+
+- Configure a custom SMTP provider in Supabase Auth.
+- Use a branded sender such as `Kosh <no-reply@auth.your-domain.com>`.
+- Configure SPF, DKIM, and DMARC with the email provider.
+- Edit Supabase Auth email templates for Kosh-branded confirmation and recovery emails.
+- Add production URLs in Supabase Auth URL configuration.
+
+Recommended beta auth setup:
+
+- Email + password accounts.
+- Email confirmation enabled after custom SMTP is configured.
+- Password recovery enabled.
+- Longer session duration so testers do not repeatedly trigger emails.
+- Separate marketing/waitlist emails from auth emails.
+
+## AI Assistant
+
+The assistant is served through the Supabase Edge Function at:
+
+```text
+supabase/functions/kosh-assistant
+```
+
+Set this secret in Supabase, not in `.env.local`:
+
+```bash
+GROQ_API_KEY=
+```
+
+If the edge function or key is missing, the product should still work; the assistant is supportive, not part of the critical learning path.
+
+## Beta Launch Notes
+
+For the first 100 users, prioritize feedback on:
+
+- Whether the money check result feels accurate.
+- Whether modules feel too long, too short, or too wordy.
+- Which missing topics users ask for.
+- Whether gamification feels motivating or distracting.
+- Whether tools are useful enough to share.
+
+Do not launch real money mango redemption until backend verification, fraud controls, and operational payout handling exist.

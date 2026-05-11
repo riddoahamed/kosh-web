@@ -166,7 +166,7 @@ function snapshotToActiveAccount(): void {
     const p = safeJSON<KoshProfile>("kosh:profile");
     if (p) accs[email].profile = p;
     localStorage.setItem("kosh:accounts_v1", JSON.stringify(accs));
-  } catch (_) {
+  } catch {
     /* best-effort — never throw during a save */
   }
 }

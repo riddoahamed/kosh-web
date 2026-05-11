@@ -43,11 +43,19 @@ export function GreyZoneQuestion({ onSubmit }: Props) {
         {greyZoneQuestion.options.map((option) => {
           const isSelected = selected.has(option.value);
           return (
-            <button
+            <div
               key={option.value}
               onClick={() => toggle(option.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  toggle(option.value);
+                }
+              }}
+              role="button"
+              tabIndex={0}
               className={cn(
-                "w-full text-left px-4 py-4 rounded-xl border-2 text-sm font-medium transition-all min-h-[52px] flex items-center gap-3",
+                "w-full text-left px-4 py-4 rounded-xl border-2 text-sm font-medium transition-all min-h-[52px] flex items-center gap-3 cursor-pointer",
                 isSelected
                   ? option.value === "none"
                     ? "border-border bg-muted text-foreground"
@@ -57,15 +65,16 @@ export function GreyZoneQuestion({ onSubmit }: Props) {
             >
               <Checkbox
                 checked={isSelected}
-                onCheckedChange={() => toggle(option.value)}
+                tabIndex={-1}
                 className={cn(
+                  "pointer-events-none",
                   isSelected && option.value !== "none"
                     ? "data-[state=checked]:bg-violet-600 data-[state=checked]:border-violet-600"
                     : ""
                 )}
               />
               <span>{option.label}</span>
-            </button>
+            </div>
           );
         })}
       </div>

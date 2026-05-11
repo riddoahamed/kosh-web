@@ -30,7 +30,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
   hardReload = () => {
     // Clear sessionStorage flags that gate one-time animations so the user
     // doesn't get stuck behind the cinematic intro on retry.
-    try { sessionStorage.clear(); } catch (_) { /* ignore */ }
+    try { sessionStorage.clear(); } catch { /* ignore */ }
     window.location.reload();
   };
 

@@ -135,7 +135,6 @@ function useHeroAnimation() {
     // Boot
     t(runTyping, 700);
     return () => { if (timerRef.current) clearTimeout(timerRef.current); };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return state;

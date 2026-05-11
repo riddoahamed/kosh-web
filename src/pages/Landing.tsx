@@ -214,12 +214,12 @@ function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolea
   const [qIdx,      setQIdx]      = useState(0);
   const [phase,     setPhase]     = useState<"in" | "hold" | "out">("in");
   const [clipWidth, setClipWidth] = useState(0);
+  const [showScrollHint, setShowScrollHint] = useState(false);
   const HOLD_MS = isFirst ? HOLD_FIRST : HOLD_REVISIT;
 
   // Build question list once: first question fixed, rest shuffled
   const QUESTIONS = useMemo(
     () => [FIRST_QUESTION, ...fisherYates(SHUFFLEABLE_QUESTIONS)],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
@@ -259,6 +259,11 @@ function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolea
     // Bridge kicks off the final moon rally to x=500
     if (stage === "bridge") setClipWidth(STOCK_END_X);
   }, [stage]);
+
+  useEffect(() => {
+    const t = setTimeout(() => setShowScrollHint(true), 2600);
+    return () => clearTimeout(t);
+  }, []);
 
   // Leading dot position — find last chart point whose x ≤ clipWidth
   const CHART_H  = 150;  // px, matches SVG height
@@ -549,8 +554,14 @@ function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolea
       {/* Bridge phase */}
       {stage === "bridge" && <BridgeContent onDone={onDone} />}
 
-      {/* Scroll hint — always visible */}
-      <p className="absolute bottom-8 text-[10px] tracking-[0.22em] uppercase text-foreground/18 z-10 pointer-events-none">
+      {/* Scroll hint — delayed so it helps without interrupting the intro */}
+      <p
+        className="absolute bottom-8 text-[10px] tracking-[0.22em] uppercase text-foreground/25 z-10 pointer-events-none transition-all duration-1000"
+        style={{
+          opacity: showScrollHint ? 1 : 0,
+          transform: showScrollHint ? "translateY(0)" : "translateY(8px)",
+        }}
+      >
         scroll to explore
       </p>
     </section>
@@ -684,6 +695,7 @@ export default function Landing() {
   const profile  = useAuthStore((s) => s.profile);
   const heroRef  = useRef<HTMLElement>(null);
   const toolsRef = useRef<HTMLDivElement>(null);
+  const userMovedBeforeIntroDone = useRef(false);
 
   const [isFirstVisit]   = useState(() => !sessionStorage.getItem(INTRO_KEY));
   const [toolsVisible, setToolsVisible] = useState(false);
@@ -692,6 +704,7 @@ export default function Landing() {
     sessionStorage.setItem(INTRO_KEY, "1");
     const target = heroRef.current;
     if (!target) return;
+    if (userMovedBeforeIntroDone.current || window.scrollY > 40) return;
     const start = window.scrollY;
     const end   = target.getBoundingClientRect().top + start;
     const duration = 1200; // ms — slow, cinematic scroll
@@ -705,6 +718,22 @@ export default function Landing() {
       if (progress < 1) requestAnimationFrame(step);
     };
     requestAnimationFrame(step);
+  }, []);
+
+  useEffect(() => {
+    const markManualMove = () => {
+      if (window.scrollY > 16) userMovedBeforeIntroDone.current = true;
+    };
+    window.addEventListener("wheel", markManualMove, { passive: true });
+    window.addEventListener("touchmove", markManualMove, { passive: true });
+    window.addEventListener("keydown", markManualMove);
+    window.addEventListener("scroll", markManualMove, { passive: true });
+    return () => {
+      window.removeEventListener("wheel", markManualMove);
+      window.removeEventListener("touchmove", markManualMove);
+      window.removeEventListener("keydown", markManualMove);
+      window.removeEventListener("scroll", markManualMove);
+    };
   }, []);
 
   // Trigger tools animation when section scrolls into view
@@ -790,15 +819,15 @@ export default function Landing() {
                 <ArrowRight className="h-3.5 w-3.5" />
               </Link>
               <Link
-                to="#tools"
-                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full border border-border text-sm font-medium text-foreground/60 hover:text-foreground hover:border-foreground/30 transition-all active:scale-95"
+                to="/auth"
+                className="inline-flex items-center gap-1.5 px-6 py-3 rounded-full border border-primary/25 bg-primary/5 text-sm font-bold text-primary hover:border-primary/45 hover:bg-primary/10 transition-all active:scale-95"
               >
-                Explore free tools
+                Sign up free
               </Link>
             </div>
-            <Link to="/about" className="text-xs text-muted-foreground/60 hover:text-primary transition-colors">
-              What is Kosh? →
-            </Link>
+            <p className="text-[10px] uppercase tracking-[0.32em] text-muted-foreground/35">
+              scroll to explore
+            </p>
           </div>
         </section>
 
@@ -824,10 +853,10 @@ export default function Landing() {
             </p>
             <div className="flex justify-center gap-3 pt-2">
               <Link
-                to="/age-select"
+                to="/about"
                 className="btn-brand inline-flex items-center gap-1.5 px-6 py-3 rounded-full text-sm font-bold tracking-tight active:scale-95"
               >
-                Take the check <ArrowRight className="h-3.5 w-3.5" />
+                Read the full story <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
           </div>
@@ -914,33 +943,6 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* ── Check preview ── */}
-        <section className="py-16 border-t border-border">
-          <div className="max-w-2xl mx-auto space-y-6">
-            <h2 className="text-2xl font-bold text-foreground text-center tracking-tight">What the check looks like</h2>
-            <div className="rounded-2xl border border-border p-6 space-y-4 bg-card/60 backdrop-blur-xl">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <span className="bg-blue-500/15 text-blue-400 border border-blue-500/25 text-xs font-semibold px-2 py-0.5 rounded-full">Knowledge</span>
-                <span>Q1 of 15</span>
-              </div>
-              <p className="text-foreground font-medium">
-                Inflation Bangladesh-এ এখন roughly 9-10%. একটা savings account দেয় 5%. তাহলে আপনার টাকা:
-              </p>
-              <div className="grid gap-2">
-                {["প্রতি বছর growing (বাড়ছে)", "Same থাকছে", "Actually shrinking (real value কমছে)", "এটা বলা possible না"].map((opt, i) => (
-                  <div
-                    key={i}
-                    className={`px-4 py-3 rounded-xl border-2 text-sm transition-all ${i === 2 ? "border-primary/50 text-primary font-medium" : "border-border text-foreground/60"}`}
-                    style={i === 2 ? { background: "hsla(87,100%,68%,0.08)", boxShadow: "0 0 20px hsla(87,100%,68%,0.1)" } : undefined}
-                  >
-                    {opt}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* ── Why you should try Kosh? ── */}
         <section className="py-16 border-t border-border">
           <div className="max-w-3xl mx-auto space-y-8">
@@ -1004,11 +1006,14 @@ export default function Landing() {
 
               <div className="pt-2">
                 <Link
-                  to="/check"
+                  to="/auth"
                   className="btn-brand inline-flex items-center gap-1.5 px-6 py-3 rounded-full text-sm font-bold tracking-tight active:scale-95"
                 >
-                  Start with the check <ArrowRight className="h-3.5 w-3.5" />
+                  Sign up and start your track <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
+                <p className="text-xs text-muted-foreground mt-3">
+                  Your result becomes the starting point for your learning path.
+                </p>
               </div>
             </div>
           </div>
@@ -1116,7 +1121,7 @@ export default function Landing() {
         </div>
       </footer>
 
-      {!profile && <EmailSignupModal triggerRef={heroRef} />}
+      {!profile && <EmailSignupModal fallbackDelayMs={45000} />}
     </div>
   );
 }
