@@ -50,7 +50,7 @@ export function ShareableCard({ result }: Props) {
       </div>
       <div className="text-sm text-slate-400">
         Check yours at{" "}
-        <span className="text-primary-600 font-semibold">kosh.app/check</span>
+        <span className="text-primary-600 font-semibold">app.koshbd.com/check</span>
       </div>
     </div>
   );

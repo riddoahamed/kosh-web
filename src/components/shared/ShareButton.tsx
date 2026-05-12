@@ -11,7 +11,7 @@ interface Props {
 
 export function ShareButton({
   targetId,
-  shareText = "I just checked my financial level on Kosh! Try it: kosh.app/check",
+  shareText = "I just checked my financial level on Kosh! Try it: app.koshbd.com/check",
   filename = "kosh-result.png",
 }: Props) {
   const [shared, setShared] = useState(false);

@@ -54,7 +54,7 @@ export default function Results() {
           </Button>
           <ShareButton
             targetId="kosh-share-card"
-            shareText={`আমি Kosh-এ আমার financial level check করলাম — Level ${result.level}! Check yours: kosh.app/check`}
+            shareText={`আমি Kosh-এ আমার financial level check করলাম — Level ${result.level}! Check yours: app.koshbd.com/check`}
             filename="kosh-result.png"
           />
           <button

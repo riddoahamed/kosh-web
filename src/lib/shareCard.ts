@@ -44,7 +44,7 @@ export async function shareNative(
         await navigator.share({
           files: [file],
           text,
-          url: "https://kosh.app",
+          url: "https://app.koshbd.com",
         });
       } else {
         // Fallback: download
