@@ -32,6 +32,7 @@ const ACTIVE_KEYS = {
   PROGRESS:   "kosh:module_progress",
   MANGOES:    "kosh:mangoes",
   DIAGNOSTIC: "kosh:diagnostic_result",
+  FEEDBACK:   "kosh:lesson_feedback",
 } as const;
 
 interface MangoesState {
@@ -45,6 +46,7 @@ interface AccountSnapshot {
   progress?:   Record<string, ModuleProgressRecord>;
   mangoes?:    MangoesState;
   diagnostic?: DiagnosticResult;
+  lessonFeedback?: Record<string, unknown>;
 }
 
 interface AccountRecord {
@@ -104,6 +106,11 @@ function restoreActiveStateFrom(acc: AccountRecord): void {
   } else {
     localStorage.removeItem(ACTIVE_KEYS.DIAGNOSTIC);
   }
+  if (acc.snapshot?.lessonFeedback) {
+    localStorage.setItem(ACTIVE_KEYS.FEEDBACK, JSON.stringify(acc.snapshot.lessonFeedback));
+  } else {
+    localStorage.removeItem(ACTIVE_KEYS.FEEDBACK);
+  }
 }
 
 /** Read the active-state mirror keys back into a per-account snapshot. */
@@ -117,9 +124,11 @@ function captureActiveStateSnapshot(): AccountSnapshot {
   const progress   = safeRead<Record<string, ModuleProgressRecord>>(ACTIVE_KEYS.PROGRESS);
   const mangoes    = safeRead<MangoesState>(ACTIVE_KEYS.MANGOES);
   const diagnostic = safeRead<DiagnosticResult>(ACTIVE_KEYS.DIAGNOSTIC);
+  const feedback   = safeRead<Record<string, unknown>>(ACTIVE_KEYS.FEEDBACK);
   if (progress)   snap.progress   = progress;
   if (mangoes)    snap.mangoes    = mangoes;
   if (diagnostic) snap.diagnostic = diagnostic;
+  if (feedback)   snap.lessonFeedback = feedback;
   return snap;
 }
 

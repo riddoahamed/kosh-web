@@ -116,6 +116,7 @@ const KEYS = {
   DIAGNOSTIC: "kosh:diagnostic_result",
   PROFILE: "kosh:profile",
   MODULE_PROGRESS: "kosh:module_progress",
+  LESSON_FEEDBACK: "kosh:lesson_feedback",
 } as const;
 
 // Per-user-id profile cache — survives logout so users don't have to re-enter
@@ -163,6 +164,7 @@ function snapshotToActiveAccount(): void {
       progress:   safeJSON("kosh:module_progress"),
       mangoes:    safeJSON("kosh:mangoes"),
       diagnostic: safeJSON("kosh:diagnostic_result"),
+      lessonFeedback: safeJSON("kosh:lesson_feedback"),
     };
     const p = safeJSON<KoshProfile>("kosh:profile");
     if (p) accs[email].profile = p;
@@ -213,6 +215,15 @@ export interface ModuleProgressRecord {
   quizScore: number;
   quizResponses: Record<string, number>;
   actionCompleted: boolean;
+}
+
+export type LessonFeedbackValue = "too_long" | "too_basic" | "useful" | "want_more";
+
+export interface LessonFeedbackRecord {
+  moduleId: string;
+  value: LessonFeedbackValue;
+  quizScore: number | null;
+  createdAt: string;
 }
 
 // Get authed user id for Supabase writes (async, non-blocking)
@@ -385,6 +396,42 @@ export const db = {
     const raw = localStorage.getItem(KEYS.MODULE_PROGRESS);
     if (!raw) return {};
     try { return JSON.parse(raw) as Record<string, ModuleProgressRecord>; } catch { return {}; }
+  },
+
+  // ── Lesson feedback ────────────────────────────────────────────────────
+  saveLessonFeedback(record: LessonFeedbackRecord): void {
+    const all = this.getAllLessonFeedback();
+    all[record.moduleId] = record;
+    localStorage.setItem(KEYS.LESSON_FEEDBACK, JSON.stringify(all));
+    snapshotToActiveAccount();
+
+    if (!supabase) return;
+    getAuthUserId().then((userId) => {
+      if (!userId) return;
+      supabase!
+        .from("lesson_feedback")
+        .upsert(
+          {
+            user_id: userId,
+            module_id: record.moduleId,
+            feedback: record.value,
+            quiz_score: record.quizScore,
+            created_at: record.createdAt,
+          },
+          { onConflict: "user_id,module_id" },
+        )
+        .then(() => {});
+    });
+  },
+
+  getLessonFeedback(moduleId: string): LessonFeedbackRecord | null {
+    return this.getAllLessonFeedback()[moduleId] ?? null;
+  },
+
+  getAllLessonFeedback(): Record<string, LessonFeedbackRecord> {
+    const raw = localStorage.getItem(KEYS.LESSON_FEEDBACK);
+    if (!raw) return {};
+    try { return JSON.parse(raw) as Record<string, LessonFeedbackRecord>; } catch { return {}; }
   },
 
   // ── Tool usage analytics ───────────────────────────────────────────────

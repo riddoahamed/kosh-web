@@ -6,6 +6,7 @@ import { WhatsNextCard } from "./WhatsNextCard";
 import { ModuleGame } from "./ModuleGame";
 import { InlineCheck } from "./InlineCheck";
 import { ActionNudge } from "./ActionNudge";
+import { LessonFeedback } from "./LessonFeedback";
 import { actionNudges } from "@/data/action_nudges";
 import { usePointsStore } from "@/store/pointsStore";
 
@@ -211,11 +212,14 @@ export function ModuleLayout({
               module.zoneId ??
               "dashboard"
             }
+            currentModuleId={module.id}
             preview={module.whatsNext.preview}
             quizScore={quizScore!}
           />
         )}
       </div>
+
+      {quizDone && <LessonFeedback moduleId={module.id} quizScore={quizScore} />}
     </div>
   );
 }

@@ -55,6 +55,16 @@ create table if not exists module_progress (
   unique(user_id, module_id)
 );
 
+create table if not exists lesson_feedback (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  module_id text not null,
+  feedback text not null check (feedback in ('too_long', 'too_basic', 'useful', 'want_more')),
+  quiz_score integer,
+  created_at timestamptz default now(),
+  unique(user_id, module_id)
+);
+
 create table if not exists tool_usage (
   id uuid primary key default gen_random_uuid(),
   user_id uuid references auth.users(id) on delete cascade,
@@ -65,6 +75,7 @@ create table if not exists tool_usage (
 alter table profiles enable row level security;
 alter table diagnostic_results enable row level security;
 alter table module_progress enable row level security;
+alter table lesson_feedback enable row level security;
 alter table tool_usage enable row level security;
 
 drop policy if exists "profiles own read" on profiles;
@@ -76,6 +87,9 @@ drop policy if exists "diagnostic own update" on diagnostic_results;
 drop policy if exists "module progress own read" on module_progress;
 drop policy if exists "module progress own insert" on module_progress;
 drop policy if exists "module progress own update" on module_progress;
+drop policy if exists "lesson feedback own read" on lesson_feedback;
+drop policy if exists "lesson feedback own insert" on lesson_feedback;
+drop policy if exists "lesson feedback own update" on lesson_feedback;
 drop policy if exists "tool usage own insert" on tool_usage;
 
 create policy "profiles own read" on profiles for select using (auth.uid() = id);
@@ -89,5 +103,9 @@ create policy "diagnostic own update" on diagnostic_results for update using (au
 create policy "module progress own read" on module_progress for select using (auth.uid() = user_id);
 create policy "module progress own insert" on module_progress for insert with check (auth.uid() = user_id);
 create policy "module progress own update" on module_progress for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+create policy "lesson feedback own read" on lesson_feedback for select using (auth.uid() = user_id);
+create policy "lesson feedback own insert" on lesson_feedback for insert with check (auth.uid() = user_id);
+create policy "lesson feedback own update" on lesson_feedback for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 create policy "tool usage own insert" on tool_usage for insert with check (auth.uid() = user_id);
