@@ -20,6 +20,7 @@ import {
   Lock,
   TrendingUp,
   Wrench,
+  BookOpenCheck,
 } from "lucide-react";
 
 // ── Intro questions ────────────────────────────────────────────────────────
@@ -634,6 +635,17 @@ const TOOLS: Tool[] = [
     arrowHover: "group-hover:text-cyan-400/70",
   },
   {
+    href: "/explainers", icon: BookOpenCheck, title: "Kosh Explainers",
+    desc: "Fast answers for FDR, remittance, credit, scams, and more.", tag: "3–5 min",
+    iconColor: "text-lime-300", iconGlowFilter: "drop-shadow(0 0 6px hsla(87,100%,68%,0.9))",
+    iconBg: "from-lime-500/25 to-teal-900/10", iconBorder: "border-lime-500/25",
+    iconShadow: "shadow-[0_0_18px_hsla(87,100%,68%,0.3)]",
+    cardBorder: "border-border hover:border-lime-500/35",
+    cardHover: "hover:shadow-[0_0_45px_hsla(87,100%,68%,0.12),0_2px_8px_rgba(0,0,0,0.4)]",
+    cardAmbient: "bg-lime-500/8", tagStyle: "bg-lime-500/15 text-lime-300 border border-lime-500/25",
+    arrowHover: "group-hover:text-lime-300/70",
+  },
+  {
     href: "/comparator", icon: ArrowLeftRight, title: "Savings Comparator",
     desc: "FDR vs Sanchaypatra vs DPS — after-tax.", tag: "Calculator", locked: true,
     iconColor: "text-blue-400", iconGlowFilter: "drop-shadow(0 0 6px rgba(96,165,250,0.9))",
@@ -1115,6 +1127,7 @@ export default function Landing() {
             <Link to="/fdr-calculator" className="hover:text-foreground/60 transition-colors">FDR</Link>
             <Link to="/savings-goal"   className="hover:text-foreground/60 transition-colors">Goal Planner</Link>
             <Link to="/portfolio-builder" className="hover:text-foreground/60 transition-colors">Portfolio Builder</Link>
+            <Link to="/explainers" className="hover:text-foreground/60 transition-colors">Explainers</Link>
             <Link to="/check"          className="hover:text-foreground/60 transition-colors">Money Check</Link>
             <Link to="/for-institutions" className="hover:text-foreground/60 transition-colors">For Institutions</Link>
           </div>

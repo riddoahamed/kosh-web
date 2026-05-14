@@ -32,6 +32,10 @@ const About = lazy(() => import("@/pages/About"));
 const ForInstitutions = lazy(() => import("@/pages/ForInstitutions"));
 const DevLogin = lazy(() => import("@/pages/DevLogin"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
+const Explainers = lazy(() => import("@/pages/explainers/Explainers"));
+const ExplainerCategory = lazy(() => import("@/pages/explainers/ExplainerCategory"));
+const ExplainerDetail = lazy(() => import("@/pages/explainers/ExplainerDetail"));
+const WorkerWise = lazy(() => import("@/pages/explainers/WorkerWise"));
 
 function RouteFallback() {
   return (
@@ -77,6 +81,10 @@ export default function App() {
           <Route path="/welcome" element={<Welcome />} />
           <Route path="/about" element={<About />} />
           <Route path="/for-institutions" element={<ForInstitutions />} />
+          <Route path="/explainers" element={<Explainers />} />
+          <Route path="/explainers/:category" element={<ExplainerCategory />} />
+          <Route path="/explainers/:category/:slug" element={<ExplainerDetail />} />
+          <Route path="/worker-wise" element={<WorkerWise />} />
           <Route path="/x" element={<DevLogin />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

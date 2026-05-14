@@ -24,6 +24,7 @@ const TOOLS = [
   { href: "/emi-calculator", icon: Landmark,      label: "EMI",            tone: "violet"  as const },
   { href: "/car-calculator", icon: Gauge,         label: "Car cost",       tone: "amber"   as const },
   { href: "/portfolio-builder", icon: Briefcase,  label: "Portfolio Builder", tone: "lime" as const },
+  { href: "/explainers",     icon: BookOpen,      label: "Explainers",     tone: "teal"    as const },
 ];
 
 const TOOL_TONE: Record<"red"|"lime"|"teal"|"blue"|"violet"|"amber", { fg: string; bg: string; bd: string }> = {

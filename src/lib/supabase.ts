@@ -117,6 +117,7 @@ const KEYS = {
   PROFILE: "kosh:profile",
   MODULE_PROGRESS: "kosh:module_progress",
   LESSON_FEEDBACK: "kosh:lesson_feedback",
+  EXPLAINER_PROGRESS: "kosh:explainer_progress",
 } as const;
 
 // Per-user-id profile cache — survives logout so users don't have to re-enter
@@ -165,6 +166,7 @@ function snapshotToActiveAccount(): void {
       mangoes:    safeJSON("kosh:mangoes"),
       diagnostic: safeJSON("kosh:diagnostic_result"),
       lessonFeedback: safeJSON("kosh:lesson_feedback"),
+      explainerProgress: safeJSON("kosh:explainer_progress"),
     };
     const p = safeJSON<KoshProfile>("kosh:profile");
     if (p) accs[email].profile = p;

@@ -33,6 +33,7 @@ const ACTIVE_KEYS = {
   MANGOES:    "kosh:mangoes",
   DIAGNOSTIC: "kosh:diagnostic_result",
   FEEDBACK:   "kosh:lesson_feedback",
+  EXPLAINERS: "kosh:explainer_progress",
 } as const;
 
 interface MangoesState {
@@ -47,6 +48,7 @@ interface AccountSnapshot {
   mangoes?:    MangoesState;
   diagnostic?: DiagnosticResult;
   lessonFeedback?: Record<string, unknown>;
+  explainerProgress?: Record<string, unknown>;
 }
 
 interface AccountRecord {
@@ -111,6 +113,11 @@ function restoreActiveStateFrom(acc: AccountRecord): void {
   } else {
     localStorage.removeItem(ACTIVE_KEYS.FEEDBACK);
   }
+  if (acc.snapshot?.explainerProgress) {
+    localStorage.setItem(ACTIVE_KEYS.EXPLAINERS, JSON.stringify(acc.snapshot.explainerProgress));
+  } else {
+    localStorage.removeItem(ACTIVE_KEYS.EXPLAINERS);
+  }
 }
 
 /** Read the active-state mirror keys back into a per-account snapshot. */
@@ -125,10 +132,12 @@ function captureActiveStateSnapshot(): AccountSnapshot {
   const mangoes    = safeRead<MangoesState>(ACTIVE_KEYS.MANGOES);
   const diagnostic = safeRead<DiagnosticResult>(ACTIVE_KEYS.DIAGNOSTIC);
   const feedback   = safeRead<Record<string, unknown>>(ACTIVE_KEYS.FEEDBACK);
+  const explainers  = safeRead<Record<string, unknown>>(ACTIVE_KEYS.EXPLAINERS);
   if (progress)   snap.progress   = progress;
   if (mangoes)    snap.mangoes    = mangoes;
   if (diagnostic) snap.diagnostic = diagnostic;
   if (feedback)   snap.lessonFeedback = feedback;
+  if (explainers)  snap.explainerProgress = explainers;
   return snap;
 }
 
