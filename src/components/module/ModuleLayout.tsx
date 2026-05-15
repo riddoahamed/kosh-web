@@ -18,14 +18,67 @@ interface ModuleLayoutProps {
   onModuleComplete: () => void;
 }
 
+function renderTable(lines: string[], key: string) {
+  const rows = lines
+    .filter((line) => !/^\s*\|\s*-+/.test(line))
+    .map((line) => line.split("|").slice(1, -1).map((cell) => cell.trim()));
+  const [head, ...body] = rows;
+  if (!head) return null;
+  return (
+    <div key={key} className="overflow-x-auto rounded-xl border border-border my-2">
+      <table className="w-full min-w-[400px] text-left text-sm">
+        <thead className="bg-primary/10 text-foreground">
+          <tr>
+            {head.map((cell, i) => (
+              <th
+                key={i}
+                className="px-3 py-2 font-semibold"
+                dangerouslySetInnerHTML={{ __html: cell.replace(/\*\*(.*?)\*\*/g, "<strong class='font-semibold text-foreground'>$1</strong>") }}
+              />
+            ))}
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-border">
+          {body.map((row, ri) => (
+            <tr key={ri} className="bg-card/50">
+              {row.map((cell, ci) => (
+                <td
+                  key={ci}
+                  className="px-3 py-2 text-foreground/75"
+                  dangerouslySetInnerHTML={{ __html: cell.replace(/\*\*(.*?)\*\*/g, "<strong class='font-semibold text-foreground'>$1</strong>") }}
+                />
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 function renderMarkdown(text: string) {
   const lines = text.split("\n");
   const elements: React.ReactElement[] = [];
   let key = 0;
+  let i = 0;
 
-  for (const line of lines) {
+  while (i < lines.length) {
+    const line = lines[i];
+
+    if (/^\s*\|/.test(line)) {
+      const tableLines: string[] = [];
+      while (i < lines.length && /^\s*\|/.test(lines[i])) {
+        tableLines.push(lines[i]);
+        i++;
+      }
+      const table = renderTable(tableLines, `table-${key++}`);
+      if (table) elements.push(table);
+      continue;
+    }
+
     if (!line.trim()) {
       elements.push(<div key={key++} className="h-1" />);
+      i++;
       continue;
     }
 
@@ -64,6 +117,8 @@ function renderMarkdown(text: string) {
         />
       );
     }
+
+    i++;
   }
 
   return elements;
