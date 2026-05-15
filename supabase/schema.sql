@@ -72,11 +72,19 @@ create table if not exists tool_usage (
   used_at timestamptz default now()
 );
 
+create table if not exists user_reward_state (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  mangoes jsonb not null default '{"total":0,"streak":0,"lastVisitDate":null,"history":[]}'::jsonb,
+  zone_unlocks text[] not null default '{}',
+  updated_at timestamptz default now()
+);
+
 alter table profiles enable row level security;
 alter table diagnostic_results enable row level security;
 alter table module_progress enable row level security;
 alter table lesson_feedback enable row level security;
 alter table tool_usage enable row level security;
+alter table user_reward_state enable row level security;
 
 drop policy if exists "profiles own read" on profiles;
 drop policy if exists "profiles own insert" on profiles;
@@ -91,6 +99,9 @@ drop policy if exists "lesson feedback own read" on lesson_feedback;
 drop policy if exists "lesson feedback own insert" on lesson_feedback;
 drop policy if exists "lesson feedback own update" on lesson_feedback;
 drop policy if exists "tool usage own insert" on tool_usage;
+drop policy if exists "reward state own read" on user_reward_state;
+drop policy if exists "reward state own insert" on user_reward_state;
+drop policy if exists "reward state own update" on user_reward_state;
 
 create policy "profiles own read" on profiles for select using (auth.uid() = id);
 create policy "profiles own insert" on profiles for insert with check (auth.uid() = id);
@@ -109,3 +120,7 @@ create policy "lesson feedback own insert" on lesson_feedback for insert with ch
 create policy "lesson feedback own update" on lesson_feedback for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 create policy "tool usage own insert" on tool_usage for insert with check (auth.uid() = user_id);
+
+create policy "reward state own read" on user_reward_state for select using (auth.uid() = user_id);
+create policy "reward state own insert" on user_reward_state for insert with check (auth.uid() = user_id);
+create policy "reward state own update" on user_reward_state for update using (auth.uid() = user_id) with check (auth.uid() = user_id);

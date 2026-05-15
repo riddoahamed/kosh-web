@@ -131,6 +131,18 @@ const profileCacheKey = (userId: string) => `${PROFILE_CACHE_PREFIX}${userId}`;
 const USER_STATE_CACHE_PREFIX = "kosh:user_state_cache:";
 const userStateCacheKey = (userId: string) => `${USER_STATE_CACHE_PREFIX}${userId}`;
 
+interface MangoStateSnapshot {
+  total: number;
+  streak: number;
+  lastVisitDate: string | null;
+  history: unknown[];
+}
+
+interface RewardSyncOptions {
+  mangoes?: boolean;
+  zoneUnlocks?: boolean;
+}
+
 function readCachedProfile(userId: string): KoshProfile | null {
   const raw = localStorage.getItem(profileCacheKey(userId));
   if (!raw) return null;
@@ -146,6 +158,85 @@ function safeJSON<T,>(key: string): T | undefined {
   const v = localStorage.getItem(key);
   if (!v) return undefined;
   try { return JSON.parse(v) as T; } catch { return undefined; }
+}
+
+function readMangoState(): MangoStateSnapshot {
+  const saved = safeJSON<Partial<MangoStateSnapshot>>(MANGOES_KEY);
+  return {
+    total: typeof saved?.total === "number" ? saved.total : 0,
+    streak: typeof saved?.streak === "number" ? saved.streak : 0,
+    lastVisitDate: typeof saved?.lastVisitDate === "string" ? saved.lastVisitDate : null,
+    history: Array.isArray(saved?.history) ? saved.history : [],
+  };
+}
+
+function readZoneUnlockState(): string[] {
+  const saved = safeJSON<unknown>(KEYS.ZONE_UNLOCKS);
+  return Array.isArray(saved) ? saved.filter((item): item is string => typeof item === "string") : [];
+}
+
+function hasLocalRewardState(): boolean {
+  return localStorage.getItem(MANGOES_KEY) !== null || localStorage.getItem(KEYS.ZONE_UNLOCKS) !== null;
+}
+
+function shouldIgnoreRewardSyncError(message: string): boolean {
+  const lower = message.toLowerCase();
+  return lower.includes("user_reward_state") && (
+    lower.includes("does not exist") ||
+    lower.includes("schema cache") ||
+    lower.includes("could not find")
+  );
+}
+
+async function pushRewardState(userId: string, options: RewardSyncOptions = { mangoes: true, zoneUnlocks: true }) {
+  if (!supabase) return;
+  const payload: Record<string, unknown> = {
+    user_id: userId,
+    updated_at: new Date().toISOString(),
+  };
+  if (options.mangoes) payload.mangoes = readMangoState();
+  if (options.zoneUnlocks) payload.zone_unlocks = readZoneUnlockState();
+
+  const { error } = await supabase
+    .from("user_reward_state")
+    .upsert(payload, { onConflict: "user_id" });
+
+  if (error && !shouldIgnoreRewardSyncError(error.message)) {
+    console.warn("[kosh] reward state sync failed:", error.message);
+  }
+}
+
+async function restoreRewardState(userId: string): Promise<void> {
+  if (!supabase) return;
+
+  const { data, error } = await supabase
+    .from("user_reward_state")
+    .select("mangoes, zone_unlocks")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (error) {
+    if (!shouldIgnoreRewardSyncError(error.message)) {
+      console.warn("[kosh] reward state fetch failed:", error.message);
+    }
+    return;
+  }
+
+  if (!data) {
+    if (hasLocalRewardState()) await pushRewardState(userId);
+    return;
+  }
+
+  if (data.mangoes && typeof data.mangoes === "object") {
+    localStorage.setItem(MANGOES_KEY, JSON.stringify(data.mangoes));
+  }
+
+  if (Array.isArray(data.zone_unlocks)) {
+    const zoneUnlocks = data.zone_unlocks.filter((item): item is string => typeof item === "string");
+    localStorage.setItem(KEYS.ZONE_UNLOCKS, JSON.stringify(zoneUnlocks));
+  }
+
+  snapshotToSupabaseUserCache(userId);
 }
 
 function captureLocalUserState(): Record<string, unknown> {
@@ -410,6 +501,7 @@ export const db = {
       if (data) {
         const profile = data as KoshProfile;
         restoreSupabaseUserCache(userId);
+        await restoreRewardState(userId);
         localStorage.setItem(KEYS.PROFILE, JSON.stringify(profile));
         writeCachedProfile(profile); // refresh cache
         snapshotToSupabaseUserCache(userId);
@@ -420,12 +512,14 @@ export const db = {
     const cached = readCachedProfile(userId);
     if (cached) {
       restoreSupabaseUserCache(userId);
+      await restoreRewardState(userId);
       // Promote cached profile to active and try syncing it to Supabase.
       localStorage.setItem(KEYS.PROFILE, JSON.stringify(cached));
       this.saveProfile(cached); // best-effort retry
       return cached;
     }
     const restored = restoreSupabaseUserCache(userId);
+    await restoreRewardState(userId);
     if (restored) {
       localStorage.setItem(KEYS.PROFILE, JSON.stringify(restored));
       writeCachedProfile(restored);
@@ -537,6 +631,16 @@ export const db = {
   syncToActiveAccount(): void {
     snapshotToActiveAccount();
     snapshotToSupabaseUserCache();
+  },
+
+  /** Remote beta sync for the small reward state that should follow a user
+      across devices. Explainer/library reads stay local for now. */
+  syncRewardState(options: RewardSyncOptions = { mangoes: true, zoneUnlocks: true }): void {
+    if (!supabase) return;
+    getAuthUserId().then((userId) => {
+      if (!userId) return;
+      pushRewardState(userId, options).then(() => {});
+    });
   },
 
   /** Hard reset — wipes everything including profile caches. Use only when

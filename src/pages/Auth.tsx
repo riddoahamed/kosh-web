@@ -315,6 +315,7 @@ export default function Auth() {
           <button
             type="button"
             onClick={() => {
+              clearedDemoOnEntry.current = true;
               startDemo();
               useAuthStore.getState().loadProfile();
               navigate("/dashboard", { replace: true });

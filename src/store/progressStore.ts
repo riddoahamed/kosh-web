@@ -41,6 +41,7 @@ function saveZoneUnlocks(zoneIds: string[]) {
   try {
     localStorage.setItem(ZONE_UNLOCKS_KEY, JSON.stringify(Array.from(new Set(zoneIds))));
     db.syncToActiveAccount();
+    db.syncRewardState({ zoneUnlocks: true });
   } catch {
     /* ignore */
   }

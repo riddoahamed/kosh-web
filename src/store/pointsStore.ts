@@ -46,6 +46,7 @@ function saveToStorage(state: Pick<PointsState, "total" | "streak" | "lastVisitD
   localStorage.setItem(STORE_KEY, JSON.stringify(state));
   // Mirror to per-account snapshot so mangoes persist across logout/login
   db.syncToActiveAccount();
+  db.syncRewardState({ mangoes: true });
 }
 
 /** Tiered streak bonus: higher streak = more mangoes per day */
