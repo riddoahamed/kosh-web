@@ -2,7 +2,7 @@
 // Auth — Supabase email + password for public beta.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, Eye, EyeOff, Loader2 } from "lucide-react";
 import { auth, db, supabaseReady, type KoshProfile } from "@/lib/supabase";
@@ -17,12 +17,15 @@ type Tab = "signup" | "login";
 export default function Auth() {
   const navigate = useNavigate();
   const { profile, isLoaded, setProfile } = useAuthStore();
+  const clearedDemoOnEntry = useRef(false);
 
   // If user lands here while already logged in, send them to dashboard
   useEffect(() => {
-    if (isDemoMode()) {
+    if (!clearedDemoOnEntry.current && isDemoMode()) {
+      clearedDemoOnEntry.current = true;
       exitDemo();
       useAuthStore.getState().loadProfile();
+      return;
     }
     if (isLoaded && profile && !isDemoMode()) {
       navigate("/dashboard", { replace: true });
