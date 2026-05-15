@@ -412,14 +412,23 @@ export function getPathFinderRecommendation(answers: {
   if (answers.q1 === "teach") {
     switch (answers.q2) {
       case "rmg":
-        return rec("/explainers/employer", "RMG / Garment workforce pack",
-          "Bangla content designed for factory deployment.", []);
+        return rec("/explainers/employer-pack/pack-rmg", "RMG / Garment workforce pack",
+          "Bangla content designed for factory deployment — payroll inserts, common-room TV loops, QR-code posters.",
+          [
+            { href: "/explainers/employer", label: "Compare all three packs", type: "explainer" },
+          ]);
       case "ngo":
-        return rec("/explainers/employer", "NGO / INGO financial inclusion pack",
-          "Content for MFI customers, women's groups, financial inclusion programs.", []);
+        return rec("/explainers/employer-pack/pack-ngo", "NGO / INGO financial inclusion pack",
+          "Content for MFI customers, women's groups, and financial inclusion programs.",
+          [
+            { href: "/explainers/employer", label: "Compare all three packs", type: "explainer" },
+          ]);
       case "corporate":
-        return rec("/explainers/employer", "Corporate office staff pack",
-          "Workplace financial literacy for white-collar employees.", []);
+        return rec("/explainers/employer-pack/pack-corporate", "Corporate office staff pack",
+          "Workplace financial literacy for white-collar employees — salary basics, scam awareness, infrastructure decisions.",
+          [
+            { href: "/explainers/employer", label: "Compare all three packs", type: "explainer" },
+          ]);
       default:
         return rec("/explainers/employer", "Browse all workplace packs",
           "Three pack types for different deployment contexts.", []);

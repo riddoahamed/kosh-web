@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Search, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, Building2, Compass, Search, Sparkles } from "lucide-react";
 import { ExplainerCard, EmptyExplainerState } from "@/components/explainers/ExplainerCard";
 import {
   EXPLAINER_CATEGORIES,
@@ -8,6 +8,7 @@ import {
   EXPLAINERS,
   searchKoshContent,
 } from "@/data/explainers";
+import { EMPLOYER_PACKS } from "@/data/explainers/packs";
 
 export default function Explainers() {
   const navigate = useNavigate();
@@ -77,7 +78,59 @@ export default function Explainers() {
           </section>
         )}
 
-        <section className="mt-10 grid gap-3 md:grid-cols-5">
+        <section className="mt-8 grid gap-3 md:grid-cols-2">
+          <Link
+            to="/path"
+            className="group relative flex flex-col gap-3 overflow-hidden rounded-3xl border border-primary/30 bg-gradient-to-br from-primary/15 to-primary/5 p-5 transition-all hover:border-primary/50 hover:shadow-md"
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
+                <Compass className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-widest text-primary/70">New</p>
+                <h2 className="text-base font-black leading-tight text-foreground">Find your path</h2>
+              </div>
+            </div>
+            <p className="text-xs leading-relaxed text-foreground/65">
+              Three quick questions and we'll point you straight at the right explainer or tool.
+              Skip the browse.
+            </p>
+            <span className="inline-flex items-center gap-1 text-sm font-bold text-primary">
+              Start the wizard
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </span>
+          </Link>
+
+          <Link
+            to="/explainers/employer"
+            className="group relative flex flex-col gap-3 overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-amber-500/10 via-card to-card p-5 transition-all hover:border-primary/40 hover:shadow-md"
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-card text-primary">
+                <Building2 className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/45">
+                  Workplace & NGO
+                </p>
+                <h2 className="text-base font-black leading-tight text-foreground">
+                  Education packs for your team
+                </h2>
+              </div>
+            </div>
+            <p className="text-xs leading-relaxed text-foreground/65">
+              {EMPLOYER_PACKS.length} ready-to-deploy bundles for RMG factories, NGO programs, and
+              corporate teams. Complete a pack to earn a 100-mango bonus.
+            </p>
+            <span className="inline-flex items-center gap-1 text-sm font-bold text-primary">
+              View packs
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </span>
+          </Link>
+        </section>
+
+        <section className="mt-6 grid gap-3 md:grid-cols-5">
           {EXPLAINER_CATEGORIES.map((category) => {
             const Icon = category.icon;
             const count = EXPLAINERS.filter((explainer) => explainer.category === category.id).length;
