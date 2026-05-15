@@ -3,9 +3,16 @@ import type { LucideIcon } from "lucide-react";
 import type { Explainer, ExplainerCategory } from "@/types/explainer";
 import { EXPLAINERS as GENERATED_EXPLAINERS } from "./generated";
 import { v5ExplainerAdditions } from "./v5Additions";
+import { EXPLAINER_EXTERNAL_LINKS } from "./externalLinks";
 import { ALL_MODULES } from "@/data/modules";
 
-export const EXPLAINERS: Explainer[] = [...GENERATED_EXPLAINERS, ...v5ExplainerAdditions];
+export const EXPLAINERS: Explainer[] = [...GENERATED_EXPLAINERS, ...v5ExplainerAdditions].map(
+  (explainer) => {
+    const links = EXPLAINER_EXTERNAL_LINKS[explainer.slug];
+    if (!links) return explainer;
+    return { ...explainer, externalLinks: [...(explainer.externalLinks ?? []), ...links] };
+  },
+);
 
 export interface ExplainerCategoryMeta {
   id: ExplainerCategory;
