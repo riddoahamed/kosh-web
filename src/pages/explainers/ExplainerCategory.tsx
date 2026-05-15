@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Search } from "lucide-react";
+import { ArrowLeft, Globe2, Search } from "lucide-react";
 import { ExplainerCard, EmptyExplainerState } from "@/components/explainers/ExplainerCard";
+import { GlobalSearch } from "@/components/shared/GlobalSearch";
 import {
   EXPLAINERS,
   getExplainerCategoryMeta,
@@ -9,24 +10,48 @@ import {
   searchExplainers,
 } from "@/data/explainers";
 
+const DIASPORA_COUNTRIES = [
+  { id: "canada", label: "Canada" },
+  { id: "us", label: "United States" },
+  { id: "uk", label: "United Kingdom" },
+  { id: "australia", label: "Australia" },
+  { id: "middle east", label: "Middle East" },
+];
+
 export default function ExplainerCategory() {
   const navigate = useNavigate();
   const { category } = useParams<{ category: string }>();
   const [params, setParams] = useSearchParams();
   const tag = params.get("tag") ?? "";
+  const country = params.get("country") ?? "";
   const [query, setQuery] = useState("");
   const validCategory = isExplainerCategory(category) ? category : "scenario";
   const meta = getExplainerCategoryMeta(validCategory);
   const Icon = meta.icon;
+  const isDiaspora = validCategory === "diaspora";
   const tags = useMemo(
-    () => [...new Set(EXPLAINERS.filter((item) => item.category === validCategory).flatMap((item) => item.tags))].slice(0, 16),
-    [validCategory],
+    () => [...new Set(EXPLAINERS.filter((item) => item.category === validCategory).flatMap((item) => item.tags))]
+      .filter((item) => !isDiaspora || !DIASPORA_COUNTRIES.some((c) => c.id === item.toLowerCase()))
+      .slice(0, 16),
+    [validCategory, isDiaspora],
   );
   const explainers = useMemo(() => {
-    const base = searchExplainers(query, validCategory);
+    let base = searchExplainers(query, validCategory);
+    if (country) {
+      base = base.filter((explainer) =>
+        explainer.tags.some((t) => t.toLowerCase() === country.toLowerCase()),
+      );
+    }
     if (!tag) return base;
     return base.filter((explainer) => explainer.tags.includes(tag) || explainer.title.toLowerCase().includes(tag.toLowerCase()));
-  }, [validCategory, query, tag]);
+  }, [validCategory, query, tag, country]);
+
+  function setQueryParam(key: string, value: string | null) {
+    const next = new URLSearchParams(params);
+    if (value === null || value === "") next.delete(key);
+    else next.set(key, value);
+    setParams(next);
+  }
 
   if (!isExplainerCategory(category)) {
     return (
@@ -50,6 +75,8 @@ export default function ExplainerCategory() {
           Explainers
         </button>
 
+        <GlobalSearch className="mb-5" />
+
         <header className="rounded-3xl border border-border bg-card p-5">
           <div className="flex items-start gap-4">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
@@ -69,7 +96,7 @@ export default function ExplainerCategory() {
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder={`Search ${meta.shortLabel.toLowerCase()} explainers`}
+              placeholder={`Filter ${meta.shortLabel.toLowerCase()} explainers`}
               className="h-12 w-full rounded-2xl border border-border bg-card pl-11 pr-4 text-sm text-foreground outline-none transition-colors placeholder:text-foreground/35 focus:border-primary/50"
             />
           </div>
@@ -83,10 +110,42 @@ export default function ExplainerCategory() {
           )}
         </div>
 
+        {isDiaspora && (
+          <div className="mt-4">
+            <p className="mb-2 inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-foreground/45">
+              <Globe2 className="h-3 w-3" />
+              Country
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setQueryParam("country", null)}
+                className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
+                  !country ? "border-primary bg-primary text-primary-foreground" : "border-border text-foreground/55"
+                }`}
+              >
+                All countries
+              </button>
+              {DIASPORA_COUNTRIES.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setQueryParam("country", item.id)}
+                  className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
+                    country === item.id ? "border-primary bg-primary text-primary-foreground" : "border-border text-foreground/55"
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="mt-4 flex flex-wrap gap-2">
           <button
             type="button"
-            onClick={() => setParams({})}
+            onClick={() => setQueryParam("tag", null)}
             className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
               !tag ? "border-primary bg-primary text-primary-foreground" : "border-border text-foreground/55"
             }`}
@@ -97,7 +156,7 @@ export default function ExplainerCategory() {
             <button
               key={item}
               type="button"
-              onClick={() => setParams({ tag: item })}
+              onClick={() => setQueryParam("tag", item)}
               className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
                 tag === item ? "border-primary bg-primary text-primary-foreground" : "border-border text-foreground/55"
               }`}

@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, BookOpen, Calculator, Clock3, Sparkles } from "lucide-react";
+import { ArrowLeft, BookOpen, Calculator, Clock3, ExternalLink as ExternalLinkIcon, Sparkles } from "lucide-react";
 import { ExplainerActions } from "@/components/explainers/ExplainerActions";
 import { ExplainerCard } from "@/components/explainers/ExplainerCard";
 import { ExplainerHeroVisual } from "@/components/explainers/ExplainerHeroVisual";
 import { MarkdownLite } from "@/components/explainers/MarkdownLite";
 import {
   CALCULATOR_LINKS,
+  EXPLAINERS,
   getExplainer,
   getExplainerCategoryMeta,
   getRelatedExplainers,
@@ -56,6 +57,9 @@ export default function ExplainerDetail() {
   const meta = getExplainerCategoryMeta(explainer.category);
   const workerWise = explainer.category === "worker-wise";
   const bodyFont = workerWise ? "font-bangla" : "";
+  const sibling = explainer.siblingExplainerSlug
+    ? EXPLAINERS.find((item) => item.slug === explainer.siblingExplainerSlug)
+    : undefined;
 
   return (
     <div className={`min-h-screen bg-background ${bodyFont}`}>
@@ -81,6 +85,19 @@ export default function ExplainerDetail() {
               <Sparkles className="h-3 w-3" />
               +{explainer.mangoReward}
             </span>
+            {sibling && (
+              <div className="ml-auto inline-flex overflow-hidden rounded-full border border-border text-[11px] font-bold">
+                <span className="bg-primary px-3 py-1 text-primary-foreground">
+                  {explainer.language === "bn" ? "বাংলা" : "English"}
+                </span>
+                <Link
+                  to={`/explainers/${sibling.category}/${sibling.slug}`}
+                  className="px-3 py-1 text-foreground/55 hover:bg-card"
+                >
+                  {sibling.language === "bn" ? "বাংলা" : "English"}
+                </Link>
+              </div>
+            )}
           </div>
 
           <div>
@@ -175,6 +192,34 @@ export default function ExplainerDetail() {
             <div className="grid gap-3 md:grid-cols-3">
               {related.map((item) => (
                 <ExplainerCard key={item.id} explainer={item} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {explainer.externalLinks && explainer.externalLinks.length > 0 && (
+          <section className="mt-8 rounded-2xl border border-border bg-card p-5">
+            <h2 className="text-sm font-bold text-foreground">Verify with official sources</h2>
+            <p className="mt-1 text-xs leading-relaxed text-foreground/55">
+              External links open in a new tab. Kosh has no affiliation with these sites.
+            </p>
+            <div className="mt-3 space-y-2">
+              {explainer.externalLinks.map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-start gap-3 rounded-xl border border-border bg-background/60 px-3 py-2.5 text-sm hover:border-primary/40"
+                >
+                  <ExternalLinkIcon className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                  <span className="min-w-0">
+                    <span className="block font-semibold text-foreground">{link.title}</span>
+                    {link.description && (
+                      <span className="mt-0.5 block text-xs text-foreground/55">{link.description}</span>
+                    )}
+                  </span>
+                </a>
               ))}
             </div>
           </section>
