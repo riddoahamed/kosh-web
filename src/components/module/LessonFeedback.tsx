@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Check, MessageSquareText } from "lucide-react";
 import { db, type LessonFeedbackValue } from "@/lib/supabase";
+import { MANGOES, usePointsStore } from "@/store/pointsStore";
 
 interface LessonFeedbackProps {
   moduleId: string;
@@ -16,12 +17,14 @@ const OPTIONS: Array<{ value: LessonFeedbackValue; label: string }> = [
 
 export function LessonFeedback({ moduleId, quizScore }: LessonFeedbackProps) {
   const [selected, setSelected] = useState<LessonFeedbackValue | null>(null);
+  const { addPoints } = usePointsStore();
 
   useEffect(() => {
     setSelected(db.getLessonFeedback(moduleId)?.value ?? null);
   }, [moduleId]);
 
   function choose(value: LessonFeedbackValue) {
+    const hadFeedback = Boolean(db.getLessonFeedback(moduleId));
     setSelected(value);
     db.saveLessonFeedback({
       moduleId,
@@ -29,15 +32,19 @@ export function LessonFeedback({ moduleId, quizScore }: LessonFeedbackProps) {
       quizScore,
       createdAt: new Date().toISOString(),
     });
+    if (!hadFeedback) addPoints(MANGOES.LESSON_FEEDBACK, `Feedback: Module ${moduleId}`);
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-card/70 p-4 space-y-3">
-      <div className="flex items-center gap-2">
-        <MessageSquareText className="h-4 w-4 text-primary" />
-        <p className="text-sm font-semibold text-foreground">How was this lesson?</p>
+    <div className="rounded-2xl border border-primary/20 bg-card p-4 space-y-3">
+      <div className="flex items-start gap-2">
+        <MessageSquareText className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+        <div className="min-w-0">
+          <p className="text-sm font-bold text-foreground">Quick feedback</p>
+          <p className="text-xs leading-relaxed text-muted-foreground">One tap helps shape the next version. +{MANGOES.LESSON_FEEDBACK} mangoes.</p>
+        </div>
         {selected && (
-          <span className="ml-auto inline-flex items-center gap-1 text-[11px] font-semibold text-green-600">
+          <span className="ml-auto inline-flex shrink-0 items-center gap-1 rounded-full bg-primary/10 px-2 py-1 text-[11px] font-semibold text-primary">
             <Check className="h-3.5 w-3.5" />
             Saved
           </span>

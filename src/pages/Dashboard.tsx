@@ -15,7 +15,7 @@ import {
   Lock, CheckCircle2, Circle, Zap, Flame,
   ChevronDown, ChevronUp, Trophy, ArrowRight, BookOpen,
   Radar, Crosshair, PieChart, ArrowLeftRight, Landmark, Gauge, Wrench, Briefcase,
-  Search, Sparkles, Compass,
+  Search, Sparkles, Compass, ShieldCheck,
 } from "lucide-react";
 
 // ── Tools list (mirrors landing page tools so signed-in users have access) ──
@@ -427,6 +427,37 @@ export default function Dashboard() {
   }
 
   const nextModule = findNextModule();
+  const nextMove = !result
+    ? {
+        eyebrow: "Start here",
+        title: "Take the money level check",
+        detail: "Get your level and a path before doing lessons.",
+        href: "/check",
+        cta: "Take check",
+      }
+    : nextModule
+    ? {
+        eyebrow: "Next best move",
+        title: nextModule.title,
+        detail: `~${nextModule.minutes} min. Keeps your learning path moving.`,
+        href: `/module/${nextModule.id}`,
+        cta: "Continue",
+      }
+    : coreComplete
+    ? {
+        eyebrow: "Next best move",
+        title: "Choose your next zone",
+        detail: "Your foundation is done. Pick the money skill you want to build next.",
+        href: "/zones",
+        cta: "Open zones",
+      }
+    : {
+        eyebrow: "Next best move",
+        title: "Find your path",
+        detail: "Answer a few prompts and Kosh will point you to the right content.",
+        href: "/path",
+        cta: "Find path",
+      };
 
   // Zone progress helpers
   function getZoneProgress(zoneId: string): { done: number; total: number } {
@@ -471,9 +502,9 @@ export default function Dashboard() {
 
       {/* Nav */}
       <nav className="border-b border-border bg-background sticky top-0 z-10">
-        <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
-          <Link to="/"><img src="/logo.png" alt="Kosh" className="h-8 w-auto" /></Link>
-          <div className="flex items-center gap-2">
+        <div className="max-w-2xl mx-auto px-3 sm:px-4 h-14 flex items-center justify-between">
+          <Link to="/"><img src="/logo.png" alt="Kosh" className="h-7 w-auto sm:h-8" /></Link>
+          <div className="flex min-w-0 items-center gap-1 sm:gap-2">
             <button
               onClick={() => setSearchOpen(true)}
               className="flex h-8 items-center gap-1.5 rounded-full border border-border bg-card px-2.5 text-xs font-semibold text-foreground/65 transition-colors hover:border-primary/40 hover:text-primary"
@@ -482,7 +513,7 @@ export default function Dashboard() {
               <span className="hidden sm:inline">Search</span>
             </button>
             <button onClick={() => navigate("/zones")}
-              className="text-xs font-semibold text-foreground/60 hover:text-primary transition-colors">
+              className="hidden min-[430px]:inline text-xs font-semibold text-foreground/60 hover:text-primary transition-colors">
               Zones
             </button>
             <button onClick={() => {
@@ -493,7 +524,7 @@ export default function Dashboard() {
               Tools
             </button>
             <button onClick={() => navigate("/store")}
-              className="text-xs font-semibold text-foreground/60 hover:text-primary transition-colors">
+              className="hidden min-[380px]:inline text-xs font-semibold text-foreground/60 hover:text-primary transition-colors">
               Store
             </button>
             <button
@@ -533,7 +564,7 @@ export default function Dashboard() {
             <BangladeshSkyline className="absolute inset-0 w-full h-full" opacity={0.18} />
           </div>
 
-          <div className="relative z-10 flex items-start justify-between gap-4">
+          <div className="relative z-10 flex flex-col gap-5 min-[430px]:flex-row min-[430px]:items-start min-[430px]:justify-between">
             {/* Left: greeting + journey steps */}
             <div className="flex-1 min-w-0 space-y-3.5">
               <div>
@@ -599,7 +630,7 @@ export default function Dashboard() {
                 /check when there isn't. */}
             <button
               onClick={() => navigate(result ? "/results" : "/check")}
-              className="shrink-0 flex flex-col items-center gap-2 transition-transform hover:scale-[1.03] active:scale-95"
+              className="shrink-0 self-start flex flex-col items-center gap-2 transition-transform hover:scale-[1.03] active:scale-95 min-[430px]:self-auto"
               aria-label={result ? `Level ${result.level} — view results` : "Take the money check"}
             >
               <CircularProgress
@@ -617,43 +648,40 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {/* ── Next best move ─────────────────────────────────────────────── */}
+        <button
+          onClick={() => navigate(nextMove.href)}
+          className="group w-full overflow-hidden rounded-2xl border border-primary/30 bg-card p-4 text-left transition-all hover:border-primary/60 hover:bg-primary/5 active:scale-[0.99]"
+          style={{ boxShadow: "0 10px 30px hsla(235,60%,4%,0.18)" }}
+        >
+          <div className="flex items-start gap-3">
+            <div
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-primary/30 bg-primary/10"
+              style={{ boxShadow: "0 0 18px hsla(87,100%,68%,0.22)" }}
+            >
+              {result ? <BookOpen className="h-5 w-5 text-primary" /> : <Compass className="h-5 w-5 text-primary" />}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="text-[10px] font-black uppercase tracking-[0.18em] text-primary/80">{nextMove.eyebrow}</div>
+              <div className="mt-1 text-base font-display font-extrabold leading-snug text-foreground">{nextMove.title}</div>
+              <div className="mt-1 text-xs leading-relaxed text-muted-foreground">{nextMove.detail}</div>
+            </div>
+            <div className="mt-1 hidden shrink-0 items-center gap-1 rounded-full bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground sm:inline-flex">
+              {nextMove.cta}
+              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+            </div>
+            <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-primary/60 sm:hidden" />
+          </div>
+        </button>
+
         <section className="space-y-2">
+          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground/55">Need something specific?</p>
           <GlobalSearch />
         </section>
 
-        {/* ── Continue Learning ──────────────────────────────────────────── */}
-        {nextModule && (
-          <button
-            onClick={() => navigate(`/module/${nextModule.id}`)}
-            className="w-full flex items-center gap-3 rounded-xl p-4 text-left transition-all group"
-            style={{
-              background: "linear-gradient(135deg, hsla(87,100%,68%,0.08) 0%, hsla(240,70%,51%,0.05) 100%)",
-              border: "1px solid hsla(87,100%,68%,0.25)",
-              boxShadow: "0 4px 20px hsla(235,60%,4%,0.3)",
-            }}
-          >
-            <div
-              className="h-11 w-11 rounded-xl flex items-center justify-center shrink-0"
-              style={{
-                background: "hsla(87,100%,68%,0.16)",
-                border: "1px solid hsla(87,100%,68%,0.4)",
-                boxShadow: "0 0 16px hsla(87,100%,68%,0.35)",
-              }}
-            >
-              <BookOpen className="h-5 w-5" style={{ color: "hsl(var(--kosh-lime))", filter: "drop-shadow(0 0 5px hsla(87,100%,68%,0.7))" }} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary/80 font-display">Continue Learning</div>
-              <div className="text-sm font-semibold text-foreground leading-snug truncate">{nextModule.title}</div>
-              <div className="text-xs text-muted-foreground">~{nextModule.minutes} min</div>
-            </div>
-            <ArrowRight className="h-4 w-4 text-primary/50 group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" />
-          </button>
-        )}
-
         <button
           onClick={() => navigate("/explainers")}
-          className="group w-full rounded-2xl border border-primary/20 bg-card p-4 text-left transition-all hover:border-primary/45 hover:bg-primary/5 active:scale-[0.99]"
+          className="group w-full rounded-2xl border border-primary/20 bg-card p-4 text-left transition-all hover:border-primary/40 hover:bg-primary/5 active:scale-[0.99]"
         >
           <div className="flex items-start gap-3">
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-primary/30 bg-primary/10 text-primary">
@@ -889,13 +917,14 @@ export default function Dashboard() {
           <span className="text-3xl">🗓️</span>
           <div className="flex-1">
             <div className="font-display font-extrabold text-foreground text-sm tracking-tight">30-Day Challenge</div>
-            <div className="text-xs text-muted-foreground">Daily actions · +10 points each</div>
+            <div className="text-xs text-muted-foreground">Daily actions · +10 mangoes each</div>
           </div>
           <span className="text-primary text-sm font-bold font-display group-hover:translate-x-0.5 transition-transform">Start →</span>
         </button>
 
-        <p className="text-center text-xs text-muted-foreground/40 py-2">
-          No products. No commissions. No hidden agenda.
+        <p className="flex items-center justify-center gap-1.5 text-center text-xs text-muted-foreground/45 py-2 leading-relaxed">
+          <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-primary/60" />
+          Beta learning product. Education only, not financial advice. No products or commissions.
         </p>
       </div>
     </div>

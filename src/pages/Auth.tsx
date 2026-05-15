@@ -4,7 +4,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowRight, Eye, EyeOff, Loader2 } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, Loader2, ShieldCheck } from "lucide-react";
 import { auth, db, supabaseReady, type KoshProfile } from "@/lib/supabase";
 import { useAuthStore } from "@/store/authStore";
 import { startDemo, isDemoMode, exitDemo } from "@/lib/demo";
@@ -191,6 +191,15 @@ export default function Auth() {
           ))}
         </div>
 
+        <div className="rounded-2xl border border-primary/20 bg-primary/5 p-3.5">
+          <div className="flex gap-2.5">
+            <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+            <p className="text-xs leading-relaxed text-muted-foreground">
+              Public beta. Kosh is educational only, not financial advice. We use your progress to personalize learning and improve the product.
+            </p>
+          </div>
+        </div>
+
         {/* Form */}
         <form onSubmit={tab === "signup" ? handleSignUp : handleLogIn} className="space-y-3">
           <input
@@ -235,7 +244,7 @@ export default function Auth() {
                 required
                 className={inputClass}
               />
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid gap-3 sm:grid-cols-2">
                 <input
                   type="number"
                   inputMode="numeric"

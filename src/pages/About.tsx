@@ -401,6 +401,22 @@ export default function About() {
           </div>
         </section>
 
+        {/* ── Beta trust note ── */}
+        <section className="rounded-2xl border border-primary/20 bg-primary/5 p-5">
+          <div className="flex gap-3">
+            <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+            <div className="space-y-1.5">
+              <h2 className="text-sm font-bold text-foreground">Public beta promise</h2>
+              <p className="text-xs leading-relaxed text-muted-foreground">
+                Kosh is a learning product, not a bank, broker, or adviser. We do not sell financial products, and the app is for education only.
+              </p>
+              <p className="text-xs leading-relaxed text-muted-foreground">
+                During beta, we use anonymous patterns and user feedback to improve content length, clarity, and next-step recommendations.
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* ── Contact ── */}
         <section className="text-center space-y-4 pb-4">
           <p className="text-sm text-muted-foreground">Questions or partnerships?</p>
@@ -429,7 +445,7 @@ export default function About() {
 
       <footer className="border-t border-white/[0.06]">
         <div className="max-w-5xl mx-auto px-4 py-6 text-center text-xs text-foreground/30">
-          No products. No commissions.
+          Beta learning product. Education only, not financial advice. No products. No commissions.
         </div>
       </footer>
     </div>

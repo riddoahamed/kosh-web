@@ -1123,7 +1123,7 @@ export default function Landing() {
       <footer className="border-t border-border mt-12">
         <div className="max-w-5xl mx-auto px-4 py-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-foreground/35">
           <img src="/logo.png" alt="Kosh" className="h-6 w-auto opacity-60" />
-          <div>No products. No commissions. No hidden agenda.</div>
+          <div>Beta learning product. Education only, not financial advice. No products. No commissions.</div>
           <div className="flex flex-wrap gap-4 justify-center">
             <Link to="/scam-spotter" className="hover:text-foreground/60 transition-colors">Scam Spotter</Link>
             <Link to="/comparator"   className="hover:text-foreground/60 transition-colors">Comparator</Link>
