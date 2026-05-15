@@ -5,16 +5,37 @@ export type ExplainerCategory =
   | "worker-wise"
   | "employer";
 
+export interface ExplainerStep {
+  icon: string;
+  label: string;
+}
+
 export interface ExplainerVisual {
-  type: "icon" | "illustration" | "chart" | "table" | "flowchart" | "checklist" | "country-card";
+  type:
+    | "icon"
+    | "illustration"
+    | "chart"
+    | "table"
+    | "flowchart"
+    | "checklist"
+    | "country-card"
+    | "step-cards";
   description: string;
   suggestedIcon?: string;
   altText: string;
+  steps?: ExplainerStep[];
 }
 
 export interface ExplainerSection {
   heading: string;
   body: string;
+}
+
+export interface ExternalLink {
+  title: string;
+  href: string;
+  description?: string;
+  type: "official" | "tool" | "deeper-reading";
 }
 
 export interface Explainer {
@@ -37,4 +58,6 @@ export interface Explainer {
   relatedModules: string[];
   relatedCalculators: string[];
   sourceNotes?: string[];
+  siblingExplainerSlug?: string;
+  externalLinks?: ExternalLink[];
 }

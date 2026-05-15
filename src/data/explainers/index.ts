@@ -1,10 +1,11 @@
 import { BriefcaseBusiness, Globe2, Scale, UsersRound, Waypoints } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { Explainer, ExplainerCategory } from "@/types/explainer";
-import { EXPLAINERS } from "./generated";
+import { EXPLAINERS as GENERATED_EXPLAINERS } from "./generated";
+import { v5ExplainerAdditions } from "./v5Additions";
 import { ALL_MODULES } from "@/data/modules";
 
-export { EXPLAINERS };
+export const EXPLAINERS: Explainer[] = [...GENERATED_EXPLAINERS, ...v5ExplainerAdditions];
 
 export interface ExplainerCategoryMeta {
   id: ExplainerCategory;

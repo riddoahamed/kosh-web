@@ -605,10 +605,16 @@ export const EXPLAINERS: Explainer[] = [
     "mangoReward": 10,
     "lastUpdated": "2026-05-15",
     "visual": {
-      "type": "icon",
-      "description": "piggy bank icon + daily savings card",
+      "type": "step-cards",
+      "description": "Daily, weekly, monthly savings habits",
       "suggestedIcon": "PiggyBank",
-      "altText": "সহজ সঞ্চয় কৌশল visual: piggy bank icon + daily savings card"
+      "altText": "প্রতিদিন অল্প করে সঞ্চয়ের ধাপ",
+      "steps": [
+        { "icon": "Coins", "label": "প্রতিদিন ২০ টাকা" },
+        { "icon": "Calendar", "label": "প্রতি সপ্তাহে ১০০ টাকা" },
+        { "icon": "Wallet", "label": "মাসে আলাদা খামে" },
+        { "icon": "ShieldCheck", "label": "জরুরি ছাড়া হাত দেবেন না" }
+      ]
     },
     "sections": [
       {
@@ -639,10 +645,16 @@ export const EXPLAINERS: Explainer[] = [
     "mangoReward": 10,
     "lastUpdated": "2026-05-15",
     "visual": {
-      "type": "icon",
-      "description": "mobile phone + lock icon",
+      "type": "step-cards",
+      "description": "Mobile banking safety steps",
       "suggestedIcon": "Smartphone",
-      "altText": "মোবাইল ব্যাংকিং নিরাপদে ব্যবহার visual: mobile phone + lock icon"
+      "altText": "মোবাইল ব্যাংকিং নিরাপদে ব্যবহারের ধাপ",
+      "steps": [
+        { "icon": "Lock", "label": "পিন কাউকে নয়" },
+        { "icon": "Smartphone", "label": "ওটিপি গোপন রাখুন" },
+        { "icon": "AlertTriangle", "label": "অপরিচিত লিংকে নয়" },
+        { "icon": "Check", "label": "পিন চাপার সময় ঢেকে রাখুন" }
+      ]
     },
     "sections": [
       {
@@ -673,10 +685,16 @@ export const EXPLAINERS: Explainer[] = [
     "mangoReward": 10,
     "lastUpdated": "2026-05-15",
     "visual": {
-      "type": "icon",
-      "description": "warning icon + debt trap graphic",
+      "type": "step-cards",
+      "description": "Questions to ask before taking a loan",
       "suggestedIcon": "AlertTriangle",
-      "altText": "বেশি সুদের ঋণ থেকে সাবধান visual: warning icon + debt trap graphic"
+      "altText": "ঋণ নেওয়ার আগে যাচাই করার ধাপ",
+      "steps": [
+        { "icon": "Calculator", "label": "মোট ফেরত - কত?" },
+        { "icon": "Calendar", "label": "কত দিনে দিতে হবে?" },
+        { "icon": "AlertTriangle", "label": "দেরিতে জরিমানা?" },
+        { "icon": "BadgeCheck", "label": "অফিস/ব্যাংক আগে দেখুন" }
+      ]
     },
     "sections": [
       {
