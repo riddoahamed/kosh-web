@@ -5,18 +5,22 @@ import { useProgressStore } from "@/store/progressStore";
 import { usePointsStore } from "@/store/pointsStore";
 import { db } from "@/lib/supabase";
 import { DemoBanner } from "@/components/shared/DemoBanner";
+import { GlobalSearch, GlobalSearchModal } from "@/components/shared/GlobalSearch";
 import { getModuleIcon } from "@/data/moduleIcons";
 import { ZoneIcon, ZONE_ACCENT } from "@/components/shared/ZoneIcon";
 import { ZONES } from "@/data/zones";
 import { ZONE_MODULE_ORDER } from "@/data/modules";
+import { MANGOES } from "@/store/pointsStore";
 import {
   Lock, CheckCircle2, Circle, Zap, Flame,
   ChevronDown, ChevronUp, Trophy, ArrowRight, BookOpen,
   Radar, Crosshair, PieChart, ArrowLeftRight, Landmark, Gauge, Wrench, Briefcase,
+  Search, Sparkles, Compass,
 } from "lucide-react";
 
 // ── Tools list (mirrors landing page tools so signed-in users have access) ──
 const TOOLS = [
+  { href: "/path",           icon: Compass,       label: "Find your path", tone: "lime"    as const },
   { href: "/scam-spotter",   icon: Radar,         label: "Scam Spotter",   tone: "red"     as const },
   { href: "/sip-calculator", icon: Crosshair,     label: "Goal SIP",       tone: "lime"    as const },
   { href: "/budget-planner", icon: PieChart,      label: "Budget",         tone: "teal"    as const },
@@ -241,15 +245,18 @@ function ModuleCard({
 // ── Zone Roadmap node ─────────────────────────────────────────────────────────
 
 function ZoneRoadmapNode({
-  zone, completedCount, totalCount, isLocked, isFirst,
-  onNavigate,
+  zone, completedCount, totalCount, isLocked, canUnlock, unlockCost, isFirst,
+  onNavigate, onUnlock,
 }: {
   zone: typeof ZONES[0];
   completedCount: number;
   totalCount: number;
   isLocked: boolean;
+  canUnlock: boolean;
+  unlockCost: number;
   isFirst: boolean;
   onNavigate: (path: string) => void;
+  onUnlock: (zoneId: string, title: string) => void;
 }) {
   const accent = ZONE_ACCENT[zone.id] ?? "160 90% 45%";
   const pct = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
@@ -266,7 +273,9 @@ function ZoneRoadmapNode({
       <div
         className={`flex-1 rounded-xl border p-4 transition-all ${
           isLocked
-            ? "border-border/40 opacity-50"
+            ? canUnlock
+              ? "border-border/70 hover:border-primary/40 cursor-pointer"
+              : "border-border/40 opacity-70"
             : isComplete
             ? "border-border"
             : "border-border hover:border-[hsla(var(--primary)/0.3)] cursor-pointer"
@@ -276,7 +285,10 @@ function ZoneRoadmapNode({
             ? { background: `hsla(${accent} / 0.04)`, borderColor: `hsla(${accent} / 0.2)` }
             : undefined
         }
-        onClick={() => !isLocked && onNavigate(`/zones/${zone.id}`)}
+        onClick={() => {
+          if (!isLocked) onNavigate(`/zones/${zone.id}`);
+          else if (canUnlock) onUnlock(zone.id, zone.title);
+        }}
       >
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
@@ -289,7 +301,7 @@ function ZoneRoadmapNode({
               </span>
               {isLocked && (
                 <span className="flex items-center gap-1 text-[10px] font-semibold text-muted-foreground bg-muted border border-border rounded-full px-1.5 py-0.5">
-                  <Lock className="h-2.5 w-2.5" /> Locked
+                  <Lock className="h-2.5 w-2.5" /> Practice unlock
                 </span>
               )}
               {isComplete && (
@@ -314,7 +326,19 @@ function ZoneRoadmapNode({
               style={{ color: `hsla(${accent} / 0.5)` }}
             />
           )}
+          {isLocked && canUnlock && (
+            <Zap className="h-4 w-4 shrink-0 mt-1 text-primary/65" />
+          )}
         </div>
+
+        {isLocked && (
+          <div className="mt-3 flex items-center justify-between gap-2 rounded-lg border border-border/70 bg-background/60 px-3 py-2">
+            <span className="text-xs font-medium text-muted-foreground">
+              {canUnlock ? "Unlock this zone now" : "Earn a few mangoes first"}
+            </span>
+            <span className="text-xs font-bold text-primary">{unlockCost} 🥭</span>
+          </div>
+        )}
 
         {/* Progress bar */}
         {!isLocked && totalCount > 0 && (
@@ -349,11 +373,13 @@ export default function Dashboard() {
   const { profile, loadProfile } = useAuthStore();
   const result = db.getDiagnosticResult();
   const greyZoneFlagged = result?.greyZone?.flagged ?? false;
-  const { load, isUnlocked, getRecord, allCoreModulesComplete, progress } = useProgressStore();
-  const { total: points, streak, load: loadPoints, checkReengagement } = usePointsStore();
+  const { load, isUnlocked, getRecord, allCoreModulesComplete, progress, unlockZone, isZoneUnlocked } = useProgressStore();
+  const { total: points, streak, load: loadPoints, checkReengagement, spendPoints } = usePointsStore();
 
   // Zone 1 track starts collapsed when complete
   const [z1Open, setZ1Open] = useState<boolean | null>(null); // null = not yet determined
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [unlockHint, setUnlockHint] = useState("");
 
   useEffect(() => {
     loadProfile();
@@ -411,6 +437,22 @@ export default function Dashboard() {
     return { done, total: ids.length };
   }
 
+  function handleZoneUnlock(zoneId: string, title: string) {
+    if (isZoneUnlocked(zoneId)) {
+      navigate(`/zones/${zoneId}`);
+      return;
+    }
+    const unlocked = spendPoints(MANGOES.ZONE_UNLOCK, `Unlocked ${title}`);
+    if (!unlocked) {
+      const missing = Math.max(0, MANGOES.ZONE_UNLOCK - points);
+      setUnlockHint(`Need ${missing} more mangoes. Complete a lesson, explainer, or challenge day.`);
+      return;
+    }
+    unlockZone(zoneId);
+    setUnlockHint(`${title} unlocked.`);
+    navigate(`/zones/${zoneId}`);
+  }
+
   const firstName = profile?.name?.split(" ")[0] ?? "there";
   const greeting  = getGreeting();
 
@@ -425,12 +467,20 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-background">
       <DemoBanner />
+      <GlobalSearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
 
       {/* Nav */}
       <nav className="border-b border-border bg-background sticky top-0 z-10">
         <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
           <Link to="/"><img src="/logo.png" alt="Kosh" className="h-8 w-auto" /></Link>
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="flex h-8 items-center gap-1.5 rounded-full border border-border bg-card px-2.5 text-xs font-semibold text-foreground/65 transition-colors hover:border-primary/40 hover:text-primary"
+            >
+              <Search className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Search</span>
+            </button>
             <button onClick={() => navigate("/zones")}
               className="text-xs font-semibold text-foreground/60 hover:text-primary transition-colors">
               Zones
@@ -567,6 +617,10 @@ export default function Dashboard() {
           </div>
         </div>
 
+        <section className="space-y-2">
+          <GlobalSearch />
+        </section>
+
         {/* ── Continue Learning ──────────────────────────────────────────── */}
         {nextModule && (
           <button
@@ -596,6 +650,25 @@ export default function Dashboard() {
             <ArrowRight className="h-4 w-4 text-primary/50 group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" />
           </button>
         )}
+
+        <button
+          onClick={() => navigate("/explainers")}
+          className="group w-full rounded-2xl border border-primary/20 bg-card p-4 text-left transition-all hover:border-primary/45 hover:bg-primary/5 active:scale-[0.99]"
+        >
+          <div className="flex items-start gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-primary/30 bg-primary/10 text-primary">
+              <Sparkles className="h-5 w-5" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary/75">For curious learners</div>
+              <div className="mt-0.5 text-sm font-bold text-foreground">Explainers, comparisons, and deeper answers</div>
+              <div className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                Short reads for people who want the why behind FDRs, remittance, scams, credit, tax, and investing.
+              </div>
+            </div>
+            <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-primary/55 transition-transform group-hover:translate-x-0.5" />
+          </div>
+        </button>
 
         {/* ── Congratulations banner (zone 1 complete) ──────────────────── */}
         {coreComplete && (
@@ -721,10 +794,15 @@ export default function Dashboard() {
             <h2 className="font-display font-extrabold text-foreground tracking-tight">Your Learning Journey</h2>
             {!coreComplete && (
               <span className="text-[10px] font-semibold text-muted-foreground bg-muted border border-border rounded-full px-2 py-0.5">
-                Unlocks after Zone 1
+                10 🥭 unlock
               </span>
             )}
           </div>
+          {unlockHint && (
+            <p className="rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs font-medium text-primary/85">
+              {unlockHint}
+            </p>
+          )}
 
           {/* Roadmap nodes connected by vertical line */}
           <div className="relative">
@@ -739,7 +817,8 @@ export default function Dashboard() {
             <div className="space-y-4">
               {ZONES.slice(1).map((zone) => {
                 const { done, total } = getZoneProgress(zone.id);
-                const isLocked = !coreComplete;
+                const zoneUnlocked = isZoneUnlocked(zone.id);
+                const isLocked = !zoneUnlocked;
                 return (
                   <ZoneRoadmapNode
                     key={zone.id}
@@ -747,8 +826,11 @@ export default function Dashboard() {
                     completedCount={done}
                     totalCount={total}
                     isLocked={isLocked}
+                    canUnlock={points >= MANGOES.ZONE_UNLOCK}
+                    unlockCost={MANGOES.ZONE_UNLOCK}
                     isFirst={false}
                     onNavigate={navigate}
+                    onUnlock={handleZoneUnlock}
                   />
                 );
               })}

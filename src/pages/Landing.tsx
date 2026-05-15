@@ -831,6 +831,13 @@ export default function Landing() {
                 <ArrowRight className="h-3.5 w-3.5" />
               </Link>
               <Link
+                to="/path"
+                className="inline-flex items-center gap-1.5 px-6 py-3 rounded-full border border-primary/25 bg-primary/5 text-sm font-bold text-primary hover:border-primary/45 hover:bg-primary/10 transition-all active:scale-95"
+              >
+                Find your path
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+              <Link
                 to="/auth"
                 className="inline-flex items-center gap-1.5 px-6 py-3 rounded-full border border-primary/25 bg-primary/5 text-sm font-bold text-primary hover:border-primary/45 hover:bg-primary/10 transition-all active:scale-95"
               >

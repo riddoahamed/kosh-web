@@ -64,6 +64,12 @@ export default function Results() {
             <RotateCcw className="h-3.5 w-3.5" />
             Retake the check
           </button>
+          <Link
+            to="/path"
+            className="w-full flex items-center justify-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 py-2"
+          >
+            Want quick answers instead? Try Path Finder →
+          </Link>
         </div>
 
         <div className="bg-primary/5 border border-primary/25 rounded-2xl p-5 space-y-4">

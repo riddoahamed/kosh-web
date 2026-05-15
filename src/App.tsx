@@ -38,6 +38,7 @@ const ExplainerDetail = lazy(() => import("@/pages/explainers/ExplainerDetail"))
 const WorkerWise = lazy(() => import("@/pages/explainers/WorkerWise"));
 const EmployerPacks = lazy(() => import("@/pages/explainers/EmployerPacks"));
 const EmployerPackDetail = lazy(() => import("@/pages/explainers/EmployerPackDetail"));
+const PathFinder = lazy(() => import("@/pages/PathFinder"));
 
 function RouteFallback() {
   return (
@@ -89,6 +90,7 @@ export default function App() {
           <Route path="/explainers/:category" element={<ExplainerCategory />} />
           <Route path="/explainers/:category/:slug" element={<ExplainerDetail />} />
           <Route path="/worker-wise" element={<WorkerWise />} />
+          <Route path="/path" element={<PathFinder />} />
           <Route path="/x" element={<DevLogin />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
