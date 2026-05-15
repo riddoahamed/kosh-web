@@ -195,7 +195,11 @@ export default function Auth() {
           <div className="flex gap-2.5">
             <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
             <p className="text-xs leading-relaxed text-muted-foreground">
-              Public beta. Kosh is educational only, not financial advice. We use your progress to personalize learning and improve the product.
+              Public beta. Kosh is educational only, not financial advice. Official site:{" "}
+              <a href="https://www.koshbd.com" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary hover:underline">
+                www.koshbd.com
+              </a>
+              . We use your progress to personalize learning and improve the product.
             </p>
           </div>
         </div>

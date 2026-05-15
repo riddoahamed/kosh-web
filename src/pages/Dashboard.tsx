@@ -924,7 +924,13 @@ export default function Dashboard() {
 
         <p className="flex items-center justify-center gap-1.5 text-center text-xs text-muted-foreground/45 py-2 leading-relaxed">
           <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-primary/60" />
-          Beta learning product. Education only, not financial advice. No products or commissions.
+          <span>
+            Beta learning product. Education only, not financial advice. Official site:{" "}
+            <a href="https://www.koshbd.com" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary/80 hover:text-primary hover:underline">
+              www.koshbd.com
+            </a>
+            .
+          </span>
         </p>
       </div>
     </div>
