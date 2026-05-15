@@ -36,6 +36,8 @@ const Explainers = lazy(() => import("@/pages/explainers/Explainers"));
 const ExplainerCategory = lazy(() => import("@/pages/explainers/ExplainerCategory"));
 const ExplainerDetail = lazy(() => import("@/pages/explainers/ExplainerDetail"));
 const WorkerWise = lazy(() => import("@/pages/explainers/WorkerWise"));
+const EmployerPacks = lazy(() => import("@/pages/explainers/EmployerPacks"));
+const EmployerPackDetail = lazy(() => import("@/pages/explainers/EmployerPackDetail"));
 
 function RouteFallback() {
   return (
@@ -82,6 +84,8 @@ export default function App() {
           <Route path="/about" element={<About />} />
           <Route path="/for-institutions" element={<ForInstitutions />} />
           <Route path="/explainers" element={<Explainers />} />
+          <Route path="/explainers/employer" element={<EmployerPacks />} />
+          <Route path="/explainers/employer-pack/:packSlug" element={<EmployerPackDetail />} />
           <Route path="/explainers/:category" element={<ExplainerCategory />} />
           <Route path="/explainers/:category/:slug" element={<ExplainerDetail />} />
           <Route path="/worker-wise" element={<WorkerWise />} />
