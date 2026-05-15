@@ -11,11 +11,11 @@ import {
 } from "@/data/explainers";
 
 const DIASPORA_COUNTRIES = [
-  { id: "canada", label: "Canada" },
-  { id: "us", label: "United States" },
-  { id: "uk", label: "United Kingdom" },
-  { id: "australia", label: "Australia" },
-  { id: "middle east", label: "Middle East" },
+  { id: "canada", label: "Canada", matchTags: ["canada", "country:canada"] },
+  { id: "us", label: "United States", matchTags: ["us", "country:us"] },
+  { id: "uk", label: "United Kingdom", matchTags: ["uk", "country:uk"] },
+  { id: "australia", label: "Australia", matchTags: ["australia", "country:australia"] },
+  { id: "middle-east", label: "Middle East", matchTags: ["middle east", "country:middle-east"] },
 ];
 
 export default function ExplainerCategory() {
@@ -29,17 +29,23 @@ export default function ExplainerCategory() {
   const meta = getExplainerCategoryMeta(validCategory);
   const Icon = meta.icon;
   const isDiaspora = validCategory === "diaspora";
+  const allCountryTags = useMemo(
+    () => new Set(DIASPORA_COUNTRIES.flatMap((c) => c.matchTags)),
+    [],
+  );
   const tags = useMemo(
     () => [...new Set(EXPLAINERS.filter((item) => item.category === validCategory).flatMap((item) => item.tags))]
-      .filter((item) => !isDiaspora || !DIASPORA_COUNTRIES.some((c) => c.id === item.toLowerCase()))
+      .filter((item) => !isDiaspora || !allCountryTags.has(item.toLowerCase()))
       .slice(0, 16),
-    [validCategory, isDiaspora],
+    [validCategory, isDiaspora, allCountryTags],
   );
   const explainers = useMemo(() => {
     let base = searchExplainers(query, validCategory);
     if (country) {
+      const countryDef = DIASPORA_COUNTRIES.find((c) => c.id === country);
+      const matchSet = new Set((countryDef?.matchTags ?? [country]).map((t) => t.toLowerCase()));
       base = base.filter((explainer) =>
-        explainer.tags.some((t) => t.toLowerCase() === country.toLowerCase()),
+        explainer.tags.some((t) => matchSet.has(t.toLowerCase())),
       );
     }
     if (!tag) return base;

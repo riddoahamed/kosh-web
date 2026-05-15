@@ -6,6 +6,7 @@ import { usePointsStore } from "@/store/pointsStore";
 import { useUIStore, type Theme } from "@/store/uiStore";
 import type { KoshProfile } from "@/lib/supabase";
 import {
+  Award,
   CheckCircle2,
   ChevronDown,
   LogOut,
@@ -20,6 +21,7 @@ import {
   Clock,
   BookOpen,
 } from "lucide-react";
+import { getBadgeStatuses } from "@/lib/badges";
 
 const DIVISIONS = [
   "Dhaka", "Chittagong", "Rajshahi", "Khulna",
@@ -107,6 +109,8 @@ export default function Profile() {
 
   const [nidLast4, setNidLast4] = useState(profile?.nid_last4 ?? "");
   const [kycDivision, setKycDivision] = useState(profile?.division ?? "");
+
+  const badgeStatuses = getBadgeStatuses();
 
   useEffect(() => {
     if (!profile) navigate("/auth", { replace: true });
@@ -276,6 +280,50 @@ export default function Profile() {
             </div>
           </div>
         </div>
+
+        {/* ── Badges ── */}
+        <SectionCard>
+          <SectionTitle icon={Award} title="Badges" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {badgeStatuses.map(({ badge, progress, earned }) => {
+              const Icon = badge.icon;
+              const pct = Math.min(100, Math.round((progress / badge.threshold) * 100));
+              return (
+                <div
+                  key={badge.id}
+                  className={`flex items-start gap-3 rounded-xl border p-3 ${
+                    earned ? "border-primary/40 bg-primary/8" : "border-border bg-background/40"
+                  }`}
+                >
+                  <div
+                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
+                      earned ? "bg-primary text-primary-foreground" : "bg-muted/40 text-foreground/45"
+                    }`}
+                  >
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className={`text-sm font-bold ${earned ? "text-foreground" : "text-foreground/70"}`}>
+                        {badge.title}
+                      </p>
+                      <span className="text-[11px] font-semibold text-foreground/45">
+                        {Math.min(progress, badge.threshold)}/{badge.threshold}
+                      </span>
+                    </div>
+                    <p className="mt-0.5 text-[11px] text-foreground/55">{badge.description}</p>
+                    <div className="mt-2 h-1 overflow-hidden rounded-full bg-border">
+                      <div
+                        className={`h-full transition-all duration-500 ${earned ? "bg-primary" : "bg-foreground/30"}`}
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </SectionCard>
 
         {/* ── Edit Profile ── */}
         <SectionCard>
