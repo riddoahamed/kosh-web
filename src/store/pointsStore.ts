@@ -158,6 +158,7 @@ export const MANGOES = {
   REENGAGEMENT_AFTER_14_DAYS: 500,
   SHARE_RESULT_CARD:       15,
   RETEST_30_DAY:          200,
+  ZONE_UNLOCK:             10,
 } as const;
 
 // Keep old POINTS alias so existing callers compile without changes

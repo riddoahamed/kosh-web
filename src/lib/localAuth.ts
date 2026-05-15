@@ -34,6 +34,8 @@ const ACTIVE_KEYS = {
   DIAGNOSTIC: "kosh:diagnostic_result",
   FEEDBACK:   "kosh:lesson_feedback",
   EXPLAINERS: "kosh:explainer_progress",
+  ZONE_UNLOCKS: "kosh:zone_unlocks",
+  PACK_COMPLETION: "kosh:pack_completion",
 } as const;
 
 interface MangoesState {
@@ -49,6 +51,8 @@ interface AccountSnapshot {
   diagnostic?: DiagnosticResult;
   lessonFeedback?: Record<string, unknown>;
   explainerProgress?: Record<string, unknown>;
+  zoneUnlocks?: string[];
+  packCompletion?: Record<string, unknown>;
 }
 
 interface AccountRecord {
@@ -118,6 +122,16 @@ function restoreActiveStateFrom(acc: AccountRecord): void {
   } else {
     localStorage.removeItem(ACTIVE_KEYS.EXPLAINERS);
   }
+  if (acc.snapshot?.zoneUnlocks) {
+    localStorage.setItem(ACTIVE_KEYS.ZONE_UNLOCKS, JSON.stringify(acc.snapshot.zoneUnlocks));
+  } else {
+    localStorage.removeItem(ACTIVE_KEYS.ZONE_UNLOCKS);
+  }
+  if (acc.snapshot?.packCompletion) {
+    localStorage.setItem(ACTIVE_KEYS.PACK_COMPLETION, JSON.stringify(acc.snapshot.packCompletion));
+  } else {
+    localStorage.removeItem(ACTIVE_KEYS.PACK_COMPLETION);
+  }
 }
 
 /** Read the active-state mirror keys back into a per-account snapshot. */
@@ -133,11 +147,15 @@ function captureActiveStateSnapshot(): AccountSnapshot {
   const diagnostic = safeRead<DiagnosticResult>(ACTIVE_KEYS.DIAGNOSTIC);
   const feedback   = safeRead<Record<string, unknown>>(ACTIVE_KEYS.FEEDBACK);
   const explainers  = safeRead<Record<string, unknown>>(ACTIVE_KEYS.EXPLAINERS);
+  const zoneUnlocks = safeRead<string[]>(ACTIVE_KEYS.ZONE_UNLOCKS);
+  const packCompletion = safeRead<Record<string, unknown>>(ACTIVE_KEYS.PACK_COMPLETION);
   if (progress)   snap.progress   = progress;
   if (mangoes)    snap.mangoes    = mangoes;
   if (diagnostic) snap.diagnostic = diagnostic;
   if (feedback)   snap.lessonFeedback = feedback;
   if (explainers)  snap.explainerProgress = explainers;
+  if (zoneUnlocks) snap.zoneUnlocks = zoneUnlocks;
+  if (packCompletion) snap.packCompletion = packCompletion;
   return snap;
 }
 

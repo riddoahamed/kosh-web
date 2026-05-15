@@ -118,13 +118,18 @@ const KEYS = {
   MODULE_PROGRESS: "kosh:module_progress",
   LESSON_FEEDBACK: "kosh:lesson_feedback",
   EXPLAINER_PROGRESS: "kosh:explainer_progress",
+  ZONE_UNLOCKS: "kosh:zone_unlocks",
+  PACK_COMPLETION: "kosh:pack_completion",
 } as const;
+const MANGOES_KEY = "kosh:mangoes";
 
 // Per-user-id profile cache — survives logout so users don't have to re-enter
 // their profile on every login if Supabase is unreachable or RLS blocks the
 // remote write (which fails silently otherwise).
 const PROFILE_CACHE_PREFIX = "kosh:profile_cache:";
 const profileCacheKey = (userId: string) => `${PROFILE_CACHE_PREFIX}${userId}`;
+const USER_STATE_CACHE_PREFIX = "kosh:user_state_cache:";
+const userStateCacheKey = (userId: string) => `${USER_STATE_CACHE_PREFIX}${userId}`;
 
 function readCachedProfile(userId: string): KoshProfile | null {
   const raw = localStorage.getItem(profileCacheKey(userId));
@@ -135,6 +140,60 @@ function readCachedProfile(userId: string): KoshProfile | null {
 function writeCachedProfile(profile: KoshProfile): void {
   if (!profile.id) return;
   localStorage.setItem(profileCacheKey(profile.id), JSON.stringify(profile));
+}
+
+function safeJSON<T,>(key: string): T | undefined {
+  const v = localStorage.getItem(key);
+  if (!v) return undefined;
+  try { return JSON.parse(v) as T; } catch { return undefined; }
+}
+
+function captureLocalUserState(): Record<string, unknown> {
+  return {
+    profile: safeJSON(KEYS.PROFILE),
+    progress: safeJSON(KEYS.MODULE_PROGRESS),
+    mangoes: safeJSON(MANGOES_KEY),
+    diagnostic: safeJSON(KEYS.DIAGNOSTIC),
+    lessonFeedback: safeJSON(KEYS.LESSON_FEEDBACK),
+    explainerProgress: safeJSON(KEYS.EXPLAINER_PROGRESS),
+    zoneUnlocks: safeJSON(KEYS.ZONE_UNLOCKS),
+    packCompletion: safeJSON(KEYS.PACK_COMPLETION),
+  };
+}
+
+function snapshotToSupabaseUserCache(userId?: string): void {
+  try {
+    const profile = safeJSON<KoshProfile>(KEYS.PROFILE);
+    const id = userId ?? profile?.id;
+    if (!id) return;
+    localStorage.setItem(userStateCacheKey(id), JSON.stringify(captureLocalUserState()));
+  } catch {
+    /* best-effort only */
+  }
+}
+
+function restoreSupabaseUserCache(userId: string): KoshProfile | null {
+  const raw = localStorage.getItem(userStateCacheKey(userId));
+  if (!raw) return null;
+  try {
+    const snap = JSON.parse(raw) as Record<string, unknown>;
+    const pairs: Array<[string, unknown]> = [
+      [KEYS.MODULE_PROGRESS, snap.progress],
+      [MANGOES_KEY, snap.mangoes],
+      [KEYS.DIAGNOSTIC, snap.diagnostic],
+      [KEYS.LESSON_FEEDBACK, snap.lessonFeedback],
+      [KEYS.EXPLAINER_PROGRESS, snap.explainerProgress],
+      [KEYS.ZONE_UNLOCKS, snap.zoneUnlocks],
+      [KEYS.PACK_COMPLETION, snap.packCompletion],
+    ];
+    for (const [key, value] of pairs) {
+      if (value === undefined) localStorage.removeItem(key);
+      else localStorage.setItem(key, JSON.stringify(value));
+    }
+    return snap.profile ? (snap.profile as KoshProfile) : null;
+  } catch {
+    return null;
+  }
 }
 
 // ── Per-account snapshot helper ──────────────────────────────────────────────
@@ -167,6 +226,8 @@ function snapshotToActiveAccount(): void {
       diagnostic: safeJSON("kosh:diagnostic_result"),
       lessonFeedback: safeJSON("kosh:lesson_feedback"),
       explainerProgress: safeJSON("kosh:explainer_progress"),
+      zoneUnlocks: safeJSON("kosh:zone_unlocks"),
+      packCompletion: safeJSON("kosh:pack_completion"),
     };
     const p = safeJSON<KoshProfile>("kosh:profile");
     if (p) accs[email].profile = p;
@@ -174,6 +235,7 @@ function snapshotToActiveAccount(): void {
   } catch {
     /* best-effort — never throw during a save */
   }
+  snapshotToSupabaseUserCache();
 }
 
 // ── Types ─────────────────────────────────────────────────────────────────
@@ -347,18 +409,27 @@ export const db = {
       }
       if (data) {
         const profile = data as KoshProfile;
+        restoreSupabaseUserCache(userId);
         localStorage.setItem(KEYS.PROFILE, JSON.stringify(profile));
         writeCachedProfile(profile); // refresh cache
+        snapshotToSupabaseUserCache(userId);
         return profile;
       }
     }
     // Fall back to per-user cache (survives logout)
     const cached = readCachedProfile(userId);
     if (cached) {
+      restoreSupabaseUserCache(userId);
       // Promote cached profile to active and try syncing it to Supabase.
       localStorage.setItem(KEYS.PROFILE, JSON.stringify(cached));
       this.saveProfile(cached); // best-effort retry
       return cached;
+    }
+    const restored = restoreSupabaseUserCache(userId);
+    if (restored) {
+      localStorage.setItem(KEYS.PROFILE, JSON.stringify(restored));
+      writeCachedProfile(restored);
+      return restored;
     }
     return null;
   },
@@ -453,10 +524,11 @@ export const db = {
       per-user profile cache so the same user can sign back in without
       re-filling the profile form. UI/theme prefs are also kept. */
   clearAll(): void {
+    snapshotToSupabaseUserCache();
     Object.values(KEYS).forEach((k) => localStorage.removeItem(k));
     // Also clear demo flag, points, and any session-tied state
     localStorage.removeItem("kosh:demo_mode");
-    localStorage.removeItem("kosh:mangoes");
+    localStorage.removeItem(MANGOES_KEY);
     // Note: kosh:profile_cache:<userId> entries are intentionally preserved.
   },
 
@@ -464,6 +536,7 @@ export const db = {
       this after writing to localStorage so the active account stays in sync. */
   syncToActiveAccount(): void {
     snapshotToActiveAccount();
+    snapshotToSupabaseUserCache();
   },
 
   /** Hard reset — wipes everything including profile caches. Use only when
@@ -471,13 +544,14 @@ export const db = {
   hardClearAll(): void {
     Object.values(KEYS).forEach((k) => localStorage.removeItem(k));
     localStorage.removeItem("kosh:demo_mode");
-    localStorage.removeItem("kosh:mangoes");
+    localStorage.removeItem(MANGOES_KEY);
     localStorage.removeItem("kosh:accounts_v1");
     localStorage.removeItem("kosh:active_email_v1");
     // Sweep all per-user profile caches
     for (let i = localStorage.length - 1; i >= 0; i--) {
       const k = localStorage.key(i);
       if (k && k.startsWith(PROFILE_CACHE_PREFIX)) localStorage.removeItem(k);
+      if (k && k.startsWith(USER_STATE_CACHE_PREFIX)) localStorage.removeItem(k);
     }
   },
 };

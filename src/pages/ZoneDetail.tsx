@@ -2,25 +2,37 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getZone } from "@/data/zones";
 import { ZONE_MODULE_ORDER, ALL_MODULES } from "@/data/modules";
-import { useProgressStore, CORE_MODULES } from "@/store/progressStore";
+import { useProgressStore } from "@/store/progressStore";
+import { usePointsStore, MANGOES } from "@/store/pointsStore";
 import { ZoneIcon, accentBg, accentText } from "@/components/shared/ZoneIcon";
 
 export default function ZoneDetail() {
   const { zoneId } = useParams<{ zoneId: string }>();
   const navigate = useNavigate();
-  const { load, progress } = useProgressStore();
+  const { load, progress, unlockZone, isZoneUnlocked } = useProgressStore();
+  const { total: points, load: loadPoints, spendPoints } = usePointsStore();
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     load();
+    loadPoints();
     setLoaded(true);
-  }, [load]);
+  }, [load, loadPoints]);
 
   const zone = zoneId ? getZone(zoneId) : undefined;
   const moduleIds = zoneId ? (ZONE_MODULE_ORDER[zoneId] ?? []) : [];
-  const zone1Complete = CORE_MODULES.every((id) => progress[id]?.status === "completed");
+  const zoneUnlocked = zone ? isZoneUnlocked(zone.id) : false;
+  const canUnlock = points >= MANGOES.ZONE_UNLOCK;
 
   if (!zone || !loaded) return null;
+
+  function handleUnlock() {
+    if (!zone) return;
+    if (isZoneUnlocked(zone.id)) return;
+    const ok = spendPoints(MANGOES.ZONE_UNLOCK, `Unlocked ${zone.title}`);
+    if (!ok) return;
+    unlockZone(zone.id);
+  }
 
   if (zone.status === "coming_soon") {
     return (
@@ -71,11 +83,19 @@ export default function ZoneDetail() {
             </div>
           </div>
 
-          {!zone1Complete && (
+          {!zoneUnlocked && (
             <div className="rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 mb-4">
-              <p className="text-amber-700 dark:text-amber-400 text-sm">
-                🔒 Complete Level 1 (Zone 1) to unlock this zone.
+              <p className="text-amber-700 dark:text-amber-400 text-sm font-medium">
+                Unlock this practice zone for {MANGOES.ZONE_UNLOCK} mangoes.
               </p>
+              <button
+                type="button"
+                onClick={handleUnlock}
+                disabled={!canUnlock}
+                className="mt-3 w-full rounded-lg bg-primary px-3 py-2 text-sm font-bold text-primary-foreground transition-opacity disabled:opacity-50"
+              >
+                {canUnlock ? `Unlock ${MANGOES.ZONE_UNLOCK} 🥭` : `Need ${MANGOES.ZONE_UNLOCK} 🥭`}
+              </button>
             </div>
           )}
         </div>
@@ -91,9 +111,9 @@ export default function ZoneDetail() {
             const isInProgress = rec?.status === "in_progress";
 
             // Unlock logic: first module unlocked if zone is unlocked, subsequent require prev
-            const isZoneUnlocked = zone.id === "zone-1" || zone1Complete;
+            const isZoneOpen = zone.id === "zone-1" || zoneUnlocked;
             const isModuleUnlocked =
-              isZoneUnlocked && (idx === 0 || progress[moduleIds[idx - 1]]?.status === "completed");
+              isZoneOpen && (idx === 0 || progress[moduleIds[idx - 1]]?.status === "completed");
 
             return (
               <button
@@ -169,7 +189,7 @@ export default function ZoneDetail() {
         </div>
 
         {/* CTA if zone is unlocked */}
-        {zone1Complete && firstIncomplete && (
+        {zoneUnlocked && firstIncomplete && (
           <div className="mt-6">
             <button
               onClick={() => navigate(`/module/${firstIncomplete}`)}
@@ -180,13 +200,13 @@ export default function ZoneDetail() {
           </div>
         )}
 
-        {!zone1Complete && (
+        {!zoneUnlocked && (
           <div className="mt-6">
             <button
-              onClick={() => navigate("/dashboard")}
+              onClick={canUnlock ? handleUnlock : () => navigate("/dashboard")}
               className="w-full rounded-xl border-2 border-primary text-primary py-3.5 font-semibold text-sm hover:bg-primary/5 transition-all"
             >
-              Back to Level 1 →
+              {canUnlock ? `Unlock for ${MANGOES.ZONE_UNLOCK} 🥭` : "Back to dashboard →"}
             </button>
           </div>
         )}

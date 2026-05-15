@@ -2,15 +2,28 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { ZONES } from "@/data/zones";
 import { useProgressStore, CORE_MODULES } from "@/store/progressStore";
+import { usePointsStore, MANGOES } from "@/store/pointsStore";
 import { ZoneIcon, accentBg, accentText } from "@/components/shared/ZoneIcon";
 
 export default function ZoneLibrary() {
   const navigate = useNavigate();
-  const { load, progress } = useProgressStore();
-  useEffect(() => { load(); }, [load]);
+  const { load, progress, unlockZone, isZoneUnlocked } = useProgressStore();
+  const { total: points, load: loadPoints, spendPoints } = usePointsStore();
+  useEffect(() => { load(); loadPoints(); }, [load, loadPoints]);
 
   const zone1Complete = CORE_MODULES.every((id) => progress[id]?.status === "completed");
   const comingSoon = ZONES.filter((z) => z.status === "coming_soon");
+
+  function handleZoneOpen(zoneId: string, title: string) {
+    if (isZoneUnlocked(zoneId)) {
+      navigate(`/zones/${zoneId}`);
+      return;
+    }
+    const ok = spendPoints(MANGOES.ZONE_UNLOCK, `Unlocked ${title}`);
+    if (!ok) return;
+    unlockZone(zoneId);
+    navigate(`/zones/${zoneId}`);
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -25,7 +38,7 @@ export default function ZoneLibrary() {
           </button>
           <h1 className="text-2xl font-bold text-foreground">Learning Zones</h1>
           <p className="text-foreground/50 text-sm mt-1">
-            9 zones. Pick any live zone after finishing Zone 1.
+            9 zones. Finish Zone 1, or unlock a practice zone for 10 mangoes.
           </p>
         </div>
 
@@ -69,7 +82,7 @@ export default function ZoneLibrary() {
         <div className="flex items-center gap-3 my-5">
           <div className="flex-1 h-px bg-border" />
           <span className="text-xs font-semibold text-foreground/40 uppercase tracking-widest">
-            {zone1Complete ? "All zones unlocked" : "Unlocks after Zone 1"}
+            {zone1Complete ? "All zones unlocked" : "Practice unlocks · 10 mangoes"}
           </span>
           <div className="flex-1 h-px bg-border" />
         </div>
@@ -77,13 +90,17 @@ export default function ZoneLibrary() {
         {/* Zones 2–9 (live) */}
         <div className="space-y-3">
           {ZONES.filter((z) => z.id !== "zone-1" && z.status === "live").map((zone) => {
-            const isLocked = !zone1Complete;
+            const isLocked = !isZoneUnlocked(zone.id);
+            const canUnlock = points >= MANGOES.ZONE_UNLOCK;
             return (
               <button
                 key={zone.id}
-                onClick={() => { if (!isLocked) navigate(`/zones/${zone.id}`); }}
-                disabled={isLocked}
-                className="w-full text-left rounded-2xl border-2 p-5 transition-all hover:shadow-md active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => {
+                  if (isLocked) handleZoneOpen(zone.id, zone.title);
+                  else navigate(`/zones/${zone.id}`);
+                }}
+                disabled={isLocked && !canUnlock}
+                className="w-full text-left rounded-2xl border-2 p-5 transition-all hover:shadow-md active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed"
                 style={isLocked ? {} : accentBg(zone.id)}
               >
                 <div className="flex items-start justify-between gap-3">
@@ -98,7 +115,14 @@ export default function ZoneLibrary() {
                           Zone {zone.number}
                         </span>
                         {isLocked && (
-                          <span className="text-xs text-foreground/40">🔒 Finish Zone 1 first</span>
+                          <span className="text-xs text-foreground/40">
+                            {canUnlock ? `Unlock ${MANGOES.ZONE_UNLOCK} 🥭` : `Need ${MANGOES.ZONE_UNLOCK} 🥭`}
+                          </span>
+                        )}
+                        {!isLocked && !zone1Complete && (
+                          <span className="text-xs font-semibold text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-full">
+                            Practice
+                          </span>
                         )}
                       </div>
                       <h2 className="text-base font-bold text-foreground">{zone.title}</h2>
@@ -108,7 +132,10 @@ export default function ZoneLibrary() {
                   {!isLocked && <span className="text-foreground/30 text-lg mt-1">→</span>}
                 </div>
                 <div className="mt-3 ml-[56px]">
-                  <span className="text-xs text-foreground/40">{zone.moduleCount} modules</span>
+                  <span className="text-xs text-foreground/40">
+                    {zone.moduleCount} modules
+                    {isLocked && !canUnlock ? " · earn mangoes in lessons or challenge" : ""}
+                  </span>
                 </div>
               </button>
             );

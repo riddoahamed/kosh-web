@@ -2,6 +2,7 @@ import { Building2, HeartHandshake, Briefcase } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { Explainer } from "@/types/explainer";
 import { EXPLAINERS } from "./index";
+import { db } from "@/lib/supabase";
 
 export interface EmployerPack {
   id: string;
@@ -115,6 +116,7 @@ function readPackCompletion(): Record<string, PackCompletionRecord> {
 
 function writePackCompletion(records: Record<string, PackCompletionRecord>) {
   localStorage.setItem(PACK_COMPLETION_KEY, JSON.stringify(records));
+  db.syncToActiveAccount();
 }
 
 export function isPackAwarded(packSlug: string): boolean {

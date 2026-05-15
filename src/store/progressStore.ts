@@ -3,6 +3,7 @@ import { db, type ModuleProgressRecord } from "@/lib/supabase";
 import { ZONE_MODULE_ORDER } from "@/data/modules";
 
 const NUDGE_KEY = "kosh:nudge_records";
+const ZONE_UNLOCKS_KEY = "kosh:zone_unlocks";
 
 export interface ActionNudgeRecord {
   moduleId: string;
@@ -26,6 +27,25 @@ function saveNudgeRecords(records: Record<string, ActionNudgeRecord>) {
   try { localStorage.setItem(NUDGE_KEY, JSON.stringify(records)); } catch { /* ignore */ }
 }
 
+function loadZoneUnlocks(): string[] {
+  try {
+    const raw = localStorage.getItem(ZONE_UNLOCKS_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed.filter((item): item is string => typeof item === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveZoneUnlocks(zoneIds: string[]) {
+  try {
+    localStorage.setItem(ZONE_UNLOCKS_KEY, JSON.stringify(Array.from(new Set(zoneIds))));
+    db.syncToActiveAccount();
+  } catch {
+    /* ignore */
+  }
+}
+
 const ORDERED_MODULES = ["1", "2", "3", "4", "recovery-a", "recovery-b", "5", "6", "7", "8"];
 export const CORE_MODULES = ["1", "2", "3", "4", "5", "6", "7", "8"];
 
@@ -46,11 +66,14 @@ function getZoneForModule(moduleId: string): string | null {
 interface ProgressStore {
   progress: Record<string, ModuleProgressRecord>;
   nudgeRecords: Record<string, ActionNudgeRecord>;
+  unlockedZones: string[];
   commitNudge: (moduleId: string) => void;
   completeNudge: (moduleId: string) => void;
   skipNudge: (moduleId: string) => void;
   markNudgeFollowUpShown: (moduleId: string) => void;
   getNudgeRecord: (moduleId: string) => ActionNudgeRecord;
+  unlockZone: (zoneId: string) => void;
+  isZoneUnlocked: (zoneId: string) => boolean;
   load: () => void;
   startModule: (moduleId: string) => void;
   completeQuiz: (moduleId: string, score: number, responses: Record<string, number>) => void;
@@ -78,10 +101,11 @@ function defaultRecord(moduleId: string): ModuleProgressRecord {
 export const useProgressStore = create<ProgressStore>((set, get) => ({
   progress: {},
   nudgeRecords: loadNudgeRecords(),
+  unlockedZones: loadZoneUnlocks(),
 
   load: () => {
     const all = db.getAllProgress();
-    set({ progress: all, nudgeRecords: loadNudgeRecords() });
+    set({ progress: all, nudgeRecords: loadNudgeRecords(), unlockedZones: loadZoneUnlocks() });
   },
 
   commitNudge: (moduleId) => {
@@ -113,6 +137,20 @@ export const useProgressStore = create<ProgressStore>((set, get) => ({
   },
 
   getNudgeRecord: (moduleId) => get().nudgeRecords[moduleId] ?? defaultNudgeRecord(moduleId),
+
+  unlockZone: (zoneId) => {
+    if (zoneId === "zone-1") return;
+    const unlockedZones = Array.from(new Set([...get().unlockedZones, zoneId]));
+    saveZoneUnlocks(unlockedZones);
+    set({ unlockedZones });
+  },
+
+  isZoneUnlocked: (zoneId) => {
+    if (zoneId === "zone-1") return true;
+    const { progress, unlockedZones } = get();
+    const zone1Complete = CORE_MODULES.every((id) => progress[id]?.status === "completed");
+    return zone1Complete || unlockedZones.includes(zoneId);
+  },
 
   startModule: (moduleId) => {
     const existing = get().progress[moduleId];
@@ -190,9 +228,9 @@ export const useProgressStore = create<ProgressStore>((set, get) => ({
     // Check if this is a Zone 2-5 module
     const zoneId = getZoneForModule(moduleId);
     if (zoneId) {
-      // Zone 2-5 modules require all Zone 1 core modules completed (comprehensive exam passed)
-      const zone1Complete = CORE_MODULES.every((id) => progress[id]?.status === "completed");
-      if (!zone1Complete) return false;
+      // Advanced zones open after Zone 1, or with a small mango unlock for
+      // users who want a practice/system-building path sooner.
+      if (!get().isZoneUnlocked(zoneId)) return false;
 
       // Within the zone: first module is always unlocked once zone is unlocked
       const zoneModules = ZONE_MODULE_ORDER[zoneId] ?? [];
