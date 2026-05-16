@@ -7,6 +7,8 @@ const SESSION_KEY = "kosh_nudge_shown";
 interface SignUpNudgeProps {
   /** delay in ms before the nudge slides in (default 4000) */
   delay?: number;
+  /** hide entirely when the current user already has an account/session */
+  disabled?: boolean;
   /** headline inside the nudge */
   headline?: string;
   /** subtext */
@@ -15,6 +17,7 @@ interface SignUpNudgeProps {
 
 export default function SignUpNudge({
   delay = 4000,
+  disabled = false,
   headline = "Save your progress",
   sub = "Free account. No spam. Your results stay yours.",
 }: SignUpNudgeProps) {
@@ -22,6 +25,7 @@ export default function SignUpNudge({
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    if (disabled) return;
     // Only show once per browser session
     if (sessionStorage.getItem(SESSION_KEY)) return;
 
@@ -32,7 +36,7 @@ export default function SignUpNudge({
     }, delay);
 
     return () => clearTimeout(timer);
-  }, [delay]);
+  }, [delay, disabled]);
 
   const dismiss = () => {
     setVisible(false);
@@ -40,7 +44,7 @@ export default function SignUpNudge({
     setTimeout(() => setMounted(false), 400); // unmount after transition
   };
 
-  if (!mounted) return null;
+  if (disabled || !mounted) return null;
 
   return (
     <div

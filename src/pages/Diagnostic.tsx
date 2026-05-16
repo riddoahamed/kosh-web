@@ -15,7 +15,7 @@ import { ChevronLeft, X } from "lucide-react";
 
 export default function Diagnostic() {
   const navigate = useNavigate();
-  const profile = useAuthStore((s) => s.profile);
+  const { profile, loadProfile, setProfile } = useAuthStore();
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   const {
     ageGroup,
@@ -31,7 +31,12 @@ export default function Diagnostic() {
     reset,
   } = useDiagnosticStore();
 
-  const exitTo = profile ? "/dashboard" : "/";
+  const currentProfile = profile ?? db.getProfile();
+  const exitTo = currentProfile ? "/dashboard" : "/";
+
+  useEffect(() => {
+    loadProfile();
+  }, [loadProfile]);
 
   function handleExit() {
     if (responses.length === 0) {
@@ -84,6 +89,15 @@ export default function Diagnostic() {
   const handleGreyZoneSubmit = (selections: string[]) => {
     const result = buildDiagnosticResult(responses, selections, knowledgeQuestions, ageGroup ?? undefined);
     db.saveDiagnosticResult(result);
+    const activeProfile = profile ?? db.getProfile();
+    if (activeProfile) {
+      setProfile({
+        ...activeProfile,
+        level_assigned: result.level,
+        grey_zone_flagged: result.greyZone.flagged,
+        grey_zone_exposure: result.greyZone.exposures,
+      });
+    }
     completeGreyZone();
   };
 

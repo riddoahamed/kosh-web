@@ -151,6 +151,18 @@ export default function MangoStore() {
         <div className="space-y-3">
           <h2 className="font-semibold text-foreground">Spend mangoes</h2>
 
+          <button
+            onClick={() => navigate("/challenge")}
+            className="w-full bg-card border border-border rounded-2xl p-4 flex items-center gap-4 text-left transition-all hover:border-primary/35 hover:bg-primary/5"
+          >
+            <span className="text-3xl">🗓️</span>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-foreground text-sm">30-Day Practice</p>
+              <p className="text-xs text-muted-foreground">Small daily actions when you want extra mangoes.</p>
+            </div>
+            <span className="shrink-0 text-xs font-bold text-primary">Open →</span>
+          </button>
+
           {/* Streak repair */}
           <div className="bg-card border border-border rounded-2xl p-4 flex items-center gap-4">
             <span className="text-3xl">🔧</span>

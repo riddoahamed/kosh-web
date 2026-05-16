@@ -71,8 +71,8 @@ export const CALCULATOR_LINKS: Record<string, { title: string; href: string }> =
   "portfolio-builder": { title: "Portfolio Builder", href: "/portfolio-builder" },
   "emi-calculator": { title: "EMI Calculator", href: "/emi-calculator" },
   "savings-goal": { title: "Goal Planner", href: "/savings-goal" },
-  "sip-calculator": { title: "Goal SIP", href: "/sip-calculator" },
-  comparator: { title: "Savings Comparator", href: "/comparator" },
+  "sip-calculator": { title: "Goal Based SIP", href: "/sip-calculator" },
+  comparator: { title: "Savings Compare", href: "/comparator" },
   "budget-planner": { title: "Budget Planner", href: "/budget-planner" },
 };
 

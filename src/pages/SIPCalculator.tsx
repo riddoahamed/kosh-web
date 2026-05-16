@@ -117,7 +117,7 @@ export default function SIPCalculator() {
             <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors">
               <ArrowLeft className="h-4 w-4" />
             </Link>
-            <span className="font-semibold text-sm">SIP / Goal Calculator</span>
+            <span className="font-semibold text-sm">Goal Based SIP</span>
           </div>
           <span className="text-xs text-muted-foreground hidden sm:block">Monthly savings needed</span>
         </div>
@@ -125,7 +125,7 @@ export default function SIPCalculator() {
 
       <div className="max-w-xl mx-auto px-4 py-8 space-y-6">
         <div>
-          <h1 className="text-xl font-bold text-foreground">Goal-based SIP Calculator</h1>
+          <h1 className="text-xl font-bold text-foreground">Goal Based SIP Calculator</h1>
           <p className="text-sm text-muted-foreground mt-1">
             Pick a goal, set a timeline — see exactly how much to save every month to get there.
           </p>

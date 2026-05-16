@@ -15,7 +15,7 @@ import type { LucideIcon } from "lucide-react";
 // Zone-1 = Kosh Lime, Zone-5 = Kosh Teal, Zone-7 = Kosh Cobalt
 // (the three brand colors hold the foundation, savings, and mindset zones)
 export const ZONE_ACCENT: Record<string, string> = {
-  "zone-1": "87 100% 60%",   // Kosh Lime — money foundations
+  "zone-1": "87 100% 68%",   // Brighter Kosh Lime — money foundations
   "zone-2": "262 83% 65%",   // Violet — buckets / spending psychology
   "zone-3": "347 77% 58%",   // Crimson — debt
   "zone-4": "38  92% 55%",   // Amber — taxes
@@ -56,9 +56,9 @@ export function ZoneIcon({ zoneId, size = "md" }: ZoneIconProps) {
         width: dim,
         height: dim,
         borderRadius: size === "sm" ? 8 : 12,
-        background: `hsla(${hsl} / 0.15)`,
-        border: `1px solid hsla(${hsl} / 0.30)`,
-        boxShadow: `0 0 18px hsla(${hsl} / 0.35), inset 0 1px 0 hsla(${hsl} / 0.15)`,
+        background: zoneId === "zone-1" ? `hsla(${hsl} / 0.24)` : `hsla(${hsl} / 0.15)`,
+        border: `1px solid hsla(${hsl} / ${zoneId === "zone-1" ? 0.48 : 0.30})`,
+        boxShadow: `0 0 18px hsla(${hsl} / ${zoneId === "zone-1" ? 0.52 : 0.35}), inset 0 1px 0 hsla(${hsl} / 0.15)`,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -68,7 +68,10 @@ export function ZoneIcon({ zoneId, size = "md" }: ZoneIconProps) {
       <Icon
         size={iconSize}
         strokeWidth={1.75}
-        style={{ color: `hsl(${hsl})`, filter: `drop-shadow(0 0 6px hsla(${hsl} / 0.7))` }}
+        style={{
+          color: `hsl(${hsl})`,
+          filter: `drop-shadow(0 0 6px hsla(${hsl} / ${zoneId === "zone-1" ? 0.95 : 0.7}))`,
+        }}
       />
     </div>
   );

@@ -613,7 +613,7 @@ const TOOLS: Tool[] = [
     arrowHover: "group-hover:text-red-400/70",
   },
   {
-    href: "/sip-calculator", icon: Crosshair, title: "Goal-based SIP",
+    href: "/sip-calculator", icon: Crosshair, title: "Goal Based SIP",
     desc: "How much to save monthly to hit your goal.", tag: "Planner",
     iconColor: "text-emerald-400", iconGlowFilter: "drop-shadow(0 0 6px rgba(52,211,153,0.9))",
     iconBg: "from-emerald-500/25 to-emerald-900/10", iconBorder: "border-emerald-500/25",
@@ -646,7 +646,7 @@ const TOOLS: Tool[] = [
     arrowHover: "group-hover:text-lime-300/70",
   },
   {
-    href: "/comparator", icon: ArrowLeftRight, title: "Savings Comparator",
+    href: "/comparator", icon: ArrowLeftRight, title: "Savings Compare",
     desc: "FDR vs Sanchaypatra vs DPS — after-tax.", tag: "Calculator", locked: true,
     iconColor: "text-blue-400", iconGlowFilter: "drop-shadow(0 0 6px rgba(96,165,250,0.9))",
     iconBg: "from-blue-500/25 to-blue-900/10", iconBorder: "border-blue-500/25",

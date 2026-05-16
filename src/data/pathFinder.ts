@@ -289,7 +289,7 @@ export function getPathFinderRecommendation(answers: {
               "Compare the three main safe savings instruments side by side.",
               [
                 { href: "/explainers/scenario/first-one-lakh-saved", label: "What to do with savings", type: "explainer" },
-                { href: "/comparator", label: "Savings Comparator tool", type: "calculator" },
+                { href: "/comparator", label: "Savings Compare", type: "calculator" },
               ]);
           case "starting_dps":
             return rec("/explainers/comparison/bkash-vs-bank-dps-comparison", "bKash DPS vs bank DPS",

@@ -14,21 +14,25 @@ import { MANGOES } from "@/store/pointsStore";
 import {
   Lock, CheckCircle2, Circle, Zap, Flame,
   ChevronDown, ChevronUp, Trophy, ArrowRight, BookOpen,
-  Radar, Crosshair, PieChart, ArrowLeftRight, Landmark, Gauge, Wrench, Briefcase,
-  Search, Sparkles, Compass, ShieldCheck,
+  Radar, Crosshair, PieChart, ArrowLeftRight, Landmark, Gauge, Briefcase,
+  Search, Sparkles, Compass, ShieldCheck, Calculator,
 } from "lucide-react";
 
-// ── Tools list (mirrors landing page tools so signed-in users have access) ──
-const TOOLS = [
-  { href: "/path",           icon: Compass,       label: "Find your path", tone: "lime"    as const },
-  { href: "/scam-spotter",   icon: Radar,         label: "Scam Spotter",   tone: "red"     as const },
-  { href: "/sip-calculator", icon: Crosshair,     label: "Goal SIP",       tone: "lime"    as const },
-  { href: "/budget-planner", icon: PieChart,      label: "Budget",         tone: "teal"    as const },
-  { href: "/comparator",     icon: ArrowLeftRight,label: "Compare savings",tone: "blue"    as const },
-  { href: "/emi-calculator", icon: Landmark,      label: "EMI",            tone: "violet"  as const },
-  { href: "/car-calculator", icon: Gauge,         label: "Car cost",       tone: "amber"   as const },
-  { href: "/portfolio-builder", icon: Briefcase,  label: "Portfolio Builder", tone: "lime" as const },
-  { href: "/explainers",     icon: BookOpen,      label: "Explainers",     tone: "teal"    as const },
+// ── Logged-in app access points ──────────────────────────────────────────────
+const CALCULATORS = [
+  { href: "/sip-calculator", icon: Crosshair,      label: "Goal Based SIP",      group: "Investment", tone: "lime"   as const },
+  { href: "/comparator",     icon: ArrowLeftRight, label: "Savings Compare",     group: "Finance",    tone: "blue"   as const },
+  { href: "/portfolio-builder", icon: Briefcase,   label: "Portfolio Builder",   group: "Investment", tone: "lime"   as const },
+  { href: "/budget-planner", icon: PieChart,       label: "Budget Planner",      group: "Finance",    tone: "teal"   as const },
+  { href: "/fdr-calculator", icon: Landmark,       label: "FDR Calculator",      group: "Finance",    tone: "violet" as const },
+  { href: "/emi-calculator", icon: Landmark,       label: "EMI Calculator",      group: "Finance",    tone: "violet" as const },
+  { href: "/car-calculator", icon: Gauge,          label: "Car Cost",            group: "Finance",    tone: "amber"  as const },
+];
+
+const LEARNING_ACCESS = [
+  { href: "/explainers", icon: BookOpen, label: "Kosh Explainers", detail: "Short answers and deeper reads.", tone: "teal" as const },
+  { href: "/path", icon: Compass, label: "Find Your Path", detail: "Answer a few prompts and get pointed to the right place.", tone: "lime" as const },
+  { href: "/scam-spotter", icon: Radar, label: "Scam Spotter", detail: "Practice spotting risky offers before money is involved.", tone: "red" as const },
 ];
 
 const TOOL_TONE: Record<"red"|"lime"|"teal"|"blue"|"violet"|"amber", { fg: string; bg: string; bd: string }> = {
@@ -577,6 +581,9 @@ export default function Dashboard() {
                 <p className="text-[13px] font-bangla text-muted-foreground mt-0.5 leading-snug">
                   {greeting.bn} — {result ? "ready to grow today?" : "take the money check to unlock your level."}
                 </p>
+                <p className="mt-2 text-sm font-semibold text-foreground/80">
+                  Take the check. Get your next money lesson.
+                </p>
               </div>
 
               {/* Journey steps — Lime active, Teal completed for two-tone identity */}
@@ -679,24 +686,38 @@ export default function Dashboard() {
           <GlobalSearch />
         </section>
 
-        <button
-          onClick={() => navigate("/explainers")}
-          className="group w-full rounded-2xl border border-primary/20 bg-card p-4 text-left transition-all hover:border-primary/40 hover:bg-primary/5 active:scale-[0.99]"
-        >
-          <div className="flex items-start gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-primary/30 bg-primary/10 text-primary">
-              <Sparkles className="h-5 w-5" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary/75">For curious learners</div>
-              <div className="mt-0.5 text-sm font-bold text-foreground">Explainers, comparisons, and deeper answers</div>
-              <div className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                Short reads for people who want the why behind FDRs, remittance, scams, credit, tax, and investing.
-              </div>
-            </div>
-            <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-primary/55 transition-transform group-hover:translate-x-0.5" />
+        <section className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-primary" />
+            <h2 className="font-display font-extrabold text-foreground tracking-tight">Explore</h2>
           </div>
-        </button>
+          <div className="grid gap-2 sm:grid-cols-3">
+            {LEARNING_ACCESS.map((item) => {
+              const Icon = item.icon;
+              const tone = TOOL_TONE[item.tone];
+              return (
+                <button
+                  key={item.href}
+                  onClick={() => navigate(item.href)}
+                  className="group rounded-2xl border border-border bg-card p-4 text-left transition-all hover:-translate-y-0.5 hover:border-primary/35 active:scale-[0.99]"
+                >
+                  <div className="flex items-start gap-3">
+                    <div
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
+                      style={{ background: tone.bg, border: `1px solid ${tone.bd}` }}
+                    >
+                      <Icon className="h-4 w-4" style={{ color: tone.fg, filter: `drop-shadow(0 0 4px ${tone.fg})` }} />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-sm font-bold leading-tight text-foreground">{item.label}</div>
+                      <div className="mt-1 text-xs leading-relaxed text-muted-foreground">{item.detail}</div>
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </section>
 
         {/* ── Congratulations banner (zone 1 complete) ──────────────────── */}
         {coreComplete && (
@@ -866,20 +887,20 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* ── Tools — same kit as the landing page, available post-login ── */}
+        {/* ── Calculators ─────────────────────────────────────────────────── */}
         <section id="dashboard-tools" className="space-y-3 pt-1">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Wrench className="h-4 w-4 text-primary" style={{ filter: "drop-shadow(0 0 4px hsla(87,100%,68%,0.7))" }} />
-              <h2 className="font-display font-extrabold text-foreground tracking-tight">Money Tools</h2>
+              <Calculator className="h-4 w-4 text-primary" style={{ filter: "drop-shadow(0 0 4px hsla(87,100%,68%,0.7))" }} />
+              <h2 className="font-display font-extrabold text-foreground tracking-tight">Calculators</h2>
             </div>
             <span className="text-[10px] uppercase tracking-[0.18em] font-bold text-muted-foreground/60">
-              Free · No login
+              Finance · Investing
             </span>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {TOOLS.map((tool) => {
+            {CALCULATORS.map((tool) => {
               const Icon = tool.icon;
               const tone = TOOL_TONE[tool.tone];
               return (
@@ -898,29 +919,15 @@ export default function Dashboard() {
                   >
                     <Icon className="h-4 w-4" style={{ color: tone.fg, filter: `drop-shadow(0 0 4px ${tone.fg})` }} />
                   </div>
-                  <div className="text-xs font-semibold text-foreground leading-tight">{tool.label}</div>
+                  <div className="space-y-0.5">
+                    <div className="text-xs font-semibold text-foreground leading-tight">{tool.label}</div>
+                    <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/55">{tool.group}</div>
+                  </div>
                 </button>
               );
             })}
           </div>
         </section>
-
-        {/* ── 30-Day Challenge ───────────────────────────────────────────── */}
-        <button
-          onClick={() => navigate("/challenge")}
-          className="w-full rounded-2xl p-4 flex items-center gap-4 transition-all text-left group"
-          style={{
-            background: "linear-gradient(90deg, hsla(240,70%,51%,0.10) 0%, hsla(87,100%,68%,0.06) 100%)",
-            border: "1px solid hsla(240,70%,51%,0.25)",
-          }}
-        >
-          <span className="text-3xl">🗓️</span>
-          <div className="flex-1">
-            <div className="font-display font-extrabold text-foreground text-sm tracking-tight">30-Day Challenge</div>
-            <div className="text-xs text-muted-foreground">Daily actions · +10 mangoes each</div>
-          </div>
-          <span className="text-primary text-sm font-bold font-display group-hover:translate-x-0.5 transition-transform">Start →</span>
-        </button>
 
         <p className="flex items-center justify-center gap-1.5 text-center text-xs text-muted-foreground/45 py-2 leading-relaxed">
           <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-primary/60" />

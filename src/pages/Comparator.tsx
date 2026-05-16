@@ -166,7 +166,7 @@ export default function Comparator() {
             <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors">
               <ArrowLeft className="h-4 w-4" />
             </Link>
-            <span className="font-semibold text-sm">Savings Comparator</span>
+            <span className="font-semibold text-sm">Savings Compare</span>
           </div>
           <span className="text-xs text-muted-foreground hidden sm:block">Bangladesh savings instruments</span>
         </div>

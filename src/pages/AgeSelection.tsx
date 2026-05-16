@@ -1,7 +1,9 @@
+import { useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useDiagnosticStore } from "@/store/diagnosticStore";
 import type { AgeGroup } from "@/types/diagnostic";
 import { useAuthStore } from "@/store/authStore";
+import { db } from "@/lib/supabase";
 
 const AGE_GROUPS: { id: AgeGroup; title: string; subtitle: string; description: string; icon: string }[] = [
   {
@@ -30,15 +32,20 @@ const AGE_GROUPS: { id: AgeGroup; title: string; subtitle: string; description: 
 export default function AgeSelection() {
   const navigate = useNavigate();
   const { setAgeGroup } = useDiagnosticStore();
-  const profile = useAuthStore((s) => s.profile);
+  const { profile, loadProfile } = useAuthStore();
+
+  useEffect(() => {
+    loadProfile();
+  }, [loadProfile]);
 
   function handleSelect(id: AgeGroup) {
     setAgeGroup(id);
     navigate("/check");
   }
 
-  const exitTo = profile ? "/dashboard" : "/";
-  const exitLabel = profile ? "← Back to dashboard" : "← Back to home";
+  const currentProfile = profile ?? db.getProfile();
+  const exitTo = currentProfile ? "/dashboard" : "/";
+  const exitLabel = currentProfile ? "← Back to dashboard" : "← Back to home";
 
   return (
     <div className="min-h-screen bg-background flex flex-col">

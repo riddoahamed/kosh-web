@@ -6,25 +6,33 @@ import { ResultCard } from "@/components/diagnostic/ResultCard";
 import { ShareButton } from "@/components/shared/ShareButton";
 import { Button } from "@/components/ui/button";
 import SignUpNudge from "@/components/shared/SignUpNudge";
-import { RotateCcw } from "lucide-react";
+import { ArrowRight, LayoutDashboard, RotateCcw } from "lucide-react";
 import { getRecommendedPath, getWeakestDomain } from "@/lib/scoring";
+import { useAuthStore } from "@/store/authStore";
+import { isDemoMode } from "@/lib/demo";
 
 export default function Results() {
   const navigate = useNavigate();
+  const { profile, loadProfile } = useAuthStore();
   const [result, setResult] = useState<DiagnosticResult | null>(null);
 
   useEffect(() => {
+    loadProfile();
     const saved = db.getDiagnosticResult();
     if (!saved) {
       navigate("/check");
       return;
     }
     setResult(saved);
-  }, [navigate]);
+  }, [loadProfile, navigate]);
 
   if (!result) return null;
   const path = getRecommendedPath(result.scores.total, result.ageGroup);
   const weakest = getWeakestDomain(result.scores);
+  const isSignedIn = !!profile || !!db.getProfile() || isDemoMode();
+  const progress = db.getAllProgress();
+  const nextLessonId = ["1", "2", "3", "4", "5", "6", "7", "8"].find((id) => progress[id]?.status !== "completed") ?? "1";
+  const nextLessonHref = `/module/${nextLessonId}`;
   const educationLayer =
     result.level === 0
       ? "Foundation"
@@ -48,10 +56,43 @@ export default function Results() {
 
         <ResultCard result={result} />
 
+        <div className="rounded-2xl border border-primary/25 bg-primary/5 p-5 text-center space-y-3">
+          <p className="text-[11px] font-black uppercase tracking-[0.18em] text-primary/75">
+            Your Kosh loop
+          </p>
+          <h2 className="text-xl font-display font-extrabold text-foreground leading-tight">
+            Take the check. Get your next money lesson.
+          </h2>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            Your level is saved. Start with the recommendation below, then come back to the dashboard to keep moving.
+          </p>
+        </div>
+
         <div className="space-y-3">
-          <Button asChild className="w-full" size="lg">
-            <Link to="/auth">Start your Kosh track →</Link>
-          </Button>
+          {isSignedIn ? (
+            <>
+              <Button asChild className="w-full" size="lg">
+                <Link to="/dashboard">
+                  <LayoutDashboard className="mr-1 h-4 w-4" />
+                  Go to dashboard
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="w-full" size="lg">
+                <Link to={nextLessonHref}>
+                  Start next lesson <ArrowRight className="ml-1 h-4 w-4" />
+                </Link>
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button asChild className="w-full" size="lg">
+                <Link to="/auth">Save level and start your track →</Link>
+              </Button>
+              <Button asChild variant="outline" className="w-full" size="lg">
+                <Link to="/">Back to home</Link>
+              </Button>
+            </>
+          )}
           <ShareButton
             targetId="kosh-share-card"
             shareText={`আমি Kosh-এ আমার financial level check করলাম — Level ${result.level}! Check yours: app.koshbd.com/check`}
@@ -123,6 +164,7 @@ export default function Results() {
       </div>
 
       <SignUpNudge
+        disabled={isSignedIn}
         delay={3000}
         headline="Save your results"
         sub="Free account. See how your score improves over 30 days."
