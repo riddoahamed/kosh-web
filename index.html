@@ -7,7 +7,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
     <!-- PWA -->
-    <meta name="theme-color" content="#0D9488" />
+    <!-- App primary is lime (hsl(87,100%,68%)) in dark mode. Match it so the
+         mobile address bar and PWA splash tint stay on-brand instead of teal. -->
+    <meta name="theme-color" content="#1a1f3a" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#CFFA62" media="(prefers-color-scheme: light)" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />

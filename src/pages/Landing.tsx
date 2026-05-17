@@ -646,6 +646,17 @@ const TOOLS: Tool[] = [
     arrowHover: "group-hover:text-lime-300/70",
   },
   {
+    href: "/explainers/employer", icon: Building2, title: "Workplace Packs",
+    desc: "Ready-to-deploy bundles for RMG, NGOs, and corporate teams.", tag: "For teams",
+    iconColor: "text-amber-300", iconGlowFilter: "drop-shadow(0 0 6px hsla(38,95%,65%,0.9))",
+    iconBg: "from-amber-500/25 to-amber-900/10", iconBorder: "border-amber-500/25",
+    iconShadow: "shadow-[0_0_18px_hsla(38,95%,55%,0.3)]",
+    cardBorder: "border-border hover:border-amber-500/35",
+    cardHover: "hover:shadow-[0_0_45px_hsla(38,95%,55%,0.12),0_2px_8px_rgba(0,0,0,0.4)]",
+    cardAmbient: "bg-amber-500/8", tagStyle: "bg-amber-500/15 text-amber-300 border border-amber-500/25",
+    arrowHover: "group-hover:text-amber-300/70",
+  },
+  {
     href: "/comparator", icon: ArrowLeftRight, title: "Savings Compare",
     desc: "FDR vs Sanchaypatra vs DPS — after-tax.", tag: "Calculator", locked: true,
     iconColor: "text-blue-400", iconGlowFilter: "drop-shadow(0 0 6px rgba(96,165,250,0.9))",

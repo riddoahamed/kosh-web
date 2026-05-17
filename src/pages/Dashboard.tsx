@@ -15,7 +15,7 @@ import {
   Lock, CheckCircle2, Circle, Zap, Flame,
   ChevronDown, ChevronUp, Trophy, ArrowRight, BookOpen,
   Radar, Crosshair, PieChart, ArrowLeftRight, Landmark, Gauge, Briefcase,
-  Search, Sparkles, Compass, ShieldCheck, Calculator,
+  Search, Sparkles, Compass, ShieldCheck, Calculator, Building2, CalendarDays,
 } from "lucide-react";
 
 // ── Logged-in app access points ──────────────────────────────────────────────
@@ -33,6 +33,8 @@ const LEARNING_ACCESS = [
   { href: "/explainers", icon: BookOpen, label: "Kosh Explainers", detail: "Short answers and deeper reads.", tone: "teal" as const },
   { href: "/path", icon: Compass, label: "Find Your Path", detail: "Answer a few prompts and get pointed to the right place.", tone: "lime" as const },
   { href: "/scam-spotter", icon: Radar, label: "Scam Spotter", detail: "Practice spotting risky offers before money is involved.", tone: "red" as const },
+  { href: "/challenge", icon: CalendarDays, label: "30-Day Challenge", detail: "Daily money actions — +10 mangoes each.", tone: "violet" as const },
+  { href: "/explainers/employer", icon: Building2, label: "Workplace Packs", detail: "Ready-to-deploy bundles for teams, NGOs, and factories.", tone: "amber" as const },
 ];
 
 const TOOL_TONE: Record<"red"|"lime"|"teal"|"blue"|"violet"|"amber", { fg: string; bg: string; bd: string }> = {
