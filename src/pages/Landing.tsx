@@ -115,8 +115,8 @@ function BridgeContent({ onDone }: { onDone: () => void }) {
                 className={`inline-block ${isHi ? "lime-glow-text" : ""}`}
                 style={{
                   opacity: 0,
-                  animation: `word-type 0.08s ease forwards`,
-                  animationDelay: `${i * WORD_MS}ms`,
+                  // Bake delay into the shorthand to avoid React's shorthand+longhand warning.
+                  animation: `word-type 0.08s ease ${i * WORD_MS}ms forwards`,
                 }}
               >
                 {word}
@@ -506,8 +506,7 @@ function IntroSection({ onDone, isFirst }: { onDone: () => void; isFirst: boolea
                       style={
                         phase === "in" ? {
                           opacity: 0,
-                          animation: `word-type 0.08s ease forwards`,
-                          animationDelay: `${i * WORD_MS}ms`,
+                          animation: `word-type 0.08s ease ${i * WORD_MS}ms forwards`,
                         } : phase === "hold" ? {
                           opacity: 1,
                         } : {
@@ -946,8 +945,9 @@ export default function Landing() {
                     className={`group relative flex gap-4 rounded-2xl border p-5 transition-all duration-300 hover:-translate-y-0.5 overflow-hidden bg-card/60 backdrop-blur-xl ${tool.cardBorder} ${tool.cardHover} ${isLocked ? "opacity-60" : ""}`}
                     style={{
                       opacity: toolsVisible ? undefined : 0,
-                      animation: toolsVisible ? `tool-reveal 0.5s cubic-bezier(0.16,1,0.3,1) forwards` : "none",
-                      animationDelay: `${idx * 65}ms`,
+                      animation: toolsVisible
+                        ? `tool-reveal 0.5s cubic-bezier(0.16,1,0.3,1) ${idx * 65}ms forwards`
+                        : "none",
                     }}
                   >
                     <div className={`absolute -top-10 -right-10 w-36 h-36 rounded-full blur-3xl opacity-60 pointer-events-none ${tool.cardAmbient}`} />

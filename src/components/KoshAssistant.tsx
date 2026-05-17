@@ -295,9 +295,12 @@ export default function KoshAssistant() {
               <div className="flex justify-start">
                 <div className="bg-card border border-border rounded-2xl rounded-bl-sm px-4 py-3">
                   <div className="flex gap-1 items-center">
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: "0ms" }} />
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: "150ms" }} />
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: "300ms" }} />
+                    {/* Inline animation shorthand with baked delay — avoids React's
+                        warning about mixing animate-bounce (shorthand) with the
+                        animationDelay longhand on the same element. */}
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary/60" style={{ animation: "bounce 1s infinite 0ms" }} />
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary/60" style={{ animation: "bounce 1s infinite 150ms" }} />
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary/60" style={{ animation: "bounce 1s infinite 300ms" }} />
                   </div>
                 </div>
               </div>
