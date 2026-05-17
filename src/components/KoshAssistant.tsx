@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { useUIStore } from "@/store/uiStore";
 
 interface Message {
@@ -26,8 +27,23 @@ const NUDGE_KEY      = "kosh:ai_nudge_seen_v3";
 const NUDGE_DELAY_MS = 4500;   // wait this long before showing (snappier)
 const NUDGE_LIFE_MS  = 9000;   // auto-dismiss after this long
 
+// Pages where the auto-nudge would compete with the user's focused reading or
+// their own guided flow. The floating button still shows on every page — only
+// the proactive bubble is suppressed.
+function shouldSuppressNudge(pathname: string): boolean {
+  if (pathname === "/path") return true;
+  if (pathname.startsWith("/explainers/employer-pack/")) return true;
+  // Match individual explainer detail (/explainers/<cat>/<slug>) but not the
+  // category index pages (/explainers/<cat>) or the explainers home.
+  const explainerDetail = /^\/explainers\/[^/]+\/[^/]+$/;
+  if (explainerDetail.test(pathname)) return true;
+  return false;
+}
+
 export default function KoshAssistant() {
   const { aiWidgetHidden } = useUIStore();
+  const { pathname } = useLocation();
+  const suppressNudge = shouldSuppressNudge(pathname);
   const [open, setOpen] = useState(false);
   const [nudgeOpen, setNudgeOpen]    = useState(false);
   const [nudgeExiting, setNudgeExiting] = useState(false);
@@ -51,6 +67,7 @@ export default function KoshAssistant() {
   // First-visit greeting nudge orchestration
   useEffect(() => {
     if (aiWidgetHidden) return;
+    if (suppressNudge) return; // don't compete with focused-reading pages
     if (typeof window === "undefined") return;
     if (localStorage.getItem(NUDGE_KEY)) return; // already shown before
 
@@ -62,7 +79,7 @@ export default function KoshAssistant() {
     }, NUDGE_DELAY_MS + NUDGE_LIFE_MS + 350);
 
     return () => { clearTimeout(showT); clearTimeout(exitT); clearTimeout(hideT); };
-  }, [aiWidgetHidden]);
+  }, [aiWidgetHidden, suppressNudge]);
 
   // Dismiss nudge as soon as the user opens the assistant
   useEffect(() => {
@@ -75,6 +92,15 @@ export default function KoshAssistant() {
       return () => clearTimeout(t);
     }
   }, [open, nudgeOpen]);
+
+  // Hide the nudge if the user navigates into a focused-reading page while
+  // it's still open from a previous route.
+  useEffect(() => {
+    if (suppressNudge && nudgeOpen) {
+      setNudgeOpen(false);
+      setNudgeExiting(false);
+    }
+  }, [suppressNudge, nudgeOpen]);
 
   function dismissNudge() {
     setNudgeExiting(true);
