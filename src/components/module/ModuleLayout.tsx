@@ -18,6 +18,24 @@ interface ModuleLayoutProps {
   onModuleComplete: () => void;
 }
 
+// Inline renderer: splits on **bold** and emits React nodes. Replaces the
+// previous regex-into-dangerouslySetInnerHTML pattern so any future module
+// body containing literal HTML (or accidental script tags) renders as text
+// instead of executing.
+function renderInline(text: string): React.ReactNode[] {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return parts.map((part, idx) => {
+    if (part.startsWith("**") && part.endsWith("**")) {
+      return (
+        <strong key={idx} className="font-semibold text-foreground">
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
+    return <React.Fragment key={idx}>{part}</React.Fragment>;
+  });
+}
+
 function renderTable(lines: string[], key: string) {
   const rows = lines
     .filter((line) => !/^\s*\|\s*-+/.test(line))
@@ -30,11 +48,9 @@ function renderTable(lines: string[], key: string) {
         <thead className="bg-primary/10 text-foreground">
           <tr>
             {head.map((cell, i) => (
-              <th
-                key={i}
-                className="px-3 py-2 font-semibold"
-                dangerouslySetInnerHTML={{ __html: cell.replace(/\*\*(.*?)\*\*/g, "<strong class='font-semibold text-foreground'>$1</strong>") }}
-              />
+              <th key={i} className="px-3 py-2 font-semibold">
+                {renderInline(cell)}
+              </th>
             ))}
           </tr>
         </thead>
@@ -42,11 +58,9 @@ function renderTable(lines: string[], key: string) {
           {body.map((row, ri) => (
             <tr key={ri} className="bg-card/50">
               {row.map((cell, ci) => (
-                <td
-                  key={ci}
-                  className="px-3 py-2 text-foreground/75"
-                  dangerouslySetInnerHTML={{ __html: cell.replace(/\*\*(.*?)\*\*/g, "<strong class='font-semibold text-foreground'>$1</strong>") }}
-                />
+                <td key={ci} className="px-3 py-2 text-foreground/75">
+                  {renderInline(cell)}
+                </td>
               ))}
             </tr>
           ))}
@@ -82,39 +96,32 @@ function renderMarkdown(text: string) {
       continue;
     }
 
-    const boldLine = line.replace(/\*\*(.*?)\*\*/g, "<strong class='font-semibold text-foreground'>$1</strong>");
     const heading = line.match(/^(#{2,3})\s+(.+)$/);
 
     if (heading) {
       elements.push(
-        <p
-          key={key++}
-          className="font-semibold text-foreground text-sm mt-5 mb-0.5"
-          dangerouslySetInnerHTML={{ __html: heading[2].replace(/\*\*(.*?)\*\*/g, "<strong class='font-semibold text-foreground'>$1</strong>") }}
-        />
+        <p key={key++} className="font-semibold text-foreground text-sm mt-5 mb-0.5">
+          {renderInline(heading[2])}
+        </p>
       );
     } else if (/^\*\*[^*]+\*\*$/.test(line.trim())) {
       elements.push(
-        <p
-          key={key++}
-          className="font-semibold text-foreground text-sm mt-5 mb-0.5"
-          dangerouslySetInnerHTML={{ __html: boldLine }}
-        />
+        <p key={key++} className="font-semibold text-foreground text-sm mt-5 mb-0.5">
+          {renderInline(line)}
+        </p>
       );
     } else if (line.startsWith("- ") || line.startsWith("→ ") || line.startsWith("✓ ") || line.startsWith("✗ ")) {
       elements.push(
         <div key={key++} className="flex gap-2.5 text-sm leading-relaxed text-foreground/75">
           <span className="shrink-0 mt-px text-foreground/40">{line[0] === "-" ? "·" : line[0]}</span>
-          <span dangerouslySetInnerHTML={{ __html: boldLine.replace(/^[-→✓✗]\s/, "") }} />
+          <span>{renderInline(line.replace(/^[-→✓✗]\s/, ""))}</span>
         </div>
       );
     } else {
       elements.push(
-        <p
-          key={key++}
-          className="text-foreground/80 leading-relaxed text-sm"
-          dangerouslySetInnerHTML={{ __html: boldLine }}
-        />
+        <p key={key++} className="text-foreground/80 leading-relaxed text-sm">
+          {renderInline(line)}
+        </p>
       );
     }
 
