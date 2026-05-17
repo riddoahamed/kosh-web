@@ -10,6 +10,7 @@ import {
   markPackAwarded,
 } from "@/data/explainers/packs";
 import { getExplainerProgress } from "@/lib/explainerProgress";
+import { useDocumentTitle } from "@/lib/useDocumentTitle";
 import { usePointsStore } from "@/store/pointsStore";
 
 export default function EmployerPackDetail() {
@@ -21,6 +22,11 @@ export default function EmployerPackDetail() {
 
   const explainers = useMemo(() => (pack ? getPackExplainers(pack) : []), [pack]);
   const totalMinutes = useMemo(() => (pack ? getPackTotalMinutes(pack) : 0), [pack]);
+
+  useDocumentTitle(
+    pack ? `${pack.title} — Kosh` : undefined,
+    pack?.description,
+  );
 
   useEffect(() => {
     if (!pack) return;

@@ -1,9 +1,14 @@
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, BookOpen, Building2, Sparkles } from "lucide-react";
 import { EMPLOYER_PACKS, getPackExplainers, getPackTotalMinutes } from "@/data/explainers/packs";
+import { useDocumentTitle } from "@/lib/useDocumentTitle";
 
 export default function EmployerPacks() {
   const navigate = useNavigate();
+  useDocumentTitle(
+    "Workplace & NGO Education Packs — Kosh",
+    "Three ready-to-deploy financial education bundles for RMG factories, NGO programs, and corporate teams.",
+  );
 
   return (
     <div className="min-h-screen bg-background">

@@ -9,11 +9,17 @@ import {
   searchKoshContent,
 } from "@/data/explainers";
 import { EMPLOYER_PACKS } from "@/data/explainers/packs";
+import { useDocumentTitle } from "@/lib/useDocumentTitle";
 
 export default function Explainers() {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const searchResults = useMemo(() => searchKoshContent(query), [query]);
+
+  useDocumentTitle(
+    "Kosh Explainers — fast answers for real money questions",
+    "Short, Bangladesh-first explainers for the moments when a full module is too much and random advice is too risky.",
+  );
   const featured = EXPLAINERS.slice(0, 6);
   const recent = [...EXPLAINERS].sort((a, b) => b.lastUpdated.localeCompare(a.lastUpdated)).slice(0, 4);
 

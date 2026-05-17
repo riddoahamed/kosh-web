@@ -15,6 +15,7 @@ import {
 } from "@/data/explainers";
 import { markExplainerAction } from "@/lib/explainerProgress";
 import { db } from "@/lib/supabase";
+import { useDocumentTitle } from "@/lib/useDocumentTitle";
 import { usePointsStore } from "@/store/pointsStore";
 
 export default function ExplainerDetail() {
@@ -25,6 +26,11 @@ export default function ExplainerDetail() {
   const [readAwarded, setReadAwarded] = useState(false);
 
   const related = useMemo(() => (explainer ? getRelatedExplainers(explainer) : []), [explainer]);
+
+  useDocumentTitle(
+    explainer ? `${explainer.title} — Kosh` : undefined,
+    explainer?.tldr,
+  );
 
   useEffect(() => {
     if (!explainer) return;

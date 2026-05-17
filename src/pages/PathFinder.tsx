@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useDocumentTitle } from "@/lib/useDocumentTitle";
 import {
   ArrowLeft,
   ArrowRight,
@@ -53,6 +54,11 @@ export default function PathFinder() {
   const [q2, setQ2] = useState<string | null>(null);
   const [q3, setQ3] = useState<string | null>(null);
 
+  useDocumentTitle(
+    "Find your path — Kosh",
+    "Three quick questions and we'll point you straight at the right explainer or tool.",
+  );
+
   const nextQuestion: PathFinderQuestion | null = useMemo(() => {
     if (!q1) return pathFinderQ1;
     if (!q2) return getNextQuestion(q1) ?? null;
@@ -101,7 +107,12 @@ export default function PathFinder() {
   }
 
   const stepIndex = (q1 ? 1 : 0) + (q2 ? 1 : 0) + (q3 ? 1 : 0);
-  const totalSteps = q1 ? (q2 && getNextQuestion(q1, q2) ? 3 : getNextQuestion(q1) ? 2 : 1) : 1;
+  // Before Q1 is answered, the total depth depends on which branch they pick — could
+  // be 1 (browse / learn) up to 3 (decide → savings → sub-question). Show "up to 3"
+  // so users get an honest sense of how much they're agreeing to.
+  const knownTotal = q1
+    ? (q2 && getNextQuestion(q1, q2) ? 3 : getNextQuestion(q1) ? 2 : 1)
+    : null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -132,7 +143,7 @@ export default function PathFinder() {
           <section className="mt-8 space-y-5">
             <div className="flex items-center justify-between">
               <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/45">
-                Question {stepIndex + 1} of {Math.max(totalSteps, stepIndex + 1)}
+                Question {stepIndex + 1} {knownTotal ? `of ${knownTotal}` : "of up to 3"}
               </p>
               {(q1 || q2 || q3) && (
                 <button

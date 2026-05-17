@@ -9,6 +9,7 @@ import {
   isExplainerCategory,
   searchExplainers,
 } from "@/data/explainers";
+import { useDocumentTitle } from "@/lib/useDocumentTitle";
 
 const DIASPORA_COUNTRIES = [
   { id: "canada", label: "Canada", matchTags: ["canada", "country:canada"] },
@@ -28,6 +29,8 @@ export default function ExplainerCategory() {
   const validCategory = isExplainerCategory(category) ? category : "scenario";
   const meta = getExplainerCategoryMeta(validCategory);
   const Icon = meta.icon;
+
+  useDocumentTitle(`${meta.label} — Kosh`, meta.description);
   const isDiaspora = validCategory === "diaspora";
   const allCountryTags = useMemo(
     () => new Set(DIASPORA_COUNTRIES.flatMap((c) => c.matchTags)),
