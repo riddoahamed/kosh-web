@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
 import { useProgressStore, CORE_MODULES } from "@/store/progressStore";
@@ -110,7 +110,9 @@ export default function Profile() {
   const [nidLast4, setNidLast4] = useState(profile?.nid_last4 ?? "");
   const [kycDivision, setKycDivision] = useState(profile?.division ?? "");
 
-  const badgeStatuses = getBadgeStatuses();
+  // Re-evaluate badges when mango total or progress map changes — those are the
+  // upstream signals. Avoids reading localStorage 5× per render.
+  const badgeStatuses = useMemo(() => getBadgeStatuses(), [mangoes, progress]);
 
   useEffect(() => {
     if (!profile) navigate("/auth", { replace: true });

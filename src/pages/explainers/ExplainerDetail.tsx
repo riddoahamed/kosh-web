@@ -210,23 +210,40 @@ export default function ExplainerDetail() {
               External links open in a new tab. Kosh has no affiliation with these sites.
             </p>
             <div className="mt-3 space-y-2">
-              {explainer.externalLinks.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-start gap-3 rounded-xl border border-border bg-background/60 px-3 py-2.5 text-sm hover:border-primary/40"
-                >
-                  <ExternalLinkIcon className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                  <span className="min-w-0">
-                    <span className="block font-semibold text-foreground">{link.title}</span>
-                    {link.description && (
-                      <span className="mt-0.5 block text-xs text-foreground/55">{link.description}</span>
-                    )}
-                  </span>
-                </a>
-              ))}
+              {explainer.externalLinks.map((link) => {
+                // Per-type pill so readers can tell official sources apart from
+                // tools and deeper-reading at a glance.
+                const tone =
+                  link.type === "official"
+                    ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-500"
+                    : link.type === "tool"
+                    ? "border-sky-500/40 bg-sky-500/10 text-sky-500"
+                    : "border-violet-500/40 bg-violet-500/10 text-violet-500";
+                const label =
+                  link.type === "official" ? "Official" : link.type === "tool" ? "Tool" : "Deeper read";
+                return (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-start gap-3 rounded-xl border border-border bg-background/60 px-3 py-2.5 text-sm hover:border-primary/40"
+                  >
+                    <ExternalLinkIcon className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                    <span className="min-w-0 flex-1">
+                      <span className="flex items-center gap-2">
+                        <span className="block font-semibold text-foreground">{link.title}</span>
+                        <span className={`shrink-0 rounded-full border px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${tone}`}>
+                          {label}
+                        </span>
+                      </span>
+                      {link.description && (
+                        <span className="mt-0.5 block text-xs text-foreground/55">{link.description}</span>
+                      )}
+                    </span>
+                  </a>
+                );
+              })}
             </div>
           </section>
         )}
