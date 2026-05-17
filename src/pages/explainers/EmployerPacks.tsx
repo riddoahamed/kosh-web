@@ -30,7 +30,7 @@ export default function EmployerPacks() {
               <p className="text-xs font-bold uppercase tracking-[0.28em] text-primary/70">
                 Workplace & NGO Education Packs
               </p>
-              <h1 className="mt-2 text-3xl font-black tracking-tight text-foreground">
+              <h1 className="mt-2 text-3xl font-black tracking-tight text-balance text-foreground">
                 Financial education for your workforce
               </h1>
               <p className="mt-3 max-w-2xl text-sm leading-relaxed text-foreground/65">

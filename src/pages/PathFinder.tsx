@@ -130,7 +130,7 @@ export default function PathFinder() {
             <Compass className="h-3 w-3" />
             Path Finder
           </div>
-          <h1 className="text-3xl font-black tracking-tight text-foreground sm:text-4xl">
+          <h1 className="text-3xl font-black tracking-tight text-balance text-foreground sm:text-4xl">
             Three quick questions. One direct answer.
           </h1>
           <p className="text-sm leading-relaxed text-foreground/65">

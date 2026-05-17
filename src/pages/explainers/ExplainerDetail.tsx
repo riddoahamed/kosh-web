@@ -107,7 +107,9 @@ export default function ExplainerDetail() {
           </div>
 
           <div>
-            <h1 className={`${workerWise ? "text-4xl" : "text-3xl sm:text-4xl"} font-black tracking-tight text-foreground`}>
+            <h1
+              className={`${workerWise ? "text-4xl" : "text-3xl sm:text-4xl"} font-black tracking-tight text-balance text-foreground`}
+            >
               {explainer.title}
             </h1>
             <p className="mt-3 text-sm text-foreground/45">Updated {explainer.lastUpdated}</p>

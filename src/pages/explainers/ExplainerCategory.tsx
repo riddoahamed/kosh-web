@@ -93,7 +93,7 @@ export default function ExplainerCategory() {
             </div>
             <div className="min-w-0">
               <p className="text-xs font-bold uppercase tracking-[0.28em] text-primary/70">{meta.shortLabel}</p>
-              <h1 className="mt-2 text-3xl font-black tracking-tight text-foreground">{meta.label}</h1>
+              <h1 className="mt-2 text-3xl font-black tracking-tight text-balance text-foreground">{meta.label}</h1>
               <p className="mt-2 max-w-2xl text-sm leading-relaxed text-foreground/65">{meta.description}</p>
             </div>
           </div>

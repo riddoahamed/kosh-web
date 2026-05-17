@@ -82,7 +82,7 @@ export default function EmployerPackDetail() {
               <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/45">
                 {pack.languageLabel}
               </p>
-              <h1 className="mt-1 text-3xl font-black tracking-tight text-foreground">{pack.title}</h1>
+              <h1 className="mt-1 text-3xl font-black tracking-tight text-balance text-foreground">{pack.title}</h1>
               <p className="mt-3 text-sm leading-relaxed text-foreground/70">{pack.description}</p>
             </div>
           </div>
